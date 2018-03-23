@@ -1,0 +1,22 @@
+language: cpp
+
+compiler:
+    - gcc
+    - clang
+
+before_script:
+    - mkdir build
+    - cd build
+    - cmake ..
+
+script: make
+
+# blocklist
+branches:
+  except:
+  - experimental
+
+# safelist
+branches:
+  only:
+  - master
