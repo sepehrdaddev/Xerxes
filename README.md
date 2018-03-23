@@ -8,8 +8,10 @@ Xerxes Dos Tool Rewritten in C++
 ## Usage
 `Usage: ./Xerxes <website> <port> <threads> <connections> <options>`\
 Options:\
+&emsp;&emsp;&emsp;&emsp;&emsp;-h+&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to HTTP plus\
 &emsp;&emsp;&emsp;&emsp;&emsp;-h&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to HTTP\
 &emsp;&emsp;&emsp;&emsp;&emsp;-n&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to NULL\
+&emsp;&emsp;&emsp;&emsp;&emsp;-n+&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to NULL plus\
 &emsp;&emsp;&emsp;&emsp;&emsp;-t&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack protocol to TCP\
 &emsp;&emsp;&emsp;&emsp;&emsp;-u&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack protocol to UDP\
 &emsp;&emsp;&emsp;&emsp;&emsp;-qq&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to quiet quiet\
