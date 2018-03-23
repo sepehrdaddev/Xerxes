@@ -6,7 +6,7 @@
 
 struct config{
     enum Protocol{TCP, UDP};
-    enum Vector{Null, HTTP};
+    enum Vector{Null, NullPlus, HTTP, HTTPPlus};
     Protocol protocol{TCP};
     Vector vector{Null};
     std::string website{};

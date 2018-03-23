@@ -13,6 +13,8 @@ public:
 
 private:
     int make_socket(const char *host, const char *port);
+    void read_socket(int socket);
+    int write_socket(int socket, const char* string, int length);
     static void broke(int);
     std::string createStr();
     void attack(const int *id);

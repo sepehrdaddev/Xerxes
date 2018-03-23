@@ -6,8 +6,10 @@
 void Parser::help() {
     std::string message{"Usage: ./Xerxes <website> <port> <threads> <connections> <options>\n"
                         "\nOptions:\n"
+                                "                -h+              set attack vector to HTTP plus\n"
                                 "                -h               set attack vector to HTTP\n"
                                 "                -n               set attack vector to NULL\n"
+                                "                -n+              set attack vector to NULL plus\n"
                                 "                -t               set attack protocol to TCP\n"
                                 "                -u               set attack protocol to UDP\n"
                                 "                -qq              set verbosity to quiet quiet\n"
@@ -36,10 +38,18 @@ void Parser::parse_commandline(const int *argc, const char *argv[]) {
                     case '-':{
                         switch(argv[i][1]){
                             case 'h':
-                                conf->vector = config::HTTP;
+                                if(argv[i][2] == '+'){
+                                    conf->vector = config::HTTPPlus;
+                                }else{
+                                    conf->vector = config::HTTP;
+                                }
                                 break;
                             case 'n':
-                                conf->vector = config::Null;
+                                if(argv[i][2] == '+'){
+                                    conf->vector = config::NullPlus;
+                                }else{
+                                    conf->vector = config::Null;
+                                }
                                 break;
                             case 't':
                                 conf->protocol = config::TCP;

