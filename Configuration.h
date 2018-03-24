@@ -5,15 +5,18 @@
 #include <vector>
 
 struct config{
+    enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris};
     enum Protocol{TCP, UDP};
-    enum Vector{Null, NullPlus, HTTP, HTTPPlus};
     Protocol protocol{TCP};
-    Vector vector{Null};
+    Vector vector{NullTCP};
     std::string website{};
     std::string port{};
     std::vector<std::string> useragents{"Wget/1.16 (linux-gnu/Xerxes)"};
     int THREADS = 0;
     int CONNECTIONS = 0;
+    bool GetResponse{false};
+    bool RandomizeUserAgent{false};
+    bool RandomizeHeader{false};
 
 };
 
