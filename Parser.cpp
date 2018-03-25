@@ -12,6 +12,7 @@ void Parser::help() {
                                 "                -ft              set attack vector to TCPFlood\n"
                                 "                -fu              set attack vector to UDPFlood\n"
                                 "                -s               set attack vector to Slowloris\n"
+                                "                -ss              enable ssl\n"
                                 "                -w               wait for hosts response\n"
                                 "                -rh              randomize HTTP Header\n"
                                 "                -ru              randomize HTTP UserAgent\n"
@@ -69,14 +70,25 @@ void Parser::parse_commandline(const int *argc, const char *argv[]) {
                             conf->GetResponse = true;
                             break;
                         case 's':
-                            conf->vector = config::Slowloris;
-                            conf->protocol = config::TCP;
+                            if(argv[i][2] == 's'){
+                                conf->UseSSL = true;
+                            }else{
+                                conf->vector = config::Slowloris;
+                                conf->protocol = config::TCP;
+                            }
                             break;
                         case 'q':
                             if(argv[i][2] == 'q'){
                                 logger->setLevel(Logger::None);
                             }else{
                                 logger->setLevel(Logger::Error);
+                            }
+                            break;
+                        case 'v':
+                            if(argv[i][2] == 'v'){
+                                logger->setLevel(Logger::Info);
+                            }else{
+                                logger->setLevel(Logger::Warning);
                             }
                             break;
                         default:
