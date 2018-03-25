@@ -13,8 +13,12 @@ public:
 
 private:
     int make_socket(const char *host, const char *port);
+    void read_socket(int socket);
+    int write_socket(int socket, const char* string, int length);
+    std::string craft_packet(bool keep_alive=false);
     static void broke(int);
     std::string createStr();
+    int randomInt(int min, int max);
     void attack(const int *id);
     std::string randomizeUserAgent();
     config *conf;

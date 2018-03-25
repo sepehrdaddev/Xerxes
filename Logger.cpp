@@ -27,9 +27,8 @@ void Logger::Log(std::string *message, Level l) {
 }
 
 void Logger::Log(const char *message, Logger::Level l) {
-    std::string *str = new std::string{message};
-    Log(str, l);
-    delete str;
+    std::string str = std::string{message};
+    Log(&str, l);
 }
 
 Logger::Logger() = default;
