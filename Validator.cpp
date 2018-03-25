@@ -1,6 +1,7 @@
 #include "Validator.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 
 Validator::Validator() = default;
 
@@ -10,8 +11,7 @@ Validator::Validator(const config *conf) : conf{conf} {
 
 bool Validator::isValidWebsite(){
     struct sockaddr_in sa{};
-    int result = inet_pton(AF_INET, conf->website.c_str(), &(sa.sin_addr));
-    return static_cast<bool>(result);
+    return (inet_pton(AF_INET, conf->website.c_str(), &(sa.sin_addr))) || isValidHostname();
 }
 
 bool Validator::isValidPort() {
@@ -30,4 +30,9 @@ bool Validator::isValidConfig() {
 
 bool Validator::Validate() {
     return (isValidConfig() & isValidWebsite() & isValidPort());
+}
+
+bool Validator::isValidHostname(){
+    hostent *record = gethostbyname(conf->website.c_str());
+    return record != nullptr;
 }
