@@ -34,6 +34,10 @@ private:
     std::vector<std::string> caching{"no-cache", "max-age=0"};
     std::vector<std::string> charset{"ISO-8859-1", "utf-8", "Windows-1251", "ISO-8859-2", "ISO-8859-15"};
     std::vector<std::string> contenttype{"multipart/form-data", "application/x-url-encoded"};
+    std::vector<std::string> methods{"GET", "POST", "HEAD"};
+    std::vector<std::string> referer{"https://www.google.com/", "https://www.yahoo.com/", "https://www.bing.com/",
+                                     "https://twitter.com/", "https://www.facebook.com/", "https://www.msn.com/",
+                                     "https://www.youtube.com/", "https://yandex.com/", "https://www.amazon.com/"};
 
 };
 
