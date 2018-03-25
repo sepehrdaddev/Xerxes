@@ -12,7 +12,7 @@ void Parser::help() {
                                 "                -ft              set attack vector to TCPFlood\n"
                                 "                -fu              set attack vector to UDPFlood\n"
                                 "                -s               set attack vector to Slowloris\n"
-                                "                -ss              enable ssl\n"
+                                "                -ss              enable SSL\n"
                                 "                -w               wait for hosts response\n"
                                 "                -rh              randomize HTTP Header\n"
                                 "                -ru              randomize HTTP UserAgent\n"
@@ -26,7 +26,7 @@ void Parser::help() {
 }
 
 void Parser::show_banner() {
-    const std::string version{"v0.0.3"};
+    const std::string version{"v0.0.4"};
     std::cout << "Xerxes - Revised " << version << std::endl;
 }
 

@@ -14,6 +14,7 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ft&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to TCPFlood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-fu&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to UDPFlood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-s&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Slowloris\
+&emsp;&emsp;&emsp;&emsp;&emsp;-ss&emsp;&emsp;&emsp;&emsp;&emsp;enable SSL\
 &emsp;&emsp;&emsp;&emsp;&emsp;-w&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;wait for hosts response\
 &emsp;&emsp;&emsp;&emsp;&emsp;-rh&emsp;&emsp;&emsp;&emsp;&emsp;randomize HTTP Header\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ru&emsp;&emsp;&emsp;&emsp;&emsp;randomize HTTP UserAgent\
@@ -25,8 +26,7 @@ Options:\
 ## Todo
 <ul>
     <li>Add spoofed ICMP packets support</li>
-    <li>Add more randomization to http header</li>
-    <li>Add https support</li>
+    <li>Add Smurf Attack vector</li>
     <li>Add more attack vectors</li>
 </ul>
 

