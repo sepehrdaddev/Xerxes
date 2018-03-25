@@ -17,6 +17,7 @@ struct config{
     bool GetResponse{false};
     bool RandomizeUserAgent{false};
     bool RandomizeHeader{false};
+    bool UseSSL{false};
 
 };
 

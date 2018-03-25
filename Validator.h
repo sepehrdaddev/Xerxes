@@ -15,6 +15,7 @@ private:
     bool isValidWebsite();
     bool isValidPort();
     bool isValidConfig();
+    bool isValidHostname();
 };
 
 
