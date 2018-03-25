@@ -23,6 +23,10 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-v&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to verbose\
 &emsp;&emsp;&emsp;&emsp;&emsp;-vv&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to very verbose
 
+## Questions ?
+If you have any questions feel free to visit our <a href="https://github.com/sepehrdaddev/Xerxes/wiki">Wiki page</a>
+
+
 ## Todo
 <ul>
     <li>Add spoofed ICMP packets support</li>
