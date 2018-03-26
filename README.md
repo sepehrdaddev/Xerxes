@@ -5,6 +5,17 @@
 
 Xerxes Dos Tool Rewritten in C++
 
+## Features
+**Xerxes has many features, some of these features are:**
+* SSL Support (for HTTPS connections)
+* HTTP header randomization (for More Anonymity)
+* Useragent randomization (for even more Anonymity)
+* Multiprocessing support (for more performance)
+* Multiple Attack vectors ( NullTCP, Slowloris and etc...)
+* etc...
+
+Not only that but also we are aggressively developing it and adding a lot more features and functionalities.
+
 ## Usage
 `Usage: ./Xerxes <website> <port> <threads> <connections> <options>`\
 Options:\
