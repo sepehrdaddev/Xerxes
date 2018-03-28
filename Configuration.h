@@ -5,7 +5,7 @@
 #include <vector>
 
 struct config{
-    enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris};
+    enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood};
     enum Protocol{TCP, UDP};
     Protocol protocol{TCP};
     Vector vector{NullTCP};
