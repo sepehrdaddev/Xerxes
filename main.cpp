@@ -1,6 +1,6 @@
 #include <iostream>
-#include <zconf.h>
 #include <csignal>
+#include <unistd.h>
 #include "Parser.h"
 
 void capture_signal(int);
