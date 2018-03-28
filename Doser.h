@@ -25,7 +25,8 @@ private:
     int randomInt(int min, int max);
     void attack(const int *id);
     void icmp_flood(const int *id);
-    unsigned short cksum(unsigned short *ptr, int nbytes);
+    void spoofed_tcp_flood(const int *id);
+    void spoofed_udp_flood(const int *id);
     const char *randomizeIP();
     std::string randomizeUserAgent();
     SSL_CTX* InitCTX();
