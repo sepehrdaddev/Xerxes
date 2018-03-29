@@ -11,6 +11,6 @@ if( OPENSSL_FOUND )
     message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
 endif()
 
-add_executable(Xerxes main.cpp Configuration.h Doser.cpp Doser.h Validator.cpp Validator.h Parser.cpp Parser.h Logger.cpp Logger.h headers.h)
+add_executable(Xerxes main.cpp Configuration.h Doser.cpp Doser.h Validator.cpp Validator.h Parser.cpp Parser.h Logger.cpp Logger.h)
 target_link_libraries(Xerxes ${OPENSSL_LIBRARIES})
 add_custom_command(TARGET Xerxes POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/useragents ${CMAKE_CURRENT_BINARY_DIR}/useragents)

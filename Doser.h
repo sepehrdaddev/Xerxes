@@ -27,6 +27,7 @@ private:
     void icmp_flood(const int *id);
     void spoofed_tcp_flood(const int *id);
     void spoofed_udp_flood(const int *id);
+    unsigned short checksum(unsigned short *buf, int len);
     const char *randomizeIP();
     std::string randomizeUserAgent();
     SSL_CTX* InitCTX();
