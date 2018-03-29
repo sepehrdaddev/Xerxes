@@ -24,10 +24,16 @@ private:
     std::string createStr();
     int randomInt(int min, int max);
     void attack(const int *id);
-    void attack_ssl(const int *id);
+    void icmp_flood(const int *id);
+    void spoofed_tcp_flood(const int *id);
+    void spoofed_udp_flood(const int *id);
+    unsigned short checksum(unsigned short *buf, int len);
+    const char *randomizeIP();
     std::string randomizeUserAgent();
     SSL_CTX* InitCTX();
     SSL *Apply_SSL(int socket, SSL_CTX *ctx);
+    void cleanup(const int *socket);
+    void cleanup(SSL *ssl, const int *socket, SSL_CTX *ctx);
     config *conf;
     Logger *logger;
     std::vector<std::string> encoding{"\'\'", "*", "identity", "gzip", "deflate"};

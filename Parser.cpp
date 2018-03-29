@@ -7,11 +7,14 @@ void Parser::help() {
     std::string message{"Usage: ./Xerxes <website> <port> <threads> <connections> <options>\n"
                         "\nOptions:\n"
                                 "                -h               set attack vector to HTTP\n"
+                                "                -i               set attack vector to Spoofed ICMP Flood\n"
+                                "                -s               set attack vector to Slowloris\n"
                                 "                -nu              set attack vector to NULLUDP\n"
                                 "                -nt              set attack vector to NULLTCP\n"
                                 "                -ft              set attack vector to TCPFlood\n"
                                 "                -fu              set attack vector to UDPFlood\n"
-                                "                -s               set attack vector to Slowloris\n"
+                                "                -su              set attack vector to Spoofed UDP Flood\n"
+                                "                -st              set attack vector to Spoofed TCP Flood\n"
                                 "                -ss              enable SSL\n"
                                 "                -w               wait for hosts response\n"
                                 "                -rh              randomize HTTP Header\n"
@@ -26,7 +29,7 @@ void Parser::help() {
 }
 
 void Parser::show_banner() {
-    const std::string version{"v0.0.4"};
+    const std::string version{"v0.0.5"};
     std::cout << "Xerxes - Revised " << version << std::endl;
 }
 
@@ -70,11 +73,19 @@ void Parser::parse_commandline(const int *argc, const char *argv[]) {
                             conf->GetResponse = true;
                             break;
                         case 's':
-                            if(argv[i][2] == 's'){
-                                conf->UseSSL = true;
-                            }else{
-                                conf->vector = config::Slowloris;
-                                conf->protocol = config::TCP;
+                            switch(argv[i][2]){
+                                case 's':
+                                    conf->UseSSL = true;
+                                    break;
+                                case 'u':
+                                    conf->vector = config::SpoofedUDP;
+                                    break;
+                                case 't':
+                                    conf->vector = config::SpoofedTCP;
+                                    break;
+                                default:
+                                    conf->vector = config::Slowloris;
+                                    conf->protocol = config::TCP;
                             }
                             break;
                         case 'q':
@@ -91,14 +102,17 @@ void Parser::parse_commandline(const int *argc, const char *argv[]) {
                                 logger->setLevel(Logger::Warning);
                             }
                             break;
+                        case 'i':
+                            conf->vector = config::ICMPFlood;
+                            break;
                         default:
                             help();
                     }
                     break;
                 }
                 default:{
-                    conf->website = (std::string) argv[1];
-                    conf->port = (std::string) argv[2];
+                    conf->website = static_cast<std::string>(argv[1]);
+                    conf->port = static_cast<std::string>(argv[2]);
                     if(Validator::isValidNumber(argv[3]) & Validator::isValidNumber(argv[4])){
                         conf->THREADS = static_cast<int>(strtol(argv[3], nullptr, 10));
                         conf->CONNECTIONS = static_cast<int>(strtol(argv[4], nullptr, 10));

@@ -20,11 +20,14 @@ Not only that but also we are aggressively developing it and adding a lot more f
 `Usage: ./Xerxes <website> <port> <threads> <connections> <options>`\
 Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-h&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to HTTP\
+&emsp;&emsp;&emsp;&emsp;&emsp;-i&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed ICMP Flood\
+&emsp;&emsp;&emsp;&emsp;&emsp;-s&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Slowloris\
 &emsp;&emsp;&emsp;&emsp;&emsp;-nu&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to NULLUDP\
 &emsp;&emsp;&emsp;&emsp;&emsp;-nt&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to NULLTCP\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ft&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to TCPFlood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-fu&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to UDPFlood\
-&emsp;&emsp;&emsp;&emsp;&emsp;-s&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Slowloris\
+&emsp;&emsp;&emsp;&emsp;&emsp;-su&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed UDP Flood\
+&emsp;&emsp;&emsp;&emsp;&emsp;-st&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed TCP Flood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ss&emsp;&emsp;&emsp;&emsp;&emsp;enable SSL\
 &emsp;&emsp;&emsp;&emsp;&emsp;-w&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;wait for hosts response\
 &emsp;&emsp;&emsp;&emsp;&emsp;-rh&emsp;&emsp;&emsp;&emsp;&emsp;randomize HTTP Header\
@@ -36,14 +39,6 @@ Options:\
 
 ## Questions ?
 If you have any questions feel free to visit our <a href="https://github.com/sepehrdaddev/Xerxes/wiki">Wiki page</a>
-
-
-## Todo
-<ul>
-    <li>Add spoofed ICMP packets support</li>
-    <li>Add Smurf Attack vector</li>
-    <li>Add more attack vectors</li>
-</ul>
 
 ## License
 This software is distributed under the GNU General Public License version 3 (GPLv3)

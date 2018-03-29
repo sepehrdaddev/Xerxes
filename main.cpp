@@ -1,13 +1,25 @@
 #include <iostream>
-#include <zconf.h>
 #include <csignal>
+#include <unistd.h>
 #include "Parser.h"
-
-void capture_signal(int);
 
 const pid_t m_pid = getpid();
 
+void exiting(int){
+    if (getpid() == m_pid) {
+        std::cout << "Shutting down...\n";
+        usleep(1000000);
+    }
+    exit(EXIT_SUCCESS);
+}
+
 int main(const int argc, const char *argv[]) {
+    signal(SIGINT, exiting);
+    signal(SIGABRT, exiting);
+    signal(SIGTERM, exiting);
+    signal(SIGTSTP, exiting);
+
+
     Parser::show_banner();
     config conf{};
     Logger logger{Logger::Info};
@@ -15,7 +27,6 @@ int main(const int argc, const char *argv[]) {
     parser.parse_commandline(&argc, argv);
     Validator validator(&conf);
     if(validator.Validate()){
-        signal(SIGINT, capture_signal);
         Doser doser(&conf, &logger);
         doser.run();
     }else{
@@ -24,12 +35,4 @@ int main(const int argc, const char *argv[]) {
     }
 
     return 0;
-}
-
-void capture_signal(int) {
-    if (getpid() == m_pid) {
-        std::cout << "\nShutting down..." << std::endl;
-        usleep(1000000);
-    }
-    exit(EXIT_SUCCESS);
 }
