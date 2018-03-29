@@ -422,6 +422,7 @@ void Doser::icmp_flood(const int *id) {
 
             dst.sin_addr = ip->ip_dst;
             dst.sin_family = AF_UNSPEC;
+            
             icmp->type = ICMP_ECHO;
             icmp->code = static_cast<u_int8_t>(randomInt(1, 1000));
             icmp->checksum = htons(checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct icmphdr))));
