@@ -21,7 +21,6 @@ void Http_Flood::run() {
                 attack(&x);
             }
         }
-        usleep(static_cast<__useconds_t>(conf->delay));
     }
 
 }
