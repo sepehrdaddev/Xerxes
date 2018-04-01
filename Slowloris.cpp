@@ -92,3 +92,7 @@ void Slowloris::attack_ssl(const int *id) {
     }
 }
 
+Slowloris::Slowloris(const config *conf, Logger *logger) : Http_Flood(conf, logger) {
+
+}
+

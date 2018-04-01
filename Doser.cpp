@@ -75,6 +75,11 @@ void Doser::run() {
             flood.run();
             break;
         }
+        case config::Slowloris:{
+            Slowloris flood{conf, logger};
+            flood.run();
+            break;
+        }
         case config::ICMPFlood:{
             ICMP_Flood flood{conf, logger};
             flood.run();
