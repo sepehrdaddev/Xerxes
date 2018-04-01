@@ -86,6 +86,7 @@ void Parser::parse_commandline(const int *argc, const char *argv[]) {
                                 default:
                                     conf->vector = config::Slowloris;
                                     conf->protocol = config::TCP;
+                                    conf->delay = 10000000;
                             }
                             break;
                         case 'q':
