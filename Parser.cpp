@@ -29,7 +29,7 @@ void Parser::help() {
 }
 
 void Parser::show_banner() {
-    const std::string version{"v0.0.5"};
+    const std::string version{"v0.0.6"};
     std::cout << "Xerxes - Revised " << version << std::endl;
 }
 
