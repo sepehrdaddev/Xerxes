@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "Parser.h"
+#include "Parser.hpp"
 
 void Parser::help() {
     std::string message{"Usage: ./Xerxes <website> <port> <threads> <connections> <options>\n"

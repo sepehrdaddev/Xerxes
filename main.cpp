@@ -1,7 +1,7 @@
 #include <iostream>
 #include <csignal>
 #include <unistd.h>
-#include "Parser.h"
+#include "Parser.hpp"
 
 const pid_t m_pid = getpid();
 

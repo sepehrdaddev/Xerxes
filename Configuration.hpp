@@ -12,12 +12,13 @@ struct config{
     std::string website{};
     std::string port{};
     std::vector<std::string> useragents{"Wget/1.16 (linux-gnu/Xerxes)"};
-    int THREADS = 0;
-    int CONNECTIONS = 0;
+    int THREADS{0};
+    int CONNECTIONS{0};
     bool GetResponse{false};
     bool RandomizeUserAgent{false};
     bool RandomizeHeader{false};
     bool UseSSL{false};
+    int delay{3000};
 
 };
 
