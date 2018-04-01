@@ -33,7 +33,7 @@ int Http_Flood::make_socket(const char *host, const char *port) {
     logger->Log(&message, Logger::Info);
     bzero(&hints, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_socktype = conf->protocol == config::UDP ? SOCK_DGRAM: SOCK_STREAM;
     if((r=getaddrinfo(host, port, &hints, &servinfo))!=0) {
         message = std::string("Getaddrinfo-> ") + gai_strerror(r);
         logger->Log(&message, Logger::Error);
