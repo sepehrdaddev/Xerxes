@@ -10,7 +10,7 @@ void Spoofed_Flood::run() {
         if(fork()){
             attack(&x);
         }
-        usleep(2000);
+        usleep(static_cast<__useconds_t>(conf->delay));
     }
 }
 
