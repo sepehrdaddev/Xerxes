@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "Parser.h"
+#include "Parser.hpp"
 
 void Parser::help() {
     std::string message{"Usage: ./Xerxes <website> <port> <threads> <connections> <options>\n"
@@ -29,7 +29,7 @@ void Parser::help() {
 }
 
 void Parser::show_banner() {
-    const std::string version{"v0.0.5"};
+    const std::string version{"v0.0.7"};
     std::cout << "Xerxes - Revised " << version << std::endl;
 }
 
@@ -86,6 +86,7 @@ void Parser::parse_commandline(const int *argc, const char *argv[]) {
                                 default:
                                     conf->vector = config::Slowloris;
                                     conf->protocol = config::TCP;
+                                    conf->delay = 10000000;
                             }
                             break;
                         case 'q':

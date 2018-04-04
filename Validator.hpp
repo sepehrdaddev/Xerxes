@@ -1,7 +1,7 @@
 #ifndef XERXES_VALIDATOR_H
 #define XERXES_VALIDATOR_H
 
-#include "Configuration.h"
+#include "Configuration.hpp"
 
 class Validator {
 public:

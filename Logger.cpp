@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Logger.h"
+#include "Logger.hpp"
 
 #define RED   "\x1B[31m" // Color Terminal Red
 #define YEL   "\x1B[33m" // Color Terminal Yellow

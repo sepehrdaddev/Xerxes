@@ -1,9 +1,9 @@
 #ifndef XERXES_PARSER_H
 #define XERXES_PARSER_H
 
-#include "Configuration.h"
-#include "Doser.h"
-#include "Validator.h"
+#include "Configuration.hpp"
+#include "Doser.hpp"
+#include "Validator.hpp"
 
 class Parser {
 public:
