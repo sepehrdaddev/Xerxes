@@ -15,8 +15,6 @@ public:
     void run() override;
 
 private:
-    const config *conf;
-    Logger *logger;
     void attack(const int *id) override;
     virtual void attack_ssl(const int *id);
     virtual int make_socket(const char *host, const char *port);

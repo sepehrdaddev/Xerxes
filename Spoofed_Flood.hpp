@@ -18,8 +18,6 @@ public:
 
 private:
     unsigned short csum(unsigned short *buf, int len);
-    const config *conf;
-    Logger *logger;
 };
 
 

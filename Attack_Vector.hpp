@@ -13,9 +13,11 @@ public:
     Attack_Vector(const config *conf, Logger *logger);
     virtual void run();
 
-private:
+protected:
     const config *conf;
     Logger *logger;
+
+private:
     virtual void attack(const int *id) = 0;
 };
 

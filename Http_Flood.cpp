@@ -8,7 +8,7 @@
 #include "Http_Flood.hpp"
 
 
-Http_Flood::Http_Flood(const config *conf, Logger *logger) : conf{conf}, logger{logger}{
+Http_Flood::Http_Flood(const config *conf, Logger *logger) : Attack_Vector(conf, logger){
 
 }
 

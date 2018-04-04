@@ -10,6 +10,7 @@
 class Slowloris : public Http_Flood {
 public:
     Slowloris(const config *conf, Logger *logger);
+
 private:
     void attack(const int *id) override;
     void attack_ssl(const int *id) override;

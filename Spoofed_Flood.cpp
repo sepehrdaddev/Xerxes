@@ -1,7 +1,7 @@
 
 #include "Spoofed_Flood.hpp"
 
-Spoofed_Flood::Spoofed_Flood(const config *conf, Logger *logger) : conf{conf}, logger{logger}{
+Spoofed_Flood::Spoofed_Flood(const config *conf, Logger *logger) : Attack_Vector(conf, logger){
 
 }
 
