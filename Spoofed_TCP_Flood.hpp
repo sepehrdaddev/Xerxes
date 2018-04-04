@@ -4,7 +4,7 @@
 
 #include "Spoofed_Flood.hpp"
 
-class Spoofed_TCP_Flood: public Spoofed_Flood {
+class Spoofed_TCP_Flood : public Spoofed_Flood {
 public:
     Spoofed_TCP_Flood(const config *conf, Logger *logger);
 

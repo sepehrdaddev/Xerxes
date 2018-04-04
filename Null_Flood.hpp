@@ -6,7 +6,7 @@
 #include "Logger.hpp"
 #include "Http_Flood.hpp"
 
-class Null_Flood: public Http_Flood {
+class Null_Flood : public Http_Flood {
 public:
     Null_Flood(const config *conf, Logger *logger);
 private:

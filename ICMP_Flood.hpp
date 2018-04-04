@@ -3,7 +3,7 @@
 
 #include "Spoofed_Flood.hpp"
 
-class ICMP_Flood : public Spoofed_Flood{
+class ICMP_Flood : public Spoofed_Flood {
 public:
     ICMP_Flood(const config *conf, Logger *logger);
 private:

@@ -7,7 +7,7 @@
 #include "Randomizer.hpp"
 #include "Http_Flood.hpp"
 
-class Slowloris: public Http_Flood{
+class Slowloris : public Http_Flood {
 public:
     Slowloris(const config *conf, Logger *logger);
 private:

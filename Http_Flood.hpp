@@ -4,19 +4,20 @@
 #include "Configuration.hpp"
 #include "Logger.hpp"
 #include "Randomizer.hpp"
+#include "Attack_Vector.hpp"
 
-class Http_Flood {
+class Http_Flood : public Attack_Vector {
     friend class Slowloris;
     friend class Null_Flood;
 public:
     Http_Flood () = default;
     Http_Flood (const config *conf, Logger *logger);
-    void run();
+    void run() override;
 
 private:
     const config *conf;
     Logger *logger;
-    virtual void attack(const int *id);
+    void attack(const int *id) override;
     virtual void attack_ssl(const int *id);
     virtual int make_socket(const char *host, const char *port);
     static void broke(int);

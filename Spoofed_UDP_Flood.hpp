@@ -4,7 +4,7 @@
 
 #include "Spoofed_Flood.hpp"
 
-class Spoofed_UDP_Flood: public Spoofed_Flood {
+class Spoofed_UDP_Flood : public Spoofed_Flood {
 public:
     Spoofed_UDP_Flood(const config *conf, Logger *logger);
 private:
