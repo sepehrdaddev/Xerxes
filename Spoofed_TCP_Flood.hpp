@@ -10,25 +10,13 @@ public:
 
 private:
     void attack(const int *id) override;
-    struct tcpheader {
-        unsigned short int tcp_srcport;
-        unsigned short int tcp_destport;
-        unsigned int       tcp_seqnum;
-        unsigned int       tcp_acknum;
-        unsigned char      tcp_reserved:4, tcp_offset:4;
-        unsigned int
-                tcp_res1:4,
-                tcp_hlen:4,
-                tcp_fin:1,
-                tcp_syn:1,
-                tcp_rst:1,
-                tcp_psh:1,
-                tcp_ack:1,
-                tcp_urg:1,
-                tcp_res2:2;
-        unsigned short int tcp_win;
-        unsigned short int tcp_chksum;
-        unsigned short int tcp_urgptr;
+    struct pseudo_header
+    {
+        u_int32_t source_address;
+        u_int32_t dest_address;
+        u_int8_t placeholder;
+        u_int8_t protocol;
+        u_int16_t tcp_length;
     };
 };
 
