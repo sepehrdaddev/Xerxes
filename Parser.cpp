@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <unistd.h>
 #include "Parser.hpp"
 
 void Parser::help() {
@@ -34,6 +35,7 @@ void Parser::show_banner() {
 }
 
 void Parser::parse_commandline(const int *argc, const char *argv[]) {
+    check_root();
     size_t i = 0;
     if(*argc >= 5){
         for (i = 1; i < *argc; i++){
@@ -145,5 +147,12 @@ void Parser::getUserAgents() {
         filestream.close();
     }else{
         logger->Log("Unable to find useragents file", Logger::Warning);
+    }
+}
+
+void Parser::check_root() {
+    if(getuid()){
+        logger->Log("You need to be root", Logger::Error);
+        exit(EXIT_FAILURE);
     }
 }

@@ -17,6 +17,7 @@ private:
     config *conf;
     Logger *logger;
     void getUserAgents();
+    void check_root();
 };
 
 
