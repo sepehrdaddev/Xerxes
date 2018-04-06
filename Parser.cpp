@@ -9,6 +9,7 @@ void Parser::help() {
                         "\nOptions:\n"
                                 "                -h               set attack vector to HTTP\n"
                                 "                -i               set attack vector to Spoofed ICMP Flood\n"
+                                "                -r               set attack vector to Rudy\n"
                                 "                -s               set attack vector to Slowloris\n"
                                 "                -nu              set attack vector to NULLUDP\n"
                                 "                -nt              set attack vector to NULLTCP\n"

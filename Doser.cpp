@@ -28,6 +28,9 @@ void Doser::run() {
         case config::Slowloris:
             logger->Log("Attack Vector: Slowloris", Logger::Info);
             break;
+        case config::Rudy:
+            logger->Log("Attack Vector: Rudy", Logger::Info);
+            break;
         case config::ICMPFlood:
             logger->Log("Attack Vector: ICMP Flood", Logger::Info);
             break;
