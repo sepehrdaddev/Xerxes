@@ -75,6 +75,7 @@ void Doser::run() {
             flood.run();
             break;
         }
+        case config::Rudy:
         case config::Slowloris:{
             Slowloris flood{conf, logger};
             flood.run();

@@ -69,6 +69,10 @@ void Parser::parse_commandline(const int *argc, const char *argv[]) {
                                 conf->RandomizeUserAgent = true;
                             }else if(argv[i][2] == 'h'){
                                 conf->RandomizeHeader = true;
+                            }else{
+                                conf->vector = config::Rudy;
+                                conf->protocol = config::TCP;
+                                conf->delay = 10000000;
                             }
                             break;
                         case 'w':

