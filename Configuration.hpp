@@ -10,10 +10,10 @@ struct config{
     Protocol protocol{TCP};
     Vector vector{NullTCP};
     std::string website{};
-    std::string port{};
+    std::string port{"1"};
     std::vector<std::string> useragents{"Wget/1.16 (linux-gnu/Xerxes)"};
-    int THREADS{0};
-    int CONNECTIONS{0};
+    int THREADS{10};
+    int CONNECTIONS{10};
     bool GetResponse{false};
     bool RandomizeUserAgent{false};
     bool RandomizeHeader{false};

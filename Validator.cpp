@@ -17,7 +17,7 @@ bool Validator::isValidWebsite(){
 bool Validator::isValidPort() {
     return strtol(conf->port.c_str(), nullptr, 10) ||
            strtol(conf->port.c_str(), nullptr, 10) > 65535 ||
-           strtol(conf->port.c_str(), nullptr, 10) <= 0;
+           strtol(conf->port.c_str(), nullptr, 10) < 0;
 }
 
 bool Validator::isValidNumber(char const *num) {
@@ -25,11 +25,11 @@ bool Validator::isValidNumber(char const *num) {
 }
 
 bool Validator::isValidConfig() {
-    return !conf->website.empty() & !conf->port.empty() & conf->CONNECTIONS != 0 & conf->THREADS != 0;
+    return !conf->website.empty() && !conf->port.empty() && conf->CONNECTIONS > 0 && conf->THREADS > 0;
 }
 
 bool Validator::Validate() {
-    return isValidConfig() & isValidWebsite() & isValidPort();
+    return isValidConfig() && isValidWebsite() && isValidPort();
 }
 
 bool Validator::isValidHostname(){

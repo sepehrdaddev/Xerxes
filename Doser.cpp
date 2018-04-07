@@ -9,6 +9,10 @@ void Doser::run() {
                           + std::to_string(conf->CONNECTIONS) + " Connections";
     logger->Log(&message, Logger::Warning);
 
+    message = "Delay: " + std::to_string(conf->delay) + " microsecs";
+
+    logger->Log(&message, Logger::Warning);
+
     switch(conf->vector){
         case config::HTTP:
             logger->Log("Attack Vector: HTTP", Logger::Info);

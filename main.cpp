@@ -24,7 +24,7 @@ int main(const int argc, const char *argv[]) {
     config conf{};
     Logger logger{Logger::Info};
     Parser parser{&conf, &logger};
-    parser.parse_commandline(&argc, argv);
+    parser.parse_commandline(argc, argv);
     Validator validator(&conf);
     if(validator.Validate()){
         Doser doser(&conf, &logger);
