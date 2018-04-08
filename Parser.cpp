@@ -12,6 +12,7 @@ void Parser::help() {
                                 "                -i               set attack vector to Spoofed ICMP Flood\n"
                                 "                -r               set attack vector to Rudy\n"
                                 "                -s               set attack vector to Slowloris\n"
+                                "                -b               set attack vector to Black Nurse\n"
                                 "                -nu              set attack vector to NULLUDP\n"
                                 "                -nt              set attack vector to NULLTCP\n"
                                 "                -ft              set attack vector to TCPFlood\n"
@@ -90,6 +91,8 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             logger->setLevel(Logger::Info);
         }else if(!strcmp(argv[i], "-i")) {
             conf->vector = config::ICMPFlood;
+        }else if(!strcmp(argv[i], "-b")) {
+            conf->vector = config::Blacknurse;
         }else if(!strcmp(argv[i], "-host")){
             conf->website = static_cast<std::string>(argv[i+1]);
         }else if(!strcmp(argv[i], "-port")){

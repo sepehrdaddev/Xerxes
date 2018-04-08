@@ -38,6 +38,9 @@ void Doser::run() {
         case config::ICMPFlood:
             logger->Log("Attack Vector: ICMP Flood", Logger::Info);
             break;
+        case config::Blacknurse:
+            logger->Log("Attack Vector: Black Nurse", Logger::Info);
+            break;
         case config::SpoofedTCP:
             logger->Log("Attack Vector: Spoofed TCP", Logger::Info);
             break;
@@ -90,6 +93,11 @@ void Doser::run() {
         }
         case config::ICMPFlood:{
             ICMP_Flood flood{conf, logger};
+            flood.run();
+            break;
+        }
+        case config::Blacknurse:{
+            Black_Nurse flood{conf, logger};
             flood.run();
             break;
         }

