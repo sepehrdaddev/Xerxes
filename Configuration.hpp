@@ -27,7 +27,8 @@ struct config{
 const char Version[] = {
         BUILD_YEAR_CH0, BUILD_YEAR_CH1,
         BUILD_YEAR_CH2, BUILD_YEAR_CH3,
-        '-', BUILD_MONTH_CH0, BUILD_MONTH_CH1,'\0'
+        '-', BUILD_MONTH_CH0, BUILD_MONTH_CH1,
+        '-', BUILD_DAY_CH0, BUILD_DAY_CH1, '\0'
 };
 
 #endif //XERXES_CONFIGURATION_H
