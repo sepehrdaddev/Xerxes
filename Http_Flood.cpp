@@ -68,7 +68,7 @@ void Http_Flood::broke(int) {
 }
 
 SSL_CTX *Http_Flood::InitCTX() {
-    const SSL_METHOD *method{TLS_client_method()};
+    const SSL_METHOD *method{TLSv1_1_client_method()};
     SSL_CTX *ctx;
     OpenSSL_add_ssl_algorithms();
     SSL_load_error_strings();
