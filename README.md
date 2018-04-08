@@ -23,6 +23,7 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-i&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed ICMP Flood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-r&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Rudy\
 &emsp;&emsp;&emsp;&emsp;&emsp;-s&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Slowloris\
+&emsp;&emsp;&emsp;&emsp;&emsp;-b&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Black Nurse\
 &emsp;&emsp;&emsp;&emsp;&emsp;-nu&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to NULLUDP\
 &emsp;&emsp;&emsp;&emsp;&emsp;-nt&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to NULLTCP\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ft&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to TCPFlood\
