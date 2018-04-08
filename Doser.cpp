@@ -9,6 +9,10 @@ void Doser::run() {
                           + std::to_string(conf->CONNECTIONS) + " Connections";
     logger->Log(&message, Logger::Warning);
 
+    message = "Delay: " + std::to_string(conf->delay) + " microsecs";
+
+    logger->Log(&message, Logger::Warning);
+
     switch(conf->vector){
         case config::HTTP:
             logger->Log("Attack Vector: HTTP", Logger::Info);
@@ -27,6 +31,9 @@ void Doser::run() {
             break;
         case config::Slowloris:
             logger->Log("Attack Vector: Slowloris", Logger::Info);
+            break;
+        case config::Rudy:
+            logger->Log("Attack Vector: Rudy", Logger::Info);
             break;
         case config::ICMPFlood:
             logger->Log("Attack Vector: ICMP Flood", Logger::Info);
@@ -75,6 +82,7 @@ void Doser::run() {
             flood.run();
             break;
         }
+        case config::Rudy:
         case config::Slowloris:{
             Slowloris flood{conf, logger};
             flood.run();

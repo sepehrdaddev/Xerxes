@@ -17,10 +17,11 @@ Xerxes Dos Tool Rewritten in C++
 Not only that but also we are aggressively developing it and adding a lot more features and functionalities.
 
 ## Usage
-`Usage: ./Xerxes <website> <port> <threads> <connections> <options>`\
+`Usage: ./Xerxes -host <website> -port <port> -T <threads> -C <connections> <options>`\
 Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-h&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to HTTP\
 &emsp;&emsp;&emsp;&emsp;&emsp;-i&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed ICMP Flood\
+&emsp;&emsp;&emsp;&emsp;&emsp;-r&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Rudy\
 &emsp;&emsp;&emsp;&emsp;&emsp;-s&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Slowloris\
 &emsp;&emsp;&emsp;&emsp;&emsp;-nu&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to NULLUDP\
 &emsp;&emsp;&emsp;&emsp;&emsp;-nt&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to NULLTCP\
@@ -35,7 +36,14 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-qq&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to quiet quiet\
 &emsp;&emsp;&emsp;&emsp;&emsp;-q&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to quiet\
 &emsp;&emsp;&emsp;&emsp;&emsp;-v&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to verbose\
-&emsp;&emsp;&emsp;&emsp;&emsp;-vv&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to very verbose
+&emsp;&emsp;&emsp;&emsp;&emsp;-vv&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to very verbose\
+&emsp;&emsp;&emsp;&emsp;&emsp;-D&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set delay in microseconds\
+&emsp;&emsp;&emsp;&emsp;&emsp;-T&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set number of threads\
+&emsp;&emsp;&emsp;&emsp;&emsp;-C&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set number of connections per thread\
+&emsp;&emsp;&emsp;&emsp;&emsp;-host&emsp;&emsp;&emsp;&emsp;set host ip or url\
+&emsp;&emsp;&emsp;&emsp;&emsp;-port&emsp;&emsp;&emsp;&emsp;set host port number\
+&emsp;&emsp;&emsp;&emsp;&emsp;-help&emsp;&emsp;&emsp;&emsp;show help\
+&emsp;&emsp;&emsp;&emsp;&emsp;-version&nbsp;&emsp;&emsp;show version\
 
 ## Questions ?
 If you have any questions feel free to visit our <a href="https://github.com/sepehrdaddev/Xerxes/wiki">Wiki page</a>

