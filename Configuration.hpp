@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "Version.hpp"
+
 struct config{
     enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedTCP, SpoofedUDP, Rudy};
     enum Protocol{TCP, UDP};
@@ -20,6 +22,12 @@ struct config{
     bool UseSSL{false};
     int delay{3000};
 
+};
+
+const char Version[] = {
+        BUILD_YEAR_CH0, BUILD_YEAR_CH1,
+        BUILD_YEAR_CH2, BUILD_YEAR_CH3,
+        '-', BUILD_MONTH_CH0, BUILD_MONTH_CH1,'\0'
 };
 
 #endif //XERXES_CONFIGURATION_H

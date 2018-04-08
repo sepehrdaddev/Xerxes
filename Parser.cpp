@@ -6,7 +6,7 @@
 #include "Parser.hpp"
 
 void Parser::help() {
-    std::string message{"Usage: ./Xerxes <website> <port> <threads> <connections> <options>\n"
+    std::string message{"Usage: ./Xerxes -host <website> -port <port> -T <threads> -C <connections> <options>\n"
                         "\nOptions:\n"
                                 "                -h               set attack vector to HTTP\n"
                                 "                -i               set attack vector to Spoofed ICMP Flood\n"
@@ -26,18 +26,23 @@ void Parser::help() {
                                 "                -q               set verbosity to quiet\n"
                                 "                -v               set verbosity to verbose\n"
                                 "                -vv              set verbosity to very verbose\n"
+                                "                -D               set delay in microseconds\n"
+                                "                -T               set number of threads\n"
+                                "                -C               set number of connections per thread\n"
+                                "                -host            set host ip or url\n"
+                                "                -port            set host port number\n"
+                                "                -help            show help\n"
+                                "                -version         show version\n"
     };
     std::cout << message << std::endl;
     exit(EXIT_SUCCESS);
 }
 
 void Parser::show_banner() {
-    const std::string version{"v0.0.7"};
-    std::cout << "Xerxes - Revised " << version << std::endl;
+    std::cout << "Xerxes - Revised " << Version << std::endl;
 }
 
 void Parser::parse_commandline(int argc, const char *argv[]) {
-    check_root();
 
     for (int i = 1; i < argc; i++){
         if(!strcmp(argv[i], "-h")){
@@ -101,10 +106,13 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             if(Validator::isValidNumber(argv[i+1])){
                 conf->delay = static_cast<int>(strtol(argv[i+1], nullptr, 10));
             }
+        }else if(!strcmp(argv[i], "-version")){
+            exit(EXIT_SUCCESS);
         }else if(!strcmp(argv[i], "-help")){
             help();
         }
     }
+    check_root();
     getUserAgents();
 }
 

