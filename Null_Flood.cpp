@@ -76,10 +76,10 @@ void Null_Flood::attack_ssl(const int *id) {
                 message = std::to_string(*id) + ": Voly Sent";
                 logger->Log(&message, Logger::Info);
             }
-            message = std::to_string(*id) + ": Voly Sent";
-            logger->Log(&message, Logger::Info);
-            usleep(static_cast<__useconds_t>(conf->delay));
         }
+        message = std::to_string(*id) + ": Voly Sent";
+        logger->Log(&message, Logger::Info);
+        usleep(static_cast<__useconds_t>(conf->delay));
     }
 }
 
