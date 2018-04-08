@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Download the dependencies
-apt install build-essential gcc g++ cmake clang llvm libssl-dev
+apt install build-essential gcc g++ cmake clang llvm libssl-dev pkgconf
 
 # Build the program from source
 mkdir build

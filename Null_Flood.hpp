@@ -13,7 +13,6 @@ public:
 private:
     void attack(const int *id) override;
     void attack_ssl(const int *id) override;
-    int make_socket(const char *host, const char *port) override;
 
 };
 

@@ -17,7 +17,7 @@ public:
 private:
     void attack(const int *id) override;
     virtual void attack_ssl(const int *id);
-    virtual int make_socket(const char *host, const char *port);
+    virtual int make_socket(const char *host, const char *port, int sock_type);
     static void broke(int);
     SSL_CTX* InitCTX();
     SSL *Apply_SSL(int socket, SSL_CTX *ctx);
