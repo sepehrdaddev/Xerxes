@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 
 def dependency_install():
@@ -10,7 +10,7 @@ def dependency_install():
         script = dep_script['debian']
     elif distro in ('fedora', 'centos', 'rhel', 'redhat', 'red hat'):
         script = dep_script['fedora']
-
+    print("Installing Dependencies...")
     process = Popen('{}'.format(script), shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     output = process.communicate()[0]
     if process.returncode != 0:
@@ -27,6 +27,7 @@ def compile():
     rmtree('build', ignore_errors=True)
     mkdir('build')
     chdir('build')
+    print("Compiling...")
     process = Popen('{}'.format('cmake .. && make'), shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     output = process.communicate()[0]
     if process.returncode != 0:
@@ -40,6 +41,7 @@ def compile():
 
 def install():
     check_os()
+    print("Installing...")
     if path.isdir('build'):
         chdir('build')
         if path.isfile('Xerxes') and path.isfile('useragents'):
@@ -59,6 +61,8 @@ def install():
 
 def uninstall(silent=False):
     check_os()
+    if not silent:
+        print("Uninstalling ...")
     if path.islink('/usr/bin/Xerxes'):
         unlink('/usr/bin/Xerxes')
     if path.isdir('/opt/Xerxes'):
@@ -68,6 +72,7 @@ def uninstall(silent=False):
 
 
 def cleanup():
+    print("Cleaning up...")
     try:
         files = ['CMakeCache.txt', 'cmake_install.cmake', 'Makefile']
         for file in files:
@@ -101,17 +106,13 @@ def docker():
 
         write_file('Dockerfile', dockerfile)
         print('Dockerfile generated successfully...')
-
-        try:
-            print('please write Xerxes arguments for docker container')
-            args = input()
-        except:
-            args = raw_input()
+        args = input('Please write Xerxes arguments for docker container\n>>>')
 
         run_sh = '#!/bin/bash\n' \
                  + 'build/Xerxes {}'.format(args)
         write_file('run.sh', run_sh)
         print('run.sh generated successfully...')
+        print("Building docker image...")
         process = Popen('docker build . -t xerxes', shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
         output = process.communicate()[0]
         if process.returncode != 0:
