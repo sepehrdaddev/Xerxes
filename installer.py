@@ -92,7 +92,13 @@ def write_file(filename, content):
 
 
 def docker():
-    if call(['which', 'docker'], stdout=PIPE, stderr=PIPE, stdin=PIPE):
+    cmd = ''
+    if name in ('nt', 'dos'):
+        cmd = 'where'
+    elif name in ('linux', 'posix', 'darwin', 'osx'):
+        cmd = 'which'
+    
+    if call([cmd, 'docker'], stdout=PIPE, stderr=PIPE, stdin=PIPE):
         print('Docker is not installed')
         exit(1)
     else:
