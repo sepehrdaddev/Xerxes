@@ -44,7 +44,7 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-host&emsp;&emsp;&emsp;&emsp;set host ip or url\
 &emsp;&emsp;&emsp;&emsp;&emsp;-port&emsp;&emsp;&emsp;&emsp;set host port number\
 &emsp;&emsp;&emsp;&emsp;&emsp;-help&emsp;&emsp;&emsp;&emsp;show help\
-&emsp;&emsp;&emsp;&emsp;&emsp;-version&nbsp;&emsp;&emsp;show version\
+&emsp;&emsp;&emsp;&emsp;&emsp;-version&nbsp;&emsp;&emsp;show version
 
 ## Questions ?
 If you have any questions feel free to visit our <a href="https://github.com/sepehrdaddev/Xerxes/wiki">Wiki page</a>
