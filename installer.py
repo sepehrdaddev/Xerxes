@@ -3,8 +3,8 @@
 
 def dependency_install():
     distro = linux_distribution()[0].lower()
-    dep_script = {'debian': 'apt update && apt -y install build-essential gcc g++ cmake clang llvm libssl-dev pkgconf',
-                  'fedora': 'yum -y install cmake clang llvm openssl-devel pkgconf gcc-c++'}
+    dep_script = {'debian': 'apt-get update && apt-get -y install build-essential cmake libssl-dev pkgconf',
+                  'fedora': 'yum -y install cmake openssl-devel pkgconf gcc-c++'}
     script = ''
     if distro in ('debian', 'ubuntu', 'kali', 'parrot'):
         script = dep_script['debian']
@@ -22,6 +22,7 @@ def dependency_install():
 
 
 def compile():
+    check_os()
     dependency_install()
     rmtree('build', ignore_errors=True)
     mkdir('build')
@@ -38,6 +39,7 @@ def compile():
 
 
 def install():
+    check_os()
     if path.isdir('build'):
         chdir('build')
         if path.isfile('Xerxes') and path.isfile('useragents'):
@@ -45,7 +47,6 @@ def install():
             mkdir('/opt/Xerxes')
             copy('Xerxes', '/opt/Xerxes')
             copy('useragents', '/opt/Xerxes')
-            copy('installer.py', '/opt/Xerxes')
             symlink('/opt/Xerxes/Xerxes', '/usr/bin/Xerxes')
             print("Successfully installed...")
         else:
@@ -57,6 +58,7 @@ def install():
 
 
 def uninstall(silent=False):
+    check_os()
     if path.islink('/usr/bin/Xerxes'):
         unlink('/usr/bin/Xerxes')
     if path.isdir('/opt/Xerxes'):
@@ -78,12 +80,56 @@ def cleanup():
         exit(1)
 
 
+def write_file(filename, content):
+    file = open(filename, 'w')
+    file.write(content)
+    file.close()
+
+
+def docker():
+    if call(['which', 'docker'], stdout=PIPE, stderr=PIPE, stdin=PIPE):
+        print('Docker is not installed')
+        exit(1)
+    else:
+        dockerfile = 'FROM ubuntu:latest\n' \
+                     + 'RUN apt-get update && apt-get install -y build-essential cmake libssl-dev pkgconf\n' \
+                     + 'COPY . /usr/src/Xerxes\n' \
+                     + 'WORKDIR /usr/src/Xerxes\n' \
+                     + 'RUN chmod +x run.sh\n' \
+                     + 'RUN mkdir build && cd build && cmake .. && make\n' \
+                     + 'ENTRYPOINT ["./run.sh"]\n'
+
+        write_file('Dockerfile', dockerfile)
+        print('Dockerfile generated successfully...')
+
+        try:
+            print('please write Xerxes arguments for docker container')
+            args = input()
+        except:
+            args = raw_input()
+
+        run_sh = '#!/bin/bash\n' \
+                 + 'build/Xerxes {}'.format(args)
+        write_file('run.sh', run_sh)
+        print('run.sh generated successfully...')
+        process = Popen('docker build . -t xerxes', shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+        output = process.communicate()[0]
+        if process.returncode != 0:
+            print("Docker build failed...")
+            print(output)
+            exit(1)
+        else:
+            print("Successfully built docker image...")
+            print('for running the container execute: docker run -it xerxes')
+
+
 def usage():
     msg = 'usage: ./installer.py <options>\n'
     msg += 'options: \n'
     msg += '                        install         install Xerxes\n'
     msg += '                        uninstall       uninstall Xerxes\n'
     msg += '                        compile         compile Xerxes\n'
+    msg += '                        docker          make docker image from Xerxes\n'
     print(msg)
 
 
@@ -101,13 +147,14 @@ def check_os():
 def main(args):
     if not geteuid():
         try:
-            check_os()
             if args[1] == 'compile':
                 compile()
             elif args[1] == 'install':
                 install()
             elif args[1] == 'uninstall':
                 uninstall()
+            elif args[1] == 'docker':
+                docker()
             else:
                 usage()
 
@@ -120,7 +167,7 @@ def main(args):
 
 if __name__ == '__main__':
     from platform import linux_distribution
-    from subprocess import Popen, PIPE
+    from subprocess import Popen, PIPE, call
     from os import name, geteuid, mkdir, chdir, path, symlink, unlink, remove
     from sys import argv, exit
     from shutil import rmtree, copy
