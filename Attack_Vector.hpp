@@ -7,6 +7,7 @@
 class Attack_Vector {
     friend class Spoofed_Flood;
     friend class Http_Flood;
+    friend class Ssl_Flood;
 
 public:
     Attack_Vector() = default;

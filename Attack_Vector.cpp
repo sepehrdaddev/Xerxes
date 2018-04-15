@@ -11,4 +11,5 @@ void Attack_Vector::run() {
             attack(&x);
         }
     }
+    getc(stdin);
 }

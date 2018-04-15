@@ -91,33 +91,37 @@ def write_file(filename, content):
     file.close()
 
 
-def docker():
+def docker(local=True):
     cmd = ''
     if name in ('nt', 'dos'):
         cmd = 'where'
     elif name in ('linux', 'posix', 'darwin', 'osx'):
         cmd = 'which'
-    
+
     if call([cmd, 'docker'], stdout=PIPE, stderr=PIPE, stdin=PIPE):
         print('Docker is not installed')
         exit(1)
     else:
-        dockerfile = 'FROM ubuntu:latest\n' \
-                     + 'RUN apt-get update && apt-get install -y build-essential cmake libssl-dev pkgconf\n' \
-                     + 'COPY . /usr/src/Xerxes\n' \
-                     + 'WORKDIR /usr/src/Xerxes\n' \
-                     + 'RUN chmod +x run.sh\n' \
-                     + 'RUN mkdir build && cd build && cmake .. && make\n' \
-                     + 'ENTRYPOINT ["./run.sh"]\n'
+        dockerfile = ''
+        args = input('Please write Xerxes arguments for docker container\n>>>')
+        if local:
+            compile()
+            dockerfile = 'FROM alpine:latest\n' \
+                         + 'COPY . /opt/Xerxes\n' \
+                         + 'WORKDIR /opt/Xerxes\n' \
+                         + 'ENTRYPOINT ["/opt/Xerxes/Xerxes"]\n'\
+                         + 'CMD {}'.format(args)
+        else:
+            dockerfile = 'FROM ubuntu:latest\n' \
+                         + 'RUN apt-get update && apt-get install -y build-essential cmake libssl-dev pkgconf\n' \
+                         + 'COPY . /usr/src/Xerxes\n' \
+                         + 'WORKDIR /usr/src/Xerxes\n' \
+                         + 'RUN mkdir build && cd build && cmake .. && make\n' \
+                         + 'ENTRYPOINT ["/opt/Xerxes/Xerxes"]\n' \
+                         + 'CMD {}'.format(args)
 
         write_file('Dockerfile', dockerfile)
         print('Dockerfile generated successfully...')
-        args = input('Please write Xerxes arguments for docker container\n>>>')
-
-        run_sh = '#!/bin/bash\n' \
-                 + 'build/Xerxes {}'.format(args)
-        write_file('run.sh', run_sh)
-        print('run.sh generated successfully...')
         print("Building docker image...")
         process = Popen('docker build . -t xerxes', shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
         output = process.communicate()[0]
@@ -161,7 +165,13 @@ def main(args):
             elif args[1] == 'uninstall':
                 uninstall()
             elif args[1] == 'docker':
-                docker()
+                try:
+                    if args[2] == 'remote':
+                        docker(local=False)
+                    else:
+                        docker()
+                except IndexError:
+                    docker()
             else:
                 usage()
 

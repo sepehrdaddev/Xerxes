@@ -22,7 +22,7 @@ void Http_Flood::run() {
             }
         }
     }
-
+    getc(stdin);
 }
 
 int Http_Flood::make_socket(const char *host, const char *port, int sock_type) {
