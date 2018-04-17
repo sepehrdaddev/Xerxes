@@ -65,7 +65,7 @@ void Ssl_Flood::init() {
     FD_ZERO(&opt.wfds);
     OpenSSL_add_ssl_algorithms();
     SSL_load_error_strings();
-    opt.ctx = SSL_CTX_new(TLS_method());
+    opt.ctx = SSL_CTX_new(SSLv23_method());
     SSL_CTX_set_options(opt.ctx, SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION);
     SSL_CTX_set_options(opt.ctx, SSL_OP_LEGACY_SERVER_CONNECT);
     SSL_CTX_set_cipher_list(opt.ctx, "AES256-SHA:RC4-MD5");
