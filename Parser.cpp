@@ -19,6 +19,7 @@ void Parser::help() {
                                 "                -fu              set attack vector to UDPFlood\n"
                                 "                -su              set attack vector to Spoofed UDP Flood\n"
                                 "                -st              set attack vector to Spoofed TCP Flood\n"
+                                "                -sf              set attack vector to SSL Flood\n"
                                 "                -ss              enable SSL\n"
                                 "                -w               wait for hosts response\n"
                                 "                -rh              randomize HTTP Header\n"
@@ -81,6 +82,8 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             conf->vector = config::SpoofedUDP;
         }else if(!strcmp(argv[i], "-st")){
             conf->vector = config::SpoofedTCP;
+        }else if(!strcmp(argv[i], "-sf")){
+            conf->vector = config::SSL_Flood;
         }else if(!strcmp(argv[i], "-q")){
             logger->setLevel(Logger::Error);
         }else if(!strcmp(argv[i], "-qq")){

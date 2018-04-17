@@ -47,6 +47,9 @@ void Doser::run() {
         case config::SpoofedUDP:
             logger->Log("Attack Vector: Spoofed UDP", Logger::Info);
             break;
+        case config::SSL_Flood:
+            logger->Log("Attack Vector: SSL Flood", Logger::Info);
+            break;
         default:break;
     }
     if(conf->UseSSL){
@@ -98,6 +101,11 @@ void Doser::run() {
         }
         case config::Blacknurse:{
             Black_Nurse flood{conf, logger};
+            flood.run();
+            break;
+        }
+        case config::SSL_Flood:{
+            Ssl_Flood flood{conf, logger};
             flood.run();
             break;
         }
