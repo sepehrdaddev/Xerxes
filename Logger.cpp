@@ -12,13 +12,13 @@ void Logger::Log(std::string *message, Level l) {
             case Level::None:
                 break;
             case Level::Error:
-                std::cerr << RED << "[ERROR]: " << *message << RESET << "\n";
+                std::cerr << RED << "[ERROR]: " << *message << RESET << std::endl;
                 break;
             case Level::Warning:
-                std::cout << YEL << "[WARNING]: " << *message << RESET << "\n";
+                std::cout << YEL << "[WARNING]: " << *message << RESET << std::endl;
                 break;
             case Level::Info:
-                std::cout << GRN << "[INFO]: " << *message << RESET << "\n";
+                std::cout << GRN << "[INFO]: " << *message << RESET << std::endl;
                 break;
             default:
                 return;

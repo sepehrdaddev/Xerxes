@@ -16,6 +16,7 @@ public:
 private:
     config *conf;
     Logger *logger;
+    void show_info();
 
 };
 

@@ -13,12 +13,16 @@ void exiting(int){
     exit(EXIT_SUCCESS);
 }
 
-int main(const int argc, const char *argv[]) {
-    signal(SIGINT, exiting);
-    signal(SIGABRT, exiting);
-    signal(SIGTERM, exiting);
-    signal(SIGTSTP, exiting);
+void broke(int){
+    // pass
+}
 
+int main(const int argc, const char *argv[]) {
+    signal(SIGINT, &exiting);
+    signal(SIGABRT, &exiting);
+    signal(SIGTERM, &exiting);
+    signal(SIGTSTP, &exiting);
+    signal(SIGPIPE, &broke);
 
     Parser::show_banner();
     config conf{};

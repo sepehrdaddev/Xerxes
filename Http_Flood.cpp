@@ -22,7 +22,7 @@ void Http_Flood::run() {
             }
         }
     }
-
+    getc(stdin);
 }
 
 int Http_Flood::make_socket(const char *host, const char *port, int sock_type) {
@@ -61,10 +61,6 @@ int Http_Flood::make_socket(const char *host, const char *port, int sock_type) {
     message = std::string("Connected-> ") + host + ":" + port;
     logger->Log(&message, Logger::Info);
     return sock;
-}
-
-void Http_Flood::broke(int) {
-    // pass
 }
 
 SSL_CTX *Http_Flood::InitCTX() {
@@ -128,7 +124,6 @@ void Http_Flood::attack(const int *id) {
     for (int x = 0; x < conf->CONNECTIONS; x++) {
         sockets.push_back(0);
     }
-    signal(SIGPIPE, &Http_Flood::broke);
     while(true) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
@@ -166,7 +161,6 @@ void Http_Flood::attack_ssl(const int *id) {
         SSLs.push_back(nullptr);
         CTXs.push_back(nullptr);
     }
-    signal(SIGPIPE, &Http_Flood::broke);
     while(true) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {

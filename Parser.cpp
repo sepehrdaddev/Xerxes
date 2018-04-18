@@ -13,6 +13,7 @@ void Parser::help() {
                                 "                -r               set attack vector to Rudy\n"
                                 "                -s               set attack vector to Slowloris\n"
                                 "                -b               set attack vector to Black Nurse\n"
+                                "                -be              set attack vector to Beast\n"
                                 "                -nu              set attack vector to NULLUDP\n"
                                 "                -nt              set attack vector to NULLTCP\n"
                                 "                -ft              set attack vector to TCPFlood\n"
@@ -40,7 +41,7 @@ void Parser::help() {
 }
 
 void Parser::show_banner() {
-    std::cout << "Xerxes - Revised " << Version << std::endl;
+    std::cout << "Xerxes version " << Version << " " << Time << " (Xerxes - Revised)" << std::endl;
 }
 
 void Parser::parse_commandline(int argc, const char *argv[]) {
@@ -93,6 +94,8 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             conf->vector = config::ICMPFlood;
         }else if(!strcmp(argv[i], "-b")) {
             conf->vector = config::Blacknurse;
+        }else if(!strcmp(argv[i], "-be")){
+            conf->vector = config::Beast;
         }else if(!strcmp(argv[i], "-host")){
             conf->website = static_cast<std::string>(argv[i+1]);
         }else if(!strcmp(argv[i], "-port")){

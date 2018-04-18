@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-def dependency_install():
+def dependency_install(silent=False):
     distro = linux_distribution()[0].lower()
     dep_script = {'debian': 'apt-get update && apt-get -y install build-essential cmake libssl-dev pkgconf',
                   'fedora': 'yum -y install cmake openssl-devel pkgconf gcc-c++'}
@@ -10,38 +10,43 @@ def dependency_install():
         script = dep_script['debian']
     elif distro in ('fedora', 'centos', 'rhel', 'redhat', 'red hat'):
         script = dep_script['fedora']
-    print("Installing Dependencies...")
+    if not silent:
+        print("Installing Dependencies...")
     process = Popen('{}'.format(script), shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     output = process.communicate()[0]
     if process.returncode != 0:
         print("Dependency installation failed...")
-        print(output)
+        print('{}'.format(output))
         exit(1)
     else:
-        print("Dependencies installed...")
+        if not silent:
+            print("Dependencies installed...")
 
 
-def compile():
+def compile(silent=False):
     check_os()
     dependency_install()
     rmtree('build', ignore_errors=True)
     mkdir('build')
     chdir('build')
-    print("Compiling...")
+    if not silent:
+        print("Compiling...")
     process = Popen('{}'.format('cmake .. && make'), shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     output = process.communicate()[0]
     if process.returncode != 0:
         print("Compilation failed...")
-        print(output)
+        print('{}'.format(output))
         exit(1)
     else:
-        print("Successfully compiled...")
+        if not silent:
+            print("Successfully compiled...")
         cleanup()
 
 
-def install():
+def install(silent=False):
     check_os()
-    print("Installing...")
+    if not silent:
+        print("Installing...")
     if path.isdir('build'):
         chdir('build')
         if path.isfile('Xerxes') and path.isfile('useragents'):
@@ -50,7 +55,8 @@ def install():
             copy('Xerxes', '/opt/Xerxes')
             copy('useragents', '/opt/Xerxes')
             symlink('/opt/Xerxes/Xerxes', '/usr/bin/Xerxes')
-            print("Successfully installed...")
+            if not silent:
+                print("Successfully installed...")
         else:
             compile()
             install()
@@ -71,14 +77,16 @@ def uninstall(silent=False):
         print("Successfully uninstalled...")
 
 
-def cleanup():
-    print("Cleaning up...")
+def cleanup(silent=False):
+    if not silent:
+        print("Cleaning up...")
     try:
         files = ['CMakeCache.txt', 'cmake_install.cmake', 'Makefile']
-        for file in files:
-            remove(file)
+        for f in files:
+            remove(f)
         rmtree('CMakeFiles')
-        print("Successfully cleaned up...")
+        if not silent:
+            print("Successfully cleaned up...")
     except Exception as ex:
         print("Cleanup failed...")
         print('{}'.format(ex))
@@ -86,47 +94,38 @@ def cleanup():
 
 
 def write_file(filename, content):
-    file = open(filename, 'w')
-    file.write(content)
-    file.close()
+    f = open(filename, 'w')
+    f.write(content)
+    f.close()
 
 
-def docker():
+def docker(silent=False):
     cmd = ''
     if name in ('nt', 'dos'):
         cmd = 'where'
     elif name in ('linux', 'posix', 'darwin', 'osx'):
         cmd = 'which'
-    
+
     if call([cmd, 'docker'], stdout=PIPE, stderr=PIPE, stdin=PIPE):
         print('Docker is not installed')
         exit(1)
     else:
-        dockerfile = 'FROM ubuntu:latest\n' \
-                     + 'RUN apt-get update && apt-get install -y build-essential cmake libssl-dev pkgconf\n' \
-                     + 'COPY . /usr/src/Xerxes\n' \
-                     + 'WORKDIR /usr/src/Xerxes\n' \
-                     + 'RUN chmod +x run.sh\n' \
-                     + 'RUN mkdir build && cd build && cmake .. && make\n' \
-                     + 'ENTRYPOINT ["./run.sh"]\n'
-
+        compile()
+        dockerfile = 'FROM alpine:latest\nCOPY ./Xerxes /opt/Xerxes\nCOPY ./useragents /opt/Xerxes/WORKDIR ' \
+                     '/opt/Xerxes\nENTRYPOINT [\"/bin/sh\"]\n '
         write_file('Dockerfile', dockerfile)
-        print('Dockerfile generated successfully...')
-        args = input('Please write Xerxes arguments for docker container\n>>>')
-
-        run_sh = '#!/bin/bash\n' \
-                 + 'build/Xerxes {}'.format(args)
-        write_file('run.sh', run_sh)
-        print('run.sh generated successfully...')
-        print("Building docker image...")
+        if not silent:
+            print('Dockerfile generated successfully...')
+            print("Building docker image...")
         process = Popen('docker build . -t xerxes', shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
         output = process.communicate()[0]
         if process.returncode != 0:
             print("Docker build failed...")
-            print(output)
+            print('{}'.format(output))
             exit(1)
         else:
-            print("Successfully built docker image...")
+            if not silent:
+                print("Successfully built docker image...")
             print('for running the container execute: docker run -it xerxes')
 
 
@@ -170,6 +169,7 @@ def main(args):
     else:
         print('Please run this script as root')
         return 1
+    return 0
 
 
 if __name__ == '__main__':
@@ -178,4 +178,5 @@ if __name__ == '__main__':
     from os import name, geteuid, mkdir, chdir, path, symlink, unlink, remove
     from sys import argv, exit
     from shutil import rmtree, copy
+
     exit(main(argv))

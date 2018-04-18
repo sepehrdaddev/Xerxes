@@ -8,5 +8,6 @@
 #include "Spoofed_TCP_Flood.hpp"
 #include "Spoofed_UDP_Flood.hpp"
 #include "Black_Nurse.hpp"
+#include "Beast.hpp"
 
 #endif //XERXES_ATTACK_VECTORS_H

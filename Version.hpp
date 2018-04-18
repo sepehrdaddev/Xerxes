@@ -1,6 +1,11 @@
 #ifndef XERXES_VERSION_INFO_H
 #define XERXES_VERSION_INFO_H
 
+
+#define VERSION_MAJOR 1
+#define VERSION_MINOR 0
+
+
 #define BUILD_YEAR_CH0 (__DATE__[ 7])
 #define BUILD_YEAR_CH1 (__DATE__[ 8])
 #define BUILD_YEAR_CH2 (__DATE__[ 9])
@@ -43,6 +48,47 @@
 
 #define BUILD_DAY_CH0 ((__DATE__[4] >= '0') ? (__DATE__[4]) : '0')
 #define BUILD_DAY_CH1 (__DATE__[ 5])
+
+
+#if VERSION_MAJOR > 100
+
+#define VERSION_MAJOR_INIT \
+    ((VERSION_MAJOR / 100) + '0'), \
+    (((VERSION_MAJOR % 100) / 10) + '0'), \
+    ((VERSION_MAJOR % 10) + '0')
+
+#elif VERSION_MAJOR > 10
+
+#define VERSION_MAJOR_INIT \
+    ((VERSION_MAJOR / 10) + '0'), \
+    ((VERSION_MAJOR % 10) + '0')
+
+#else
+
+#define VERSION_MAJOR_INIT \
+    (VERSION_MAJOR + '0')
+
+#endif
+
+#if VERSION_MINOR > 100
+
+#define VERSION_MINOR_INIT \
+    ((VERSION_MINOR / 100) + '0'), \
+    (((VERSION_MINOR % 100) / 10) + '0'), \
+    ((VERSION_MINOR % 10) + '0')
+
+#elif VERSION_MINOR > 10
+
+#define VERSION_MINOR_INIT \
+    ((VERSION_MINOR / 10) + '0'), \
+    ((VERSION_MINOR % 10) + '0')
+
+#else
+
+#define VERSION_MINOR_INIT \
+    (VERSION_MINOR + '0')
+
+#endif
 
 
 

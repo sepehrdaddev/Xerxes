@@ -14,7 +14,6 @@ void Null_Flood::attack(const int *id) {
         sockets.push_back(0);
     }
     int socktype = conf->protocol == config::UDP ? SOCK_DGRAM: SOCK_STREAM;
-    signal(SIGPIPE, &Null_Flood::broke);
     while(true) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
@@ -52,7 +51,6 @@ void Null_Flood::attack_ssl(const int *id) {
         SSLs.push_back(nullptr);
         CTXs.push_back(nullptr);
     }
-    signal(SIGPIPE, &Null_Flood::broke);
     while(true) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {

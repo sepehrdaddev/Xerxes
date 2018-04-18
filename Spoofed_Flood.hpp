@@ -27,7 +27,6 @@ private:
         u_int16_t length;
     };
     virtual int make_socket(int protocol);
-    static void broke(int);
 };
 
 

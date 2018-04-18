@@ -14,7 +14,6 @@ void Slowloris::attack(const int *id) {
         sockets.push_back(0);
         keep_alive.push_back(false);
     }
-    signal(SIGPIPE, &Slowloris::broke);
     while(true) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
@@ -57,7 +56,6 @@ void Slowloris::attack_ssl(const int *id) {
         CTXs.push_back(nullptr);
         keep_alive.push_back(false);
     }
-    signal(SIGPIPE, &Slowloris::broke);
     while(true) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
