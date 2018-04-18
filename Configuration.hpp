@@ -7,7 +7,7 @@
 #include "Version.hpp"
 
 struct config{
-    enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedTCP, SpoofedUDP, Rudy, Blacknurse, SSL_Flood};
+    enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedTCP, SpoofedUDP, Rudy, Blacknurse, Beast};
     enum Protocol{TCP, UDP};
     Protocol protocol{TCP};
     Vector vector{NullTCP};
@@ -25,10 +25,16 @@ struct config{
 };
 
 const char Version[] = {
-        BUILD_YEAR_CH0, BUILD_YEAR_CH1,
-        BUILD_YEAR_CH2, BUILD_YEAR_CH3,
-        '.', BUILD_MONTH_CH0, BUILD_MONTH_CH1,
-        '.', BUILD_DAY_CH0, BUILD_DAY_CH1, '\0'
+        VERSION_MAJOR_INIT,
+        '.',
+        VERSION_MINOR_INIT,
+        '\0'
+};
+const char Time[] = {
+        BUILD_YEAR_CH0, BUILD_YEAR_CH1, BUILD_YEAR_CH2, BUILD_YEAR_CH3,
+        BUILD_MONTH_CH0, BUILD_MONTH_CH1,
+        BUILD_DAY_CH0, BUILD_DAY_CH1,
+        '\0'
 };
 
 #endif //XERXES_CONFIGURATION_H

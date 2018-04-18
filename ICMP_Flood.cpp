@@ -22,7 +22,6 @@ void ICMP_Flood::attack(const int *id) {
     auto *icmp = (struct icmphdr *)(ip + 1);
     struct hostent *hp;
     struct sockaddr_in dst{};
-    signal(SIGPIPE, &ICMP_Flood::broke);
     while(true){
         for(int x = 0;x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));

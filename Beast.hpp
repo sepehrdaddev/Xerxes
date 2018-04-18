@@ -1,5 +1,5 @@
-#ifndef XERXES_SSL_FLOOD_H
-#define XERXES_SSL_FLOOD_H
+#ifndef XERXES_Beast_H
+#define XERXES_Beast_H
 
 
 #include <sys/time.h>
@@ -13,9 +13,9 @@
 #include <openssl/err.h>
 #include "Attack_Vector.hpp"
 
-class Ssl_Flood : public Attack_Vector {
+class Beast : public Attack_Vector {
 public:
-    Ssl_Flood(const config *conf, Logger *logger);
+    Beast(const config *conf, Logger *logger);
 
 private:
     #define FL_PEER_WANT_NEXT_STATE		(0x04)
@@ -80,9 +80,8 @@ private:
     void init();
     void update_stat(struct timeval *tv);
     uint64_t getusec(struct timeval *tv);
-    static void broke(int);
     void attack(const int *id) override;
 };
 
 
-#endif //XERXES_SSL_FLOOD_H
+#endif //XERXES_Beast_H

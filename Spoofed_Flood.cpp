@@ -30,7 +30,3 @@ int Spoofed_Flood::make_socket(int protocol) {
     }
     return sock;
 }
-
-void Spoofed_Flood::broke(int) {
-    //pass
-}
