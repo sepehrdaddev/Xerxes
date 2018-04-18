@@ -1,5 +1,5 @@
 #include "Ssl_Flood.hpp"
-#include <signal.h>
+#include <csignal>
 
 Ssl_Flood::Ssl_Flood(const config *conf, Logger *logger) : Attack_Vector(conf, logger) {
 
