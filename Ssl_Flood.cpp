@@ -1,10 +1,12 @@
 #include "Ssl_Flood.hpp"
+#include <signal.h>
 
 Ssl_Flood::Ssl_Flood(const config *conf, Logger *logger) : Attack_Vector(conf, logger) {
 
 }
 
 void Ssl_Flood::attack(const int *id) {
+    signal(SIGPIPE, &Ssl_Flood::broke);
     std::string message{};
     init();
     fd_set rfds;
@@ -348,4 +350,8 @@ void Ssl_Flood::update_stat(struct timeval *tv) {
     }
     opt.stat.epoch_start_renegotiations = opt.stat.total_renegotiations;
     opt.stat.epoch_start_usec = usec_now;
+}
+
+void Ssl_Flood::broke(int) {
+    // pass
 }

@@ -80,6 +80,7 @@ private:
     void init();
     void update_stat(struct timeval *tv);
     uint64_t getusec(struct timeval *tv);
+    static void broke(int);
     void attack(const int *id) override;
 };
 
