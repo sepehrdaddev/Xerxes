@@ -6,8 +6,8 @@
 #include <netinet/ip_icmp.h>
 #include <csignal>
 
-#include "ICMP_Flood.hpp"
-#include "Randomizer.hpp"
+#include "../Headers/ICMP_Flood.hpp"
+#include "../Headers/Randomizer.hpp"
 
 void ICMP_Flood::attack(const int *id) {
     int r;

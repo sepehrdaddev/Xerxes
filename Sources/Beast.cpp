@@ -1,4 +1,4 @@
-#include "Beast.hpp"
+#include "../Headers/Beast.hpp"
 #include <csignal>
 
 Beast::Beast(const config *conf, Logger *logger) : Attack_Vector(conf, logger) {

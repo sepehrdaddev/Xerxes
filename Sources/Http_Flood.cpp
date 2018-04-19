@@ -5,7 +5,7 @@
 #include <array>
 #include <openssl/ssl.h>
 
-#include "Http_Flood.hpp"
+#include "../Headers/Http_Flood.hpp"
 
 
 Http_Flood::Http_Flood(const config *conf, Logger *logger) : Attack_Vector(conf, logger){
@@ -64,7 +64,7 @@ int Http_Flood::make_socket(const char *host, const char *port, int sock_type) {
 }
 
 SSL_CTX *Http_Flood::InitCTX() {
-    const SSL_METHOD *method{TLSv1_1_client_method()};
+    const SSL_METHOD *method{TLS_client_method()};
     SSL_CTX *ctx;
     OpenSSL_add_ssl_algorithms();
     SSL_load_error_strings();

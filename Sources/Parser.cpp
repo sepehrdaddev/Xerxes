@@ -3,7 +3,7 @@
 #include <vector>
 #include <unistd.h>
 #include <cstring>
-#include "Parser.hpp"
+#include "../Headers/Parser.hpp"
 
 void Parser::help() {
     std::string message{"Usage: ./Xerxes -host <website> -port <port> -T <threads> -C <connections> <options>\n"

@@ -6,8 +6,8 @@
 #include <netdb.h>
 #include <csignal>
 
-#include "Randomizer.hpp"
-#include "Spoofed_UDP_Flood.hpp"
+#include "../Headers/Randomizer.hpp"
+#include "../Headers/Spoofed_UDP_Flood.hpp"
 
 void Spoofed_UDP_Flood::attack(const int *id) {
     int r;
