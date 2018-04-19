@@ -1,7 +1,6 @@
 #ifndef XERXES_SPOOFED_FLOOD_H
 #define XERXES_SPOOFED_FLOOD_H
 
-
 #include "Configuration.hpp"
 #include "Logger.hpp"
 #include "Attack_Vector.hpp"

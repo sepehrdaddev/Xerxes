@@ -1,7 +1,6 @@
 #ifndef XERXES_NULL_FLOOD_H
 #define XERXES_NULL_FLOOD_H
 
-
 #include "Configuration.hpp"
 #include "Logger.hpp"
 #include "Http_Flood.hpp"

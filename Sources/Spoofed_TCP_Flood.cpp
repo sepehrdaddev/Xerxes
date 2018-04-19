@@ -4,7 +4,6 @@
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
-#include <csignal>
 
 #include "../Headers/Randomizer.hpp"
 #include "../Headers/Spoofed_TCP_Flood.hpp"

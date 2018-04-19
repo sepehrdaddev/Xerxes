@@ -1,16 +1,8 @@
 #ifndef XERXES_Beast_H
 #define XERXES_Beast_H
 
-
-#include <sys/time.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <cstring>
-#include <netinet/in.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
+
 #include "Attack_Vector.hpp"
 
 class Beast : public Attack_Vector {

@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <array>
 
 #include "../Headers/Doser.hpp"
 #include "../Headers/Attack_Vectors.hpp"

@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include "../Headers/Logger.hpp"
 
 #define RED   "\x1B[31m" // Color Terminal Red

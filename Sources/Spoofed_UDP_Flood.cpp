@@ -4,7 +4,6 @@
 #include <netinet/ip.h>
 #include <netinet/udp.h>
 #include <netdb.h>
-#include <csignal>
 
 #include "../Headers/Randomizer.hpp"
 #include "../Headers/Spoofed_UDP_Flood.hpp"
