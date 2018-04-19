@@ -1,7 +1,6 @@
 #ifndef XERXES_SLOWLORIS_H
 #define XERXES_SLOWLORIS_H
 
-
 #include "Configuration.hpp"
 #include "Logger.hpp"
 #include "Randomizer.hpp"

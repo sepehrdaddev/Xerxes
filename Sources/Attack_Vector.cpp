@@ -1,5 +1,6 @@
-#include "../Headers/Attack_Vector.hpp"
 #include <unistd.h>
+
+#include "../Headers/Attack_Vector.hpp"
 
 Attack_Vector::Attack_Vector(const config *conf, Logger *logger) : conf{conf}, logger{logger}{
 

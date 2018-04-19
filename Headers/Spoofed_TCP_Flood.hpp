@@ -1,7 +1,6 @@
 #ifndef XERXES_SPOOFED_TCP_FLOOD_H
 #define XERXES_SPOOFED_TCP_FLOOD_H
 
-
 #include "Spoofed_Flood.hpp"
 
 class Spoofed_TCP_Flood : public Spoofed_Flood {

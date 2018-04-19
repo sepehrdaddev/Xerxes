@@ -1,7 +1,6 @@
 #ifndef XERXES_LOGGER_H
 #define XERXES_LOGGER_H
 
-
 class Logger {
 public:
     enum Level{None, Error, Warning, Info};

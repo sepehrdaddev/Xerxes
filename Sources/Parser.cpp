@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <unistd.h>
 #include <cstring>
+
 #include "../Headers/Parser.hpp"
 
 void Parser::help() {

@@ -1,10 +1,6 @@
 #ifndef XERXES_DOSER_H
 #define XERXES_DOSER_H
 
-
-#include <array>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
 #include "Configuration.hpp"
 #include "Logger.hpp"
 

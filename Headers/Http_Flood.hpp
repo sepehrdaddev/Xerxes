@@ -1,6 +1,8 @@
 #ifndef XERXES_HTTP_FLOOD_H
 #define XERXES_HTTP_FLOOD_H
 
+#include <openssl/ssl.h>
+
 #include "Configuration.hpp"
 #include "Logger.hpp"
 #include "Randomizer.hpp"

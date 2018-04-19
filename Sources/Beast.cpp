@@ -1,5 +1,10 @@
+#include <sys/time.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <cstring>
+#include <openssl/ssl.h>
+
 #include "../Headers/Beast.hpp"
-#include <csignal>
 
 Beast::Beast(const config *conf, Logger *logger) : Attack_Vector(conf, logger) {
 
