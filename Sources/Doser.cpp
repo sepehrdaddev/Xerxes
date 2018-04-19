@@ -1,7 +1,7 @@
 #include <unistd.h>
 
-#include "Doser.hpp"
-#include "Attack_Vectors.hpp"
+#include "../Headers/Doser.hpp"
+#include "../Headers/Attack_Vectors.hpp"
 
 void Doser::run() {
 

@@ -1,7 +1,7 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include "Spoofed_Flood.hpp"
+#include "../Headers/Spoofed_Flood.hpp"
 
 Spoofed_Flood::Spoofed_Flood(const config *conf, Logger *logger) : Attack_Vector(conf, logger){
 

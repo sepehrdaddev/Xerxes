@@ -6,8 +6,8 @@
 #include <netinet/ip_icmp.h>
 #include <csignal>
 
-#include "Black_Nurse.hpp"
-#include "Randomizer.hpp"
+#include "../Headers/Black_Nurse.hpp"
+#include "../Headers/Randomizer.hpp"
 
 Black_Nurse::Black_Nurse(const config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
 
