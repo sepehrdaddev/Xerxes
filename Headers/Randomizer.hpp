@@ -33,9 +33,9 @@ namespace Randomizer{
     }
 
     static const char *randomstr(){
-        int string_length =  randomInt(0, 20) + 1;
+        int string_length =  randomInt(0, 30) + 1;
         std::string string{};
-        for(int i = 0; i < string_length; ++i){
+        for(int i = 0; i < string_length; i++){
             string += (static_cast<char>('0' + randomInt(0, 72)));
         }
         return string.c_str();
