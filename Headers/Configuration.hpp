@@ -15,12 +15,12 @@ struct config{
     std::string port{"1"};
     std::vector<std::string> useragents{"Wget/1.16 (linux-gnu/Xerxes)"};
     int THREADS{10};
-    int CONNECTIONS{10};
+    int CONNECTIONS{25};
     bool GetResponse{false};
     bool RandomizeUserAgent{false};
     bool RandomizeHeader{false};
     bool UseSSL{false};
-    int delay{3000};
+    int delay{0};
 
 };
 
