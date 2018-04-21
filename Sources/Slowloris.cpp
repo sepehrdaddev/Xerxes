@@ -1,6 +1,5 @@
 #include <netdb.h>
 #include <cstring>
-#include <unistd.h>
 #include <openssl/ssl.h>
 
 #include "../Headers/Slowloris.hpp"
@@ -39,7 +38,7 @@ void Slowloris::attack(const int *id) {
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
-        usleep(static_cast<__useconds_t>(conf->delay));
+        pause();
     }
 }
 
@@ -85,7 +84,7 @@ void Slowloris::attack_ssl(const int *id) {
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
-        usleep(static_cast<__useconds_t>(conf->delay));
+        pause();
     }
 }
 

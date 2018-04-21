@@ -17,6 +17,7 @@ public:
 protected:
     const config *conf;
     Logger *logger;
+    virtual void pause();
 
 private:
     virtual void attack(const int *id) = 0;

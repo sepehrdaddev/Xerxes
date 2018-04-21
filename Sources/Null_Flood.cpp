@@ -1,5 +1,4 @@
 #include <netdb.h>
-#include <unistd.h>
 #include <openssl/ssl.h>
 
 #include "../Headers/Null_Flood.hpp"
@@ -33,7 +32,7 @@ void Null_Flood::attack(const int *id) {
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
-        usleep(static_cast<__useconds_t>(conf->delay));
+        pause();
     }
 }
 
@@ -74,7 +73,7 @@ void Null_Flood::attack_ssl(const int *id) {
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
-        usleep(static_cast<__useconds_t>(conf->delay));
+        pause();
     }
 }
 

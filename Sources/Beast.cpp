@@ -60,7 +60,7 @@ void Beast::attack(const int *id) {
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
-        usleep(static_cast<__useconds_t>(conf->delay));
+        pause();
     }
 
 }

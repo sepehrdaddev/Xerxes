@@ -14,3 +14,11 @@ void Attack_Vector::run() {
     }
     getc(stdin);
 }
+
+void Attack_Vector::pause() {
+    if(conf->delay > 0){
+        usleep(static_cast<__useconds_t>(conf->delay));
+    }else{
+        return;
+    }
+}
