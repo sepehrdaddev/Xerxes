@@ -7,7 +7,8 @@
 #include "Version.hpp"
 
 struct config{
-    enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedTCP, SpoofedUDP, Rudy, Blacknurse, Beast};
+    enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedUDP,
+        SpoofedSyn, SpoofedAck, SpoofedFin, Rudy, Blacknurse, Beast};
     enum Protocol{TCP, UDP};
     Protocol protocol{TCP};
     Vector vector{NullTCP};

