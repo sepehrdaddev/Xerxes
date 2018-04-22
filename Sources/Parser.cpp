@@ -23,7 +23,7 @@ void Parser::help() {
                                 "                -sa              set attack vector to Spoofed Ack Flood\n"
                                 "                -sf              set attack vector to Spoofed Fin Flood\n"
                                 "                -ss              enable SSL\n"
-                                "                -w               wait for hosts response\n"
+                                "                -w               wait for response\n"
                                 "                -rh              randomize HTTP Header\n"
                                 "                -ru              randomize HTTP UserAgent\n"
                                 "                -qq              set verbosity to quiet quiet\n"

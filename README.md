@@ -17,7 +17,7 @@ Xerxes Dos Tool Rewritten in C++
 Not only that but also we are aggressively developing it and adding a lot more features and functionalities.
 
 ## Usage
-`Usage: ./Xerxes -host <website> -port <port> -T <threads> -C <connections> <options>`\
+`Usage: ./Xerxes -target <ip or url> -port <port> <options>`\
 Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-h&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to HTTP\
 &emsp;&emsp;&emsp;&emsp;&emsp;-i&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed ICMP Flood\
@@ -30,9 +30,11 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ft&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to TCPFlood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-fu&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to UDPFlood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-su&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed UDP Flood\
-&emsp;&emsp;&emsp;&emsp;&emsp;-st&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed TCP Flood\
+&emsp;&emsp;&emsp;&emsp;&emsp;-sy&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed Syn Flood\
+&emsp;&emsp;&emsp;&emsp;&emsp;-sa&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed Ack Flood\
+&emsp;&emsp;&emsp;&emsp;&emsp;-sf&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed Fin Flood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ss&emsp;&emsp;&emsp;&emsp;&emsp;enable SSL\
-&emsp;&emsp;&emsp;&emsp;&emsp;-w&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;wait for hosts response\
+&emsp;&emsp;&emsp;&emsp;&emsp;-w&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;wait for response\
 &emsp;&emsp;&emsp;&emsp;&emsp;-rh&emsp;&emsp;&emsp;&emsp;&emsp;randomize HTTP Header\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ru&emsp;&emsp;&emsp;&emsp;&emsp;randomize HTTP UserAgent\
 &emsp;&emsp;&emsp;&emsp;&emsp;-qq&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to quiet quiet\
@@ -42,8 +44,8 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-D&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set delay in microseconds\
 &emsp;&emsp;&emsp;&emsp;&emsp;-T&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set number of threads\
 &emsp;&emsp;&emsp;&emsp;&emsp;-C&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set number of connections per thread\
-&emsp;&emsp;&emsp;&emsp;&emsp;-host&emsp;&emsp;&emsp;&emsp;set host ip or url\
-&emsp;&emsp;&emsp;&emsp;&emsp;-port&emsp;&emsp;&emsp;&emsp;set host port number\
+&emsp;&emsp;&emsp;&emsp;&emsp;-target&emsp;&emsp;&emsp;set host ip or url\
+&emsp;&emsp;&emsp;&emsp;&emsp;-port&emsp;&emsp;&emsp;&emsp;set target port number\
 &emsp;&emsp;&emsp;&emsp;&emsp;-help&emsp;&emsp;&emsp;&emsp;show help\
 &emsp;&emsp;&emsp;&emsp;&emsp;-version&nbsp;&emsp;&emsp;show version
 
