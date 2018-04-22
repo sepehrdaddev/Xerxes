@@ -102,7 +102,7 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             conf->vector = config::Blacknurse;
         }else if(!strcmp(argv[i], "-be")){
             conf->vector = config::Beast;
-        }else if(!strcmp(argv[i], "-host")){
+        }else if(!strcmp(argv[i], "-target")){
             conf->website = static_cast<std::string>(argv[i+1]);
         }else if(!strcmp(argv[i], "-port")){
             conf->port = static_cast<std::string>(argv[i+1]);
