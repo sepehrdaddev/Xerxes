@@ -6,7 +6,7 @@
 #include "../Headers/Parser.hpp"
 
 void Parser::help() {
-    std::string message{"Usage: ./Xerxes -host <website> -port <port> -T <threads> -C <connections> <options>\n"
+    std::string message{"Usage: ./Xerxes -target <ip or url> -port <port> <options>\n"
                         "\nOptions:\n"
                                 "                -h               set attack vector to HTTP\n"
                                 "                -i               set attack vector to Spoofed ICMP Flood\n"
@@ -19,7 +19,9 @@ void Parser::help() {
                                 "                -ft              set attack vector to TCPFlood\n"
                                 "                -fu              set attack vector to UDPFlood\n"
                                 "                -su              set attack vector to Spoofed UDP Flood\n"
-                                "                -st              set attack vector to Spoofed TCP Flood\n"
+                                "                -sy              set attack vector to Spoofed Syn Flood\n"
+                                "                -sa              set attack vector to Spoofed Ack Flood\n"
+                                "                -sf              set attack vector to Spoofed Fin Flood\n"
                                 "                -ss              enable SSL\n"
                                 "                -w               wait for hosts response\n"
                                 "                -rh              randomize HTTP Header\n"
@@ -31,8 +33,8 @@ void Parser::help() {
                                 "                -D               set delay in microseconds\n"
                                 "                -T               set number of threads\n"
                                 "                -C               set number of connections per thread\n"
-                                "                -host            set host ip or url\n"
-                                "                -port            set host port number\n"
+                                "                -target          set target ip or url\n"
+                                "                -port            set target port number\n"
                                 "                -help            show help\n"
                                 "                -version         show version\n"
     };
@@ -80,8 +82,12 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             conf->UseSSL = true;
         }else if(!strcmp(argv[i], "-su")){
             conf->vector = config::SpoofedUDP;
-        }else if(!strcmp(argv[i], "-st")){
-            conf->vector = config::SpoofedTCP;
+        }else if(!strcmp(argv[i], "-sy")){
+            conf->vector = config::SpoofedSyn;
+        }else if(!strcmp(argv[i], "-sa")){
+            conf->vector = config::SpoofedAck;
+        }else if(!strcmp(argv[i], "-sf")){
+            conf->vector = config::SpoofedFin;
         }else if(!strcmp(argv[i], "-q")){
             logger->setLevel(Logger::Error);
         }else if(!strcmp(argv[i], "-qq")){
@@ -96,7 +102,7 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             conf->vector = config::Blacknurse;
         }else if(!strcmp(argv[i], "-be")){
             conf->vector = config::Beast;
-        }else if(!strcmp(argv[i], "-host")){
+        }else if(!strcmp(argv[i], "-target")){
             conf->website = static_cast<std::string>(argv[i+1]);
         }else if(!strcmp(argv[i], "-port")){
             conf->port = static_cast<std::string>(argv[i+1]);

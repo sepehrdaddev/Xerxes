@@ -1,6 +1,11 @@
 #ifndef XERXES_SPOOFED_FLOOD_H
 #define XERXES_SPOOFED_FLOOD_H
 
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#include <netinet/ip_icmp.h>
+
 #include "Configuration.hpp"
 #include "Logger.hpp"
 #include "Attack_Vector.hpp"
@@ -26,6 +31,9 @@ private:
         u_int16_t length;
     };
     virtual int make_socket(int protocol);
+    virtual void init_headers(iphdr *ip, tcphdr *tcp, char *buf);
+    virtual void init_headers(iphdr *ip, udphdr *udp, char *buf);
+    virtual void init_headers(iphdr *ip, icmphdr *icmp, char *buf);
 };
 
 

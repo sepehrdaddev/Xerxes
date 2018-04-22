@@ -7,7 +7,8 @@
 #include "Version.hpp"
 
 struct config{
-    enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedTCP, SpoofedUDP, Rudy, Blacknurse, Beast};
+    enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedUDP,
+        SpoofedSyn, SpoofedAck, SpoofedFin, Rudy, Blacknurse, Beast};
     enum Protocol{TCP, UDP};
     Protocol protocol{TCP};
     Vector vector{NullTCP};
@@ -15,12 +16,12 @@ struct config{
     std::string port{"1"};
     std::vector<std::string> useragents{"Wget/1.16 (linux-gnu/Xerxes)"};
     int THREADS{10};
-    int CONNECTIONS{10};
+    int CONNECTIONS{25};
     bool GetResponse{false};
     bool RandomizeUserAgent{false};
     bool RandomizeHeader{false};
     bool UseSSL{false};
-    int delay{3000};
+    int delay{0};
 
 };
 

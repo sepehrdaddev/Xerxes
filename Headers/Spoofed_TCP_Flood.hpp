@@ -9,6 +9,7 @@ public:
 
 private:
     void attack(const int *id) override;
+    void override_options(tcphdr *tcp);
 };
 
 
