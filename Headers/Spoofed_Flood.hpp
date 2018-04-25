@@ -15,7 +15,6 @@ class Spoofed_Flood : public Attack_Vector {
     friend class ICMP_Flood;
     friend class Spoofed_TCP_Flood;
     friend class Spoofed_UDP_Flood;
-    friend class Black_Nurse;
 
 public:
     Spoofed_Flood() = default;
@@ -31,9 +30,6 @@ private:
         u_int16_t length;
     };
     virtual int make_socket(int protocol);
-    virtual void init_headers(iphdr *ip, tcphdr *tcp, char *buf);
-    virtual void init_headers(iphdr *ip, udphdr *udp, char *buf);
-    virtual void init_headers(iphdr *ip, icmphdr *icmp, char *buf);
 };
 
 
