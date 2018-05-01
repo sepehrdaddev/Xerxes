@@ -22,6 +22,7 @@ void Parser::help() {
                                 "                -sy              set attack vector to Spoofed Syn Flood\n"
                                 "                -sa              set attack vector to Spoofed Ack Flood\n"
                                 "                -sf              set attack vector to Spoofed Fin Flood\n"
+                                "                -td              set attack vector to Teardrop\n"
                                 "                -ss              enable SSL\n"
                                 "                -w               wait for response\n"
                                 "                -rh              randomize HTTP Header\n"
@@ -106,6 +107,8 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             conf->website = static_cast<std::string>(argv[i+1]);
         }else if(!strcmp(argv[i], "-port")){
             conf->port = static_cast<std::string>(argv[i+1]);
+        }else if(!strcmp(argv[i], "-td")){
+            conf->vector = config::TearDrop;
         }else if(!strcmp(argv[i], "-T")){
             if(Validator::isValidNumber(argv[i+1])){
                 conf->THREADS = static_cast<int>(strtol(argv[i+1], nullptr, 10));

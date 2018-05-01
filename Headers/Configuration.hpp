@@ -8,7 +8,7 @@
 
 struct config{
     enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedUDP,
-        SpoofedSyn, SpoofedAck, SpoofedFin, Rudy, Blacknurse, Beast};
+        SpoofedSyn, SpoofedAck, SpoofedFin, Rudy, Blacknurse, Beast, TearDrop, Land};
     enum Protocol{TCP, UDP};
     Protocol protocol{TCP};
     Vector vector{NullTCP};

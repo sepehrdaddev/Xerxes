@@ -70,6 +70,10 @@ void Doser::run() {
             logger->Log("Attack Vector: Beast", Logger::Info);
             flood = new Beast{conf, logger};
             break;
+        case config::TearDrop:
+            logger->Log("Attack Vector: Teardrop", Logger::Info);
+            flood = new Spoofed_UDP_Flood{conf, logger};
+            break;
         default:break;
     }
     if(conf->UseSSL){
