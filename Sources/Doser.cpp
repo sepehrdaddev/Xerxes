@@ -58,6 +58,18 @@ void Doser::run() {
             logger->Log("Attack Vector: Spoofed Ack Flood", Logger::Info);
             flood = new Spoofed_TCP_Flood{conf, logger};
             break;
+        case config::SpoofedRST:
+            logger->Log("Attack Vector: Spoofed RST Flood", Logger::Info);
+            flood = new Spoofed_TCP_Flood{conf, logger};
+            break;
+        case config::SpoofedURG:
+            logger->Log("Attack Vector: Spoofed Fin Flood", Logger::Info);
+            flood = new Spoofed_TCP_Flood{conf, logger};
+            break;
+        case config::SpoofedPUSH:
+            logger->Log("Attack Vector: Spoofed Fin Flood", Logger::Info);
+            flood = new Spoofed_TCP_Flood{conf, logger};
+            break;
         case config::SpoofedFin:
             logger->Log("Attack Vector: Spoofed Fin Flood", Logger::Info);
             flood = new Spoofed_TCP_Flood{conf, logger};
@@ -73,6 +85,10 @@ void Doser::run() {
         case config::TearDrop:
             logger->Log("Attack Vector: Teardrop", Logger::Info);
             flood = new Spoofed_UDP_Flood{conf, logger};
+            break;
+        case config::Land:
+            logger->Log("Attack Vector: Land", Logger::Info);
+            flood = new Spoofed_TCP_Flood{conf, logger};
             break;
         default:break;
     }

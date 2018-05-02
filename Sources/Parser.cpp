@@ -21,8 +21,12 @@ void Parser::help() {
                                 "                -su              set attack vector to Spoofed UDP Flood\n"
                                 "                -sy              set attack vector to Spoofed Syn Flood\n"
                                 "                -sa              set attack vector to Spoofed Ack Flood\n"
+                                "                -sr              set attack vector to Spoofed Rst Flood\n"
+                                "                -sg              set attack vector to Spoofed Urg Flood\n"
+                                "                -sp              set attack vector to Spoofed Push Flood\n"
                                 "                -sf              set attack vector to Spoofed Fin Flood\n"
                                 "                -td              set attack vector to Teardrop\n"
+                                "                -ld              set attack vector to Land\n"
                                 "                -ss              enable SSL\n"
                                 "                -w               wait for response\n"
                                 "                -rh              randomize HTTP Header\n"
@@ -87,6 +91,12 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             conf->vector = config::SpoofedSyn;
         }else if(!strcmp(argv[i], "-sa")){
             conf->vector = config::SpoofedAck;
+        }else if(!strcmp(argv[i], "-sr")){
+            conf->vector = config::SpoofedRST;
+        }else if(!strcmp(argv[i], "-sg")){
+            conf->vector = config::SpoofedURG;
+        }else if(!strcmp(argv[i], "-sp")){
+            conf->vector = config::SpoofedPUSH;
         }else if(!strcmp(argv[i], "-sf")){
             conf->vector = config::SpoofedFin;
         }else if(!strcmp(argv[i], "-q")){
@@ -109,6 +119,8 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             conf->port = static_cast<std::string>(argv[i+1]);
         }else if(!strcmp(argv[i], "-td")){
             conf->vector = config::TearDrop;
+        }else if(!strcmp(argv[i], "-ld")){
+            conf->vector = config::Land;
         }else if(!strcmp(argv[i], "-T")){
             if(Validator::isValidNumber(argv[i+1])){
                 conf->THREADS = static_cast<int>(strtol(argv[i+1], nullptr, 10));
