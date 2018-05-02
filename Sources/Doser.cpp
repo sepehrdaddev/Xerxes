@@ -59,15 +59,15 @@ void Doser::run() {
             flood = new Spoofed_TCP_Flood{conf, logger};
             break;
         case config::SpoofedRST:
-            logger->Log("Attack Vector: Spoofed RST Flood", Logger::Info);
+            logger->Log("Attack Vector: Spoofed Rst Flood", Logger::Info);
             flood = new Spoofed_TCP_Flood{conf, logger};
             break;
         case config::SpoofedURG:
-            logger->Log("Attack Vector: Spoofed Fin Flood", Logger::Info);
+            logger->Log("Attack Vector: Spoofed Urg Flood", Logger::Info);
             flood = new Spoofed_TCP_Flood{conf, logger};
             break;
         case config::SpoofedPUSH:
-            logger->Log("Attack Vector: Spoofed Fin Flood", Logger::Info);
+            logger->Log("Attack Vector: Spoofed Push Flood", Logger::Info);
             flood = new Spoofed_TCP_Flood{conf, logger};
             break;
         case config::SpoofedFin:

