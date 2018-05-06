@@ -1,7 +1,10 @@
+group: travis_latest
+
 language: cpp
 
 compiler:
     - gcc
+    - clang
 
 before_script:
     - mkdir build
