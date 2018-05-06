@@ -9,7 +9,8 @@ public:
 
 private:
     void attack(const int *id) override;
-    void override_options(tcphdr *tcp);
+    void init_headers(iphdr *ip, tcphdr *tcp, char *buf);
+    void override_headers(tcphdr *tcp, iphdr *ip);
 };
 
 

