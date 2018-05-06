@@ -8,7 +8,7 @@ compiler:
     - clang
 
 before_script:
-    - apt-get update && apt-get -y install build-essential cmake libssl-dev pkgconf
+    - sudo apt-get update && apt-get -y install build-essential cmake libssl-dev pkgconf
     - mkdir build
     - cd build
     - cmake ..
