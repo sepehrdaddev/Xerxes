@@ -34,7 +34,12 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-su&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed UDP Flood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-sy&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed Syn Flood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-sa&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed Ack Flood\
+&emsp;&emsp;&emsp;&emsp;&emsp;-sr&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed Rst Flood\
+&emsp;&emsp;&emsp;&emsp;&emsp;-sg&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed Urg Flood\
+&emsp;&emsp;&emsp;&emsp;&emsp;-sp&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed Push Flood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-sf&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed Fin Flood\
+&emsp;&emsp;&emsp;&emsp;&emsp;-td&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Teardrop\
+&emsp;&emsp;&emsp;&emsp;&emsp;-ld&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Land\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ss&emsp;&emsp;&emsp;&emsp;&emsp;enable SSL\
 &emsp;&emsp;&emsp;&emsp;&emsp;-w&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;wait for response\
 &emsp;&emsp;&emsp;&emsp;&emsp;-rh&emsp;&emsp;&emsp;&emsp;&emsp;randomize HTTP Header\
