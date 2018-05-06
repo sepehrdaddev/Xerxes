@@ -1,4 +1,4 @@
-#include <netdb.h>
+
 #include <openssl/ssl.h>
 
 #include "../Headers/Null_Flood.hpp"
@@ -9,7 +9,7 @@ void Null_Flood::attack(const int *id) {
     for (int x = 0; x < conf->CONNECTIONS; x++) {
         sockets.push_back(0);
     }
-    int socktype = conf->protocol == config::UDP ? SOCK_DGRAM: SOCK_STREAM;
+    int socktype = conf->protocol;
     while(true) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
@@ -41,7 +41,7 @@ void Null_Flood::attack_ssl(const int *id) {
     std::vector<int> sockets;
     std::vector<SSL_CTX *> CTXs;
     std::vector<SSL *> SSLs;
-    int socktype = conf->protocol == config::UDP ? SOCK_DGRAM: SOCK_STREAM;
+    int socktype = conf->protocol;
     for (int x = 0; x < conf->CONNECTIONS; x++) {
         sockets.push_back(0);
         SSLs.push_back(nullptr);
