@@ -193,8 +193,10 @@ const SSL_METHOD *Http_Flood::GetMethod() {
     switch (conf->protocol){
         case config::TCP:
             return TLSv1_2_client_method();
+#ifdef DTLS_ANY_VERSION
         case config::UDP:
             return DTLSv1_2_client_method();
+#endif
         default:
             return nullptr;
     }
