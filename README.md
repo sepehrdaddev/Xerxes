@@ -1,8 +1,8 @@
 <img align="left" width="100" height="100" src="/XerxesTheGreat.jpg">
 
-# Xerxes
+# Xerxes - Experimental
 
-[![Build Status](https://travis-ci.org/sepehrdaddev/Xerxes.svg?branch=master)](https://travis-ci.org/sepehrdaddev/Xerxes)
+[![Build Status](https://travis-ci.org/sepehrdaddev/Xerxes.svg?branch=experimental)](https://travis-ci.org/sepehrdaddev/Xerxes)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 Xerxes Dos Tool Rewritten in C++
@@ -44,6 +44,7 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-w&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;wait for response\
 &emsp;&emsp;&emsp;&emsp;&emsp;-rh&emsp;&emsp;&emsp;&emsp;&emsp;randomize HTTP Header\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ru&emsp;&emsp;&emsp;&emsp;&emsp;randomize HTTP UserAgent\
+&emsp;&emsp;&emsp;&emsp;&emsp;-rs&emsp;&emsp;&emsp;&emsp;&emsp;randomize Source IP\
 &emsp;&emsp;&emsp;&emsp;&emsp;-qq&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to quiet quiet\
 &emsp;&emsp;&emsp;&emsp;&emsp;-q&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to quiet\
 &emsp;&emsp;&emsp;&emsp;&emsp;-v&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to verbose\
