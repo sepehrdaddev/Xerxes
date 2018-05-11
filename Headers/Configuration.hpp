@@ -10,7 +10,7 @@ struct config{
     enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedUDP,
         SpoofedSyn, SpoofedAck, SpoofedRST, SpoofedPUSH, SpoofedURG, SpoofedFin, Rudy, Blacknurse,
         Beast, TearDrop, Land};
-    enum Protocol{TCP, UDP};
+    enum Protocol{TCP = 1, UDP};
     Protocol protocol{TCP};
     Vector vector{NullTCP};
     std::string website{};
@@ -22,6 +22,7 @@ struct config{
     bool RandomizeUserAgent{false};
     bool RandomizeHeader{false};
     bool UseSSL{false};
+    bool RandomizeSource{false};
     int delay{0};
 
 };

