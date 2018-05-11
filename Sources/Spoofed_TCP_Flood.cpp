@@ -115,7 +115,7 @@ void Spoofed_TCP_Flood::override_headers(tcphdr *tcp, iphdr *ip){
 }
 
 void Spoofed_TCP_Flood::init_headers(iphdr *ip, tcphdr *tcp, char *buf) {
-    auto s_port = Randomizer::randomPort();
+    auto s_port = conf->RandomizePort ? Randomizer::randomPort() : 0;
     // IP Struct
     ip->ihl = 5;
     ip->version = 4;

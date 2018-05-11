@@ -23,6 +23,7 @@ struct config{
     bool RandomizeHeader{false};
     bool UseSSL{false};
     bool RandomizeSource{false};
+    bool RandomizePort{false};
     int delay{0};
 
 };

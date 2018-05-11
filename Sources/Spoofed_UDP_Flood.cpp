@@ -96,7 +96,7 @@ void Spoofed_UDP_Flood::override_headers(udphdr *udp, iphdr *ip) {
 }
 
 void Spoofed_UDP_Flood::init_headers(iphdr *ip, udphdr *udp, char *buf) {
-    auto s_port = Randomizer::randomPort();
+    auto s_port = conf->RandomizePort ? Randomizer::randomPort() : 0;
     // IP Struct
     ip->ihl = 5;
     ip->version = 4;

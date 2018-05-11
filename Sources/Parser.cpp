@@ -32,6 +32,7 @@ void Parser::help() {
                                 "                -rh              randomize HTTP Header\n"
                                 "                -ru              randomize HTTP UserAgent\n"
                                 "                -rs              randomize Source IP\n"
+                                "                -rp              randomize Source Port\n"
                                 "                -qq              set verbosity to quiet quiet\n"
                                 "                -q               set verbosity to quiet\n"
                                 "                -v               set verbosity to verbose\n"
@@ -57,7 +58,7 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
     std::vector<std::string> arguments{"-h", "-nu", "-nt", "-fu", "-ft", "-r", "-ru", "-rh", "-w", "-s", "-ss", "-su",
                                        "-sy", "-sa", "-sr", "-sg", "-sp", "-sf", "-i", "-b", "-be", "-td", "-ld", "-q",
                                        "-qq", "-v", "-vv", "-target", "-port", "-T", "-C", "-D", "-help", "-version",
-                                       "-rs"};
+                                       "-rs", "-rp"};
 
     for(int i = 1; i < argc; i++){
         for(int x = 0; x < arguments.size(); x++){
@@ -216,6 +217,10 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
                         }
                         case 34:{
                             conf->RandomizeSource = true;
+                            break;
+                        }
+                        case 35:{
+                            conf->RandomizePort = true;
                             break;
                         }
                         default:break;

@@ -45,6 +45,7 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-rh&emsp;&emsp;&emsp;&emsp;&emsp;randomize HTTP Header\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ru&emsp;&emsp;&emsp;&emsp;&emsp;randomize HTTP UserAgent\
 &emsp;&emsp;&emsp;&emsp;&emsp;-rs&emsp;&emsp;&emsp;&emsp;&emsp;randomize Source IP\
+&emsp;&emsp;&emsp;&emsp;&emsp;-rp&emsp;&emsp;&emsp;&emsp;&emsp;randomize Source Port\
 &emsp;&emsp;&emsp;&emsp;&emsp;-qq&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to quiet quiet\
 &emsp;&emsp;&emsp;&emsp;&emsp;-q&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to quiet\
 &emsp;&emsp;&emsp;&emsp;&emsp;-v&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set verbosity to verbose\
