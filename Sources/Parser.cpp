@@ -27,6 +27,7 @@ void Parser::help() {
                                 "                -sf              set attack vector to Spoofed Fin Flood\n"
                                 "                -td              set attack vector to Teardrop\n"
                                 "                -ld              set attack vector to Land\n"
+                                "                -sm              set attack vector to Smurf\n"
                                 "                -ss              enable SSL\n"
                                 "                -w               wait for response\n"
                                 "                -rh              randomize HTTP Header\n"
@@ -40,6 +41,7 @@ void Parser::help() {
                                 "                -D               set delay in microseconds\n"
                                 "                -T               set number of threads\n"
                                 "                -C               set number of connections per thread\n"
+                                "                -B               set broadcast address\n"
                                 "                -target          set target ip or url\n"
                                 "                -port            set target port number\n"
                                 "                -help            show help\n"
@@ -58,7 +60,7 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
     std::vector<std::string> arguments{"-h", "-nu", "-nt", "-fu", "-ft", "-r", "-ru", "-rh", "-w", "-s", "-ss", "-su",
                                        "-sy", "-sa", "-sr", "-sg", "-sp", "-sf", "-i", "-b", "-be", "-td", "-ld", "-q",
                                        "-qq", "-v", "-vv", "-target", "-port", "-T", "-C", "-D", "-help", "-version",
-                                       "-rs", "-rp", "-b", "-sm"};
+                                       "-rs", "-rp", "-B", "-sm"};
 
     for(int i = 1; i < argc; i++){
         for(int x = 0; x < arguments.size(); x++){
