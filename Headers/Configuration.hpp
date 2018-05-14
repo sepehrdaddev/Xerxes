@@ -9,12 +9,13 @@
 struct config{
     enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedUDP,
         SpoofedSyn, SpoofedAck, SpoofedRST, SpoofedPUSH, SpoofedURG, SpoofedFin, Rudy, Blacknurse,
-        Beast, TearDrop, Land};
+        Beast, TearDrop, Land, Smurf};
     enum Protocol{TCP = 1, UDP};
     Protocol protocol{TCP};
     Vector vector{NullTCP};
     std::string website{};
     std::string port{"1"};
+    std::string broadcast{};
     std::vector<std::string> useragents{"Wget/1.16 (linux-gnu/Xerxes)"};
     int THREADS{10};
     int CONNECTIONS{25};

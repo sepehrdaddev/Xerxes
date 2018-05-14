@@ -29,10 +29,20 @@ bool Validator::isValidConfig() {
 }
 
 bool Validator::Validate() {
-    return isValidConfig() && isValidWebsite() && isValidPort();
+    switch(conf->vector){
+        case config::Smurf:
+            return isValidConfig() && isValidWebsite() && isValidPort() && isValidBroadcast();
+        default:
+            return isValidConfig() && isValidWebsite() && isValidPort();
+    }
 }
 
 bool Validator::isValidHostname(){
     hostent *record = gethostbyname(conf->website.c_str());
     return record != nullptr;
+}
+
+bool Validator::isValidBroadcast() {
+    struct sockaddr_in sa{};
+    return static_cast<bool>(inet_pton(AF_INET, conf->website.c_str(), &(sa.sin_addr)));
 }

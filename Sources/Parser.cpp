@@ -58,7 +58,7 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
     std::vector<std::string> arguments{"-h", "-nu", "-nt", "-fu", "-ft", "-r", "-ru", "-rh", "-w", "-s", "-ss", "-su",
                                        "-sy", "-sa", "-sr", "-sg", "-sp", "-sf", "-i", "-b", "-be", "-td", "-ld", "-q",
                                        "-qq", "-v", "-vv", "-target", "-port", "-T", "-C", "-D", "-help", "-version",
-                                       "-rs", "-rp"};
+                                       "-rs", "-rp", "-b", "-sm"};
 
     for(int i = 1; i < argc; i++){
         for(int x = 0; x < arguments.size(); x++){
@@ -221,6 +221,14 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
                         }
                         case 35:{
                             conf->RandomizePort = true;
+                            break;
+                        }
+                        case 36:{
+                            conf->broadcast = static_cast<std::string>(argv[i+1]);
+                            break;
+                        }
+                        case 37:{
+                            conf->vector = config::Smurf;
                             break;
                         }
                         default:break;

@@ -90,6 +90,11 @@ void Doser::run() {
             logger->Log("Attack Vector: Land", Logger::Info);
             flood = new Spoofed_TCP_Flood{conf, logger};
             break;
+        case config::Smurf:{
+            logger->Log("Attack Vector: Smurf", Logger::Info);
+            flood = new ICMP_Flood{conf, logger};
+            break;
+        }
         default:break;
     }
     if(conf->UseSSL){
