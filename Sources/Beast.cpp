@@ -6,7 +6,7 @@
 
 #include "../Headers/Beast.hpp"
 
-Beast::Beast(const config *conf, Logger *logger) : Attack_Vector(conf, logger) {
+Beast::Beast(const Config *conf, Logger *logger) : Attack_Vector(conf, logger) {
 
 }
 

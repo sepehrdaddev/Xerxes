@@ -1,6 +1,7 @@
 #include <iostream>
 #include <csignal>
 #include <unistd.h>
+#include <memory>
 #include "Headers/Parser.hpp"
 
 const pid_t m_pid = getpid();
@@ -17,24 +18,28 @@ void broke(int){
     // pass
 }
 
-int main(const int argc, const char *argv[]) {
+void init_signals(){
     signal(SIGINT, &exiting);
     signal(SIGABRT, &exiting);
     signal(SIGTERM, &exiting);
     signal(SIGTSTP, &exiting);
     signal(SIGPIPE, &broke);
+}
+
+int main(const int argc, const char *argv[]) {
+    init_signals();
 
     Parser::show_banner();
-    config conf{};
-    Logger logger{Logger::Info};
-    Parser parser{&conf, &logger};
-    parser.parse_commandline(argc, argv);
-    Validator validator(&conf);
-    if(validator.Validate()){
-        Doser doser(&conf, &logger);
-        doser.run();
+    auto config = std::make_unique<Config>().release();
+    auto logger = std::make_unique<Logger>(Logger::Info).release();
+    auto parser = std::make_unique<Parser>(config, logger);
+    parser->parse_commandline(argc, argv);
+    auto validator = std::make_unique<Validator>(config);
+    if(validator->Validate()){
+        auto engine = std::make_unique<Engine>(config, logger);
+        engine->run();
     }else{
-        logger.Log("Invalid Configuration", logger.Error);
+        logger->Log("Invalid Configuration", Logger::Error);
         Parser::help();
     }
 

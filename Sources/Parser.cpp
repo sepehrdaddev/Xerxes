@@ -68,33 +68,33 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
                 case 0:{
                     switch(x){
                         case 0:{
-                            conf->vector = config::HTTP;
-                            conf->protocol = config::TCP;
+                            conf->vector = Config::HTTP;
+                            conf->protocol = Config::TCP;
                             break;
                         }
                         case 1:{
-                            conf->vector = config::NullUDP;
-                            conf->protocol = config::UDP;
+                            conf->vector = Config::NullUDP;
+                            conf->protocol = Config::UDP;
                             break;
                         }
                         case 2:{
-                            conf->vector = config::NullTCP;
-                            conf->protocol = config::TCP;
+                            conf->vector = Config::NullTCP;
+                            conf->protocol = Config::TCP;
                             break;
                         }
                         case 3:{
-                            conf->vector = config::UDPFlood;
-                            conf->protocol = config::UDP;
+                            conf->vector = Config::UDPFlood;
+                            conf->protocol = Config::UDP;
                             break;
                         }
                         case 4:{
-                            conf->vector = config::TCPFlood;
-                            conf->protocol = config::TCP;
+                            conf->vector = Config::TCPFlood;
+                            conf->protocol = Config::TCP;
                             break;
                         }
                         case 5:{
-                            conf->vector = config::Rudy;
-                            conf->protocol = config::TCP;
+                            conf->vector = Config::Rudy;
+                            conf->protocol = Config::TCP;
                             conf->delay = 10000000;
                             break;
                         }
@@ -111,8 +111,8 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
                             break;
                         }
                         case 9:{
-                            conf->vector = config::Slowloris;
-                            conf->protocol = config::TCP;
+                            conf->vector = Config::Slowloris;
+                            conf->protocol = Config::TCP;
                             conf->delay = 10000000;
                             break;
                         }
@@ -121,51 +121,51 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
                             break;
                         }
                         case 11:{
-                            conf->vector = config::SpoofedUDP;
+                            conf->vector = Config::SpoofedUDP;
                             break;
                         }
                         case 12:{
-                            conf->vector = config::SpoofedSyn;
+                            conf->vector = Config::SpoofedSyn;
                             break;
                         }
                         case 13:{
-                            conf->vector = config::SpoofedAck;
+                            conf->vector = Config::SpoofedAck;
                             break;
                         }
                         case 14:{
-                            conf->vector = config::SpoofedRST;
+                            conf->vector = Config::SpoofedRST;
                             break;
                         }
                         case 15:{
-                            conf->vector = config::SpoofedURG;
+                            conf->vector = Config::SpoofedURG;
                             break;
                         }
                         case 16:{
-                            conf->vector = config::SpoofedPUSH;
+                            conf->vector = Config::SpoofedPUSH;
                             break;
                         }
                         case 17:{
-                            conf->vector = config::SpoofedFin;
+                            conf->vector = Config::SpoofedFin;
                             break;
                         }
                         case 18:{
-                            conf->vector = config::ICMPFlood;
+                            conf->vector = Config::ICMPFlood;
                             break;
                         }
                         case 19:{
-                            conf->vector = config::Blacknurse;
+                            conf->vector = Config::Blacknurse;
                             break;
                         }
                         case 20:{
-                            conf->vector = config::Beast;
+                            conf->vector = Config::Beast;
                             break;
                         }
                         case 21:{
-                            conf->vector = config::TearDrop;
+                            conf->vector = Config::TearDrop;
                             break;
                         }
                         case 22:{
-                            conf->vector = config::Land;
+                            conf->vector = Config::Land;
                             break;
                         }
                         case 23:{
@@ -230,7 +230,7 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
                             break;
                         }
                         case 37:{
-                            conf->vector = config::Smurf;
+                            conf->vector = Config::Smurf;
                             break;
                         }
                         default:break;
@@ -247,7 +247,7 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
 
 Parser::Parser() = default;
 
-Parser::Parser(config *conf, Logger *logger) : conf{conf}, logger{logger}{
+Parser::Parser(Config *conf, Logger *logger) : conf{conf}, logger{logger}{
 
 }
 

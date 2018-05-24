@@ -2,19 +2,19 @@
 #define XERXES_PARSER_H
 
 #include "Configuration.hpp"
-#include "Doser.hpp"
+#include "Engine.hpp"
 #include "Validator.hpp"
 
 class Parser {
 public:
     void parse_commandline(int argc, const char *argv[]);
     Parser();
-    Parser(config *conf, Logger *logger);
+    Parser(Config *conf, Logger *logger);
     static void help();
     static void show_banner();
 
 private:
-    config *conf;
+    Config *conf;
     Logger *logger;
     void getUserAgents();
     void check_root();

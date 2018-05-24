@@ -7,7 +7,7 @@
 
 class Beast : public Attack_Vector {
 public:
-    Beast(const config *conf, Logger *logger);
+    Beast(const Config *conf, Logger *logger);
 
 private:
     #define FL_PEER_WANT_NEXT_STATE		(0x04)

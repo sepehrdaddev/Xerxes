@@ -5,7 +5,7 @@
 
 Validator::Validator() = default;
 
-Validator::Validator(const config *conf) : conf{conf} {
+Validator::Validator(const Config *conf) : conf{conf} {
 
 }
 
@@ -30,7 +30,7 @@ bool Validator::isValidConfig() {
 
 bool Validator::Validate() {
     switch(conf->vector){
-        case config::Smurf:
+        case Config::Smurf:
             return isValidConfig() && isValidWebsite() && isValidPort() && isValidBroadcast();
         default:
             return isValidConfig() && isValidWebsite() && isValidPort();

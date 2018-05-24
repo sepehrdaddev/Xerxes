@@ -13,7 +13,7 @@ class Http_Flood : public Attack_Vector {
     friend class Null_Flood;
 public:
     Http_Flood () = default;
-    Http_Flood (const config *conf, Logger *logger);
+    Http_Flood (const Config *conf, Logger *logger);
     void run() override;
 
 private:

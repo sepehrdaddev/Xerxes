@@ -5,7 +5,7 @@
 
 class ICMP_Flood : public Spoofed_Flood {
 public:
-    ICMP_Flood(const config *conf, Logger *logger);
+    ICMP_Flood(const Config *conf, Logger *logger);
 
 private:
     void attack(const int *id) override;

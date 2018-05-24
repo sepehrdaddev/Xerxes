@@ -18,7 +18,7 @@ class Spoofed_Flood : public Attack_Vector {
 
 public:
     Spoofed_Flood() = default;
-    Spoofed_Flood(const config *conf, Logger *logger);
+    Spoofed_Flood(const Config *conf, Logger *logger);
 
 private:
     unsigned short csum(unsigned short *buf, int len);

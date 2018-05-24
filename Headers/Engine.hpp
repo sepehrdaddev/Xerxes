@@ -4,13 +4,13 @@
 #include "Configuration.hpp"
 #include "Logger.hpp"
 
-class Doser {
+class Engine {
 public:
-    Doser(config *conf, Logger *logger);
+    Engine(Config *conf, Logger *logger);
     void run();
 
 private:
-    config *conf;
+    Config *conf;
     Logger *logger;
 
 };

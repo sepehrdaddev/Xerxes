@@ -77,6 +77,6 @@ void Null_Flood::attack_ssl(const int *id) {
     }
 }
 
-Null_Flood::Null_Flood(const config *conf, Logger *logger) : Http_Flood(conf, logger) {
+Null_Flood::Null_Flood(const Config *conf, Logger *logger) : Http_Flood(conf, logger) {
 
 }

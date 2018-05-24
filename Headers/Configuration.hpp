@@ -6,7 +6,7 @@
 
 #include "Version.hpp"
 
-struct config{
+struct Config{
     enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedUDP,
         SpoofedSyn, SpoofedAck, SpoofedRST, SpoofedPUSH, SpoofedURG, SpoofedFin, Rudy, Blacknurse,
         Beast, TearDrop, Land, Smurf};

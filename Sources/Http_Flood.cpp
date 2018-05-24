@@ -6,7 +6,7 @@
 #include "../Headers/Http_Flood.hpp"
 
 
-Http_Flood::Http_Flood(const config *conf, Logger *logger) : Attack_Vector(conf, logger){
+Http_Flood::Http_Flood(const Config *conf, Logger *logger) : Attack_Vector(conf, logger){
 
 }
 
@@ -191,11 +191,11 @@ void Http_Flood::attack_ssl(const int *id) {
 
 const SSL_METHOD *Http_Flood::GetMethod() {
     switch (conf->protocol){
-        case config::TCP:
-            return TLSv1_1_client_method();
-        case config::UDP:
+        case Config::TCP:
+            return TLS_client_method();
+        case Config::UDP:
 #ifdef DTLS_ANY_VERSION
-            return DTLSv1_2_client_method();
+            return DTLS_client_method();
 #else
             logger->Log("Unable to find DTLS", Logger::Info);
             exit(EXIT_FAILURE);

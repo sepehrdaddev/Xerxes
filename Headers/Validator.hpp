@@ -7,11 +7,11 @@ class Validator {
 public:
     Validator();
 
-    explicit Validator(const config *conf);
+    explicit Validator(const Config *conf);
     bool Validate();
     static bool isValidNumber(char const *num);
 private:
-    const config *conf;
+    const Config *conf;
     bool isValidWebsite();
     bool isValidPort();
     bool isValidConfig();
