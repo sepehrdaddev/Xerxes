@@ -7,11 +7,11 @@ class Validator {
 public:
     Validator();
 
-    explicit Validator(const Config *conf);
+    explicit Validator(std::shared_ptr<Config> conf);
     bool Validate();
     static bool isValidNumber(char const *num);
 private:
-    const Config *conf;
+    std::shared_ptr<Config> conf;
     bool isValidWebsite();
     bool isValidPort();
     bool isValidConfig();

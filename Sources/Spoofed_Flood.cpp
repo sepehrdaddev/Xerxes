@@ -2,7 +2,7 @@
 
 #include "../Headers/Spoofed_Flood.hpp"
 
-Spoofed_Flood::Spoofed_Flood(const Config *conf, Logger *logger) : Attack_Vector(conf, logger){
+Spoofed_Flood::Spoofed_Flood(std::shared_ptr<Config> conf) : Attack_Vector(std::move(conf)){
 
 }
 
@@ -19,12 +19,12 @@ unsigned short Spoofed_Flood::csum(unsigned short *buf, int len) {
 int Spoofed_Flood::make_socket(int protocol) {
     int sock, on = 1;
     if((sock = socket(AF_INET, SOCK_RAW, protocol)) == -1){
-        logger->Log("socket() error", Logger::Error);
+        conf->logger->Log("socket() error", Logger::Error);
         exit(EXIT_FAILURE);
     }
 
     if(setsockopt(sock, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) == -1){
-        logger->Log("setsockopt() error", Logger::Error);
+        conf->logger->Log("setsockopt() error", Logger::Error);
         exit(EXIT_FAILURE);
     }
     return sock;

@@ -169,19 +169,19 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
                             break;
                         }
                         case 23:{
-                            logger->setLevel(Logger::Error);
+                            conf->logger->setLevel(Logger::Error);
                             break;
                         }
                         case 24:{
-                            logger->setLevel(Logger::None);
+                            conf->logger->setLevel(Logger::None);
                             break;
                         }
                         case 25:{
-                            logger->setLevel(Logger::Warning);
+                            conf->logger->setLevel(Logger::Warning);
                             break;
                         }
                         case 26:{
-                            logger->setLevel(Logger::Info);
+                            conf->logger->setLevel(Logger::Info);
                             break;
                         }
                         case 27:{
@@ -247,26 +247,27 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
 
 Parser::Parser() = default;
 
-Parser::Parser(Config *conf, Logger *logger) : conf{conf}, logger{logger}{
+Parser::Parser(std::shared_ptr<Config> conf) : conf{std::move(conf)}{
 
-}
-
-void Parser::getUserAgents() {
-    std::ifstream filestream("useragents");
-    std::string line{};
-    if(filestream.good() & filestream.is_open()){
-        while(getline(filestream, line)){
-            conf->useragents.push_back(line);
-        }
-        filestream.close();
-    }else{
-        logger->Log("Unable to find useragents file", Logger::Warning);
-    }
 }
 
 void Parser::check_root() {
     if(getuid()){
-        logger->Log("You need to be root", Logger::Error);
+        conf->logger->Log("You need to be root", Logger::Error);
         exit(EXIT_FAILURE);
+    }
+}
+
+void Parser::getUserAgents() {
+    conf->useragents->push_back("Wget/1.16 (linux-gnu/Xerxes)");
+    std::ifstream filestream("useragents");
+    std::string line{};
+    if(filestream.good() & filestream.is_open()){
+        while(getline(filestream, line)){
+            conf->useragents->push_back(line);
+        }
+        filestream.close();
+    }else{
+        conf->logger->Log("Unable to find useragents file", Logger::Warning);
     }
 }

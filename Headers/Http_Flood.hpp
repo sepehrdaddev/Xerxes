@@ -13,7 +13,7 @@ class Http_Flood : public Attack_Vector {
     friend class Null_Flood;
 public:
     Http_Flood () = default;
-    Http_Flood (const Config *conf, Logger *logger);
+    explicit Http_Flood (std::shared_ptr<Config> conf);
     void run() override;
 
 private:
@@ -29,6 +29,8 @@ private:
     int write_socket(int socket, const char* string, int length);
     int write_socket(SSL *ssl, const char* string, int length);
     const SSL_METHOD *GetMethod();
+    virtual void init_header(std::string& header);
+    virtual void init_header(std::string& header, bool);
 };
 
 

@@ -6,12 +6,11 @@
 
 class Engine {
 public:
-    Engine(Config *conf, Logger *logger);
+    explicit Engine(std::shared_ptr<Config> conf);
     void run();
 
 private:
-    Config *conf;
-    Logger *logger;
+    std::shared_ptr<Config> conf;
 
 };
 

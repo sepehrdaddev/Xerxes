@@ -9,15 +9,14 @@ class Parser {
 public:
     void parse_commandline(int argc, const char *argv[]);
     Parser();
-    Parser(Config *conf, Logger *logger);
+    explicit Parser(std::shared_ptr<Config> conf);
     static void help();
     static void show_banner();
 
 private:
-    Config *conf;
-    Logger *logger;
-    void getUserAgents();
+    std::shared_ptr<Config> conf;
     void check_root();
+    void getUserAgents();
 };
 
 

@@ -30,16 +30,15 @@ int main(const int argc, const char *argv[]) {
     init_signals();
 
     Parser::show_banner();
-    auto config = std::make_unique<Config>().release();
-    auto logger = std::make_unique<Logger>(Logger::Info).release();
-    auto parser = std::make_unique<Parser>(config, logger);
+    auto config = std::make_shared<Config>();
+    auto parser = std::make_unique<Parser>(config);
     parser->parse_commandline(argc, argv);
     auto validator = std::make_unique<Validator>(config);
     if(validator->Validate()){
-        auto engine = std::make_unique<Engine>(config, logger);
+        auto engine = std::make_unique<Engine>(config);
         engine->run();
     }else{
-        logger->Log("Invalid Configuration", Logger::Error);
+        config->logger->Log("Invalid Configuration", Logger::Error);
         Parser::help();
     }
 

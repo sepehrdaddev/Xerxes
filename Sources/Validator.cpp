@@ -5,7 +5,7 @@
 
 Validator::Validator() = default;
 
-Validator::Validator(const Config *conf) : conf{conf} {
+Validator::Validator(std::shared_ptr<Config> conf) : conf{std::move(conf)} {
 
 }
 

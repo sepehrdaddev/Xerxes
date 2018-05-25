@@ -2,8 +2,7 @@
 
 #include "../Headers/Attack_Vector.hpp"
 
-Attack_Vector::Attack_Vector(const Config *conf, Logger *logger) : conf{conf}, logger{logger}{
-
+Attack_Vector::Attack_Vector(std::shared_ptr<Config> conf) : conf{std::move(conf)}{
 }
 
 void Attack_Vector::run() {
