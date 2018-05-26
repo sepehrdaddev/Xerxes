@@ -2,7 +2,7 @@
 
 #include "../Headers/Spoofed_Flood.hpp"
 
-Spoofed_Flood::Spoofed_Flood(std::shared_ptr<Config> conf) : Attack_Vector(std::move(conf)){
+Spoofed_Flood::Spoofed_Flood(std::shared_ptr<Config> conf) : Attack_Vector(conf){
 
 }
 

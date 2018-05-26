@@ -112,6 +112,6 @@ void Engine::run() {
     flood->run();
 }
 
-Engine::Engine(std::shared_ptr<Config> conf) : conf{std::move(conf)}{
+Engine::Engine(std::shared_ptr<Config> conf) : conf{conf}{
 
 }

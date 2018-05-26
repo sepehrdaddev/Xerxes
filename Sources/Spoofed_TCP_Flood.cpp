@@ -85,7 +85,7 @@ void Spoofed_TCP_Flood::attack(const int *id) {
     }
 }
 
-Spoofed_TCP_Flood::Spoofed_TCP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(std::move(conf)) {
+Spoofed_TCP_Flood::Spoofed_TCP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(conf) {
 
 }
 

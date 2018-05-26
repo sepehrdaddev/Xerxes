@@ -90,7 +90,7 @@ void Slowloris::attack_ssl(const int *id) {
     }
 }
 
-Slowloris::Slowloris(std::shared_ptr<Config> conf) : Http_Flood(std::move(conf)) {
+Slowloris::Slowloris(std::shared_ptr<Config> conf) : Http_Flood(conf) {
 
 }
 

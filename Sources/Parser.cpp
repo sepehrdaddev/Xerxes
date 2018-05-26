@@ -247,7 +247,7 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
 
 Parser::Parser() = default;
 
-Parser::Parser(std::shared_ptr<Config> conf) : conf{std::move(conf)}{
+Parser::Parser(std::shared_ptr<Config> conf) : conf{conf}{
 
 }
 

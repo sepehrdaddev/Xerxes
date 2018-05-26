@@ -77,6 +77,6 @@ void Null_Flood::attack_ssl(const int *id) {
     }
 }
 
-Null_Flood::Null_Flood(std::shared_ptr<Config> conf) : Http_Flood(std::move(conf)) {
+Null_Flood::Null_Flood(std::shared_ptr<Config> conf) : Http_Flood(conf) {
 
 }

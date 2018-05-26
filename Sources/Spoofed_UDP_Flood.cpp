@@ -85,7 +85,7 @@ void Spoofed_UDP_Flood::attack(const int *id) {
     }
 }
 
-Spoofed_UDP_Flood::Spoofed_UDP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(std::move(conf)) {
+Spoofed_UDP_Flood::Spoofed_UDP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(conf) {
 
 }
 

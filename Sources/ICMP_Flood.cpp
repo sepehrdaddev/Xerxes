@@ -68,7 +68,7 @@ void ICMP_Flood::attack(const int *id) {
     }
 }
 
-ICMP_Flood::ICMP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(std::move(conf)) {
+ICMP_Flood::ICMP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(conf) {
 
 }
 

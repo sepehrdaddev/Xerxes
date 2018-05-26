@@ -6,7 +6,7 @@
 
 #include "../Headers/Beast.hpp"
 
-Beast::Beast(std::shared_ptr<Config> conf) : Attack_Vector(std::move(conf)) {
+Beast::Beast(std::shared_ptr<Config> conf) : Attack_Vector(conf) {
 
 }
 
