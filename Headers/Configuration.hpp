@@ -27,8 +27,8 @@ struct Config{
     bool RandomizeSource{false};
     bool RandomizePort{false};
     int delay{0};
-    const std::unique_ptr<Logger> logger = std::make_unique<Logger>(Logger::Warning);
-    const std::unique_ptr<std::vector<std::string>> useragents = std::make_unique<std::vector<std::string>>();
+    const std::unique_ptr<Logger> logger{new Logger(Logger::Warning)};
+    const std::unique_ptr<std::vector<std::string>> useragents{new std::vector<std::string>()};
 
 };
 
