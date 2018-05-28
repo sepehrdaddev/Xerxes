@@ -2,11 +2,12 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
+#include <utility>
 #include <openssl/ssl.h>
 
 #include "../Headers/Beast.hpp"
 
-Beast::Beast(std::shared_ptr<Config> conf) : Attack_Vector(conf) {
+Beast::Beast(std::shared_ptr<Config> conf) : Attack_Vector(std::move(conf)) {
 
 }
 

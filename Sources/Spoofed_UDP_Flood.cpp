@@ -5,7 +5,7 @@
 #include <netinet/udp.h>
 #include <netdb.h>
 #include <memory>
-
+#include <utility>
 #include "../Headers/Randomizer.hpp"
 #include "../Headers/Spoofed_UDP_Flood.hpp"
 
@@ -85,7 +85,7 @@ void Spoofed_UDP_Flood::attack(const int *id) {
     }
 }
 
-Spoofed_UDP_Flood::Spoofed_UDP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(conf) {
+Spoofed_UDP_Flood::Spoofed_UDP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(std::move(conf)) {
 
 }
 

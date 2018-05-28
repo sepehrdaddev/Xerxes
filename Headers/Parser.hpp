@@ -1,6 +1,11 @@
 #ifndef XERXES_PARSER_H
 #define XERXES_PARSER_H
 
+#include <string>
+#include <memory>
+#include <map>
+#include <functional>
+
 #include "Configuration.hpp"
 #include "Engine.hpp"
 #include "Validator.hpp"
@@ -17,6 +22,8 @@ private:
     std::shared_ptr<Config> conf;
     void check_root();
     void getUserAgents();
+    void init_arguments();
+    std::map<std::string, std::function<void(std::string&)>> arguments;
 };
 
 

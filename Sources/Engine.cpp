@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include <array>
 #include <memory>
-
+#include <utility>
 #include "../Headers/Engine.hpp"
 #include "../Headers/Attack_Vectors.hpp"
 
@@ -112,6 +112,6 @@ void Engine::run() {
     flood->run();
 }
 
-Engine::Engine(std::shared_ptr<Config> conf) : conf{conf}{
+Engine::Engine(std::shared_ptr<Config> conf) : conf{std::move(conf)}{
 
 }

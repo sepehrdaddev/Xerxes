@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
-#include <cstring>
+#include <utility>
 
 #include "../Headers/Parser.hpp"
 
@@ -56,188 +56,15 @@ void Parser::show_banner() {
 }
 
 void Parser::parse_commandline(int argc, const char *argv[]) {
-
-    std::vector<std::string> arguments{"-h", "-nu", "-nt", "-fu", "-ft", "-r", "-ru", "-rh", "-w", "-s", "-ss", "-su",
-                                       "-sy", "-sa", "-sr", "-sg", "-sp", "-sf", "-i", "-b", "-be", "-td", "-ld", "-q",
-                                       "-qq", "-v", "-vv", "-target", "-port", "-T", "-C", "-D", "-help", "-version",
-                                       "-rs", "-rp", "-B", "-sm"};
+    init_arguments();
 
     for(int i = 1; i < argc; i++){
-        for(int x = 0; x < arguments.size(); x++){
-            switch(strcmp(argv[i], arguments[x].c_str())){
-                case 0:{
-                    switch(x){
-                        case 0:{
-                            conf->vector = Config::HTTP;
-                            conf->protocol = Config::TCP;
-                            break;
-                        }
-                        case 1:{
-                            conf->vector = Config::NullUDP;
-                            conf->protocol = Config::UDP;
-                            break;
-                        }
-                        case 2:{
-                            conf->vector = Config::NullTCP;
-                            conf->protocol = Config::TCP;
-                            break;
-                        }
-                        case 3:{
-                            conf->vector = Config::UDPFlood;
-                            conf->protocol = Config::UDP;
-                            break;
-                        }
-                        case 4:{
-                            conf->vector = Config::TCPFlood;
-                            conf->protocol = Config::TCP;
-                            break;
-                        }
-                        case 5:{
-                            conf->vector = Config::Rudy;
-                            conf->protocol = Config::TCP;
-                            conf->delay = 10000000;
-                            break;
-                        }
-                        case 6:{
-                            conf->RandomizeUserAgent = true;
-                            break;
-                        }
-                        case 7:{
-                            conf->RandomizeHeader = true;
-                            break;
-                        }
-                        case 8:{
-                            conf->GetResponse = true;
-                            break;
-                        }
-                        case 9:{
-                            conf->vector = Config::Slowloris;
-                            conf->protocol = Config::TCP;
-                            conf->delay = 10000000;
-                            break;
-                        }
-                        case 10:{
-                            conf->UseSSL = true;
-                            break;
-                        }
-                        case 11:{
-                            conf->vector = Config::SpoofedUDP;
-                            break;
-                        }
-                        case 12:{
-                            conf->vector = Config::SpoofedSyn;
-                            break;
-                        }
-                        case 13:{
-                            conf->vector = Config::SpoofedAck;
-                            break;
-                        }
-                        case 14:{
-                            conf->vector = Config::SpoofedRST;
-                            break;
-                        }
-                        case 15:{
-                            conf->vector = Config::SpoofedURG;
-                            break;
-                        }
-                        case 16:{
-                            conf->vector = Config::SpoofedPUSH;
-                            break;
-                        }
-                        case 17:{
-                            conf->vector = Config::SpoofedFin;
-                            break;
-                        }
-                        case 18:{
-                            conf->vector = Config::ICMPFlood;
-                            break;
-                        }
-                        case 19:{
-                            conf->vector = Config::Blacknurse;
-                            break;
-                        }
-                        case 20:{
-                            conf->vector = Config::Beast;
-                            break;
-                        }
-                        case 21:{
-                            conf->vector = Config::TearDrop;
-                            break;
-                        }
-                        case 22:{
-                            conf->vector = Config::Land;
-                            break;
-                        }
-                        case 23:{
-                            conf->logger->setLevel(Logger::Error);
-                            break;
-                        }
-                        case 24:{
-                            conf->logger->setLevel(Logger::None);
-                            break;
-                        }
-                        case 25:{
-                            conf->logger->setLevel(Logger::Warning);
-                            break;
-                        }
-                        case 26:{
-                            conf->logger->setLevel(Logger::Info);
-                            break;
-                        }
-                        case 27:{
-                            conf->website = static_cast<std::string>(argv[i+1]);
-                            break;
-                        }
-                        case 28:{
-                            conf->port = static_cast<std::string>(argv[i+1]);
-                            break;
-                        }
-                        case 29:{
-                            if(Validator::isValidNumber(argv[i+1])){
-                                conf->THREADS = static_cast<int>(strtol(argv[i+1], nullptr, 10));
-                            }
-                            break;
-                        }
-                        case 30:{
-                            if(Validator::isValidNumber(argv[i+1])){
-                                conf->CONNECTIONS = static_cast<int>(strtol(argv[i+1], nullptr, 10));
-                            }
-                            break;
-                        }
-                        case 31:{
-                            if(Validator::isValidNumber(argv[i+1])){
-                                conf->delay = static_cast<int>(strtol(argv[i+1], nullptr, 10));
-                            }
-                            break;
-                        }
-                        case 32:{
-                            help();
-                            break;
-                        }
-                        case 33:{
-                            exit(EXIT_SUCCESS);
-                        }
-                        case 34:{
-                            conf->RandomizeSource = true;
-                            break;
-                        }
-                        case 35:{
-                            conf->RandomizePort = true;
-                            break;
-                        }
-                        case 36:{
-                            conf->broadcast = static_cast<std::string>(argv[i+1]);
-                            break;
-                        }
-                        case 37:{
-                            conf->vector = Config::Smurf;
-                            break;
-                        }
-                        default:break;
-                    }
-                    break;
-                }
-                default:break;
+        if(arguments[argv[i]]){
+            if(argv[i+1]){
+                std::string next = std::string{argv[i+1]};
+                arguments[argv[i]](next);
+            }else{
+                arguments[argv[i]]((std::string&)" ");
             }
         }
     }
@@ -247,7 +74,7 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
 
 Parser::Parser() = default;
 
-Parser::Parser(std::shared_ptr<Config> conf) : conf{conf}{
+Parser::Parser(std::shared_ptr<Config> conf) : conf{std::move(conf)}{
 
 }
 
@@ -270,4 +97,65 @@ void Parser::getUserAgents() {
     }else{
         conf->logger->Log("Unable to find useragents file", Logger::Warning);
     }
+}
+
+void Parser::init_arguments() {
+    // Attack Vector
+    arguments["-h"] = [&](std::string&){conf->vector = Config::HTTP;conf->protocol = Config::TCP;};
+    arguments["-nu"] = [&](std::string&){conf->vector = Config::NullUDP;conf->protocol = Config::UDP;};
+    arguments["-nt"] = [&](std::string&){conf->vector = Config::NullTCP;conf->protocol = Config::TCP;};
+    arguments["-fu"] = [&](std::string&){conf->vector = Config::UDPFlood;conf->protocol = Config::UDP;};
+    arguments["-ft"] = [&](std::string&){conf->vector = Config::TCPFlood;conf->protocol = Config::TCP;};
+    arguments["-r"] = [&](std::string&){conf->vector = Config::Rudy;conf->protocol = Config::TCP;conf->delay = 10000000;};
+    arguments["-s"] = [&](std::string&){conf->vector = Config::Slowloris;conf->protocol = Config::TCP;conf->delay = 10000000;};
+    arguments["-su"] = [&](std::string&){conf->vector = Config::SpoofedUDP;};
+    arguments["-sy"] = [&](std::string&){conf->vector = Config::SpoofedSyn;};
+    arguments["-sa"] = [&](std::string&){conf->vector = Config::SpoofedAck;};
+    arguments["-sr"] = [&](std::string&){conf->vector = Config::SpoofedRST;};
+    arguments["-sg"] = [&](std::string&){conf->vector = Config::SpoofedURG;};
+    arguments["-sp"] = [&](std::string&){conf->vector = Config::SpoofedPUSH;};
+    arguments["-sf"] = [&](std::string&){conf->vector = Config::SpoofedFin;};
+    arguments["-i"] = [&](std::string&){conf->vector = Config::ICMPFlood;};
+    arguments["-b"] = [&](std::string&){conf->vector = Config::Blacknurse;};
+    arguments["-be"] = [&](std::string&){conf->vector = Config::Beast;};
+    arguments["-td"] = [&](std::string&){conf->vector = Config::TearDrop;};
+    arguments["-ld"] = [&](std::string&){conf->vector = Config::Land;};
+    arguments["-sm"] = [&](std::string&){conf->vector = Config::Smurf;};
+
+    // Randomization
+    arguments["-ru"] = [&](std::string&){conf->RandomizeUserAgent = true;};
+    arguments["-rh"] = [&](std::string&){conf->RandomizeHeader = true;};
+    arguments["-rs"] = [&](std::string&){conf->RandomizeSource = true;};
+    arguments["-rp"] = [&](std::string&){conf->RandomizePort = true;};
+
+    // Other
+    arguments["-w"] = [&](std::string&){conf->GetResponse = true;};
+    arguments["-ss"] = [&](std::string&){conf->UseSSL = true;};
+    arguments["-help"] = [&](std::string&){help();};
+    arguments["-version"] = [&](std::string&){exit(EXIT_SUCCESS);};
+
+    // Logging
+    arguments["-q"] = [&](std::string&){conf->logger->setLevel(Logger::Error);};
+    arguments["-qq"] = [&](std::string&){conf->logger->setLevel(Logger::None);};
+    arguments["-v"] = [&](std::string&){conf->logger->setLevel(Logger::Warning);};
+    arguments["-vv"] = [&](std::string&){conf->logger->setLevel(Logger::Info);};
+
+    // Configuration
+    arguments["-target"] = [&](std::string& target){conf->website = static_cast<std::string>(target);};
+    arguments["-port"] = [&](std::string& port){conf->port = static_cast<std::string>(port);};
+    arguments["-T"] = [&](std::string& thread){
+        if(Validator::isValidNumber(thread.c_str())){
+            conf->THREADS = static_cast<int>(strtol(thread.c_str(), nullptr, 10));
+        }
+    };
+    arguments["-C"] = [&](std::string& connections){
+        if(Validator::isValidNumber(connections.c_str())){
+            conf->CONNECTIONS = static_cast<int>(strtol(connections.c_str(), nullptr, 10));
+        }
+    };
+    arguments["-D"] = [&](std::string& delay){
+        if(Validator::isValidNumber(delay.c_str())){
+            conf->delay = static_cast<int>(strtol(delay.c_str(), nullptr, 10));}
+    };
+    arguments["-B"] = [&](std::string& broadcast){conf->broadcast = static_cast<std::string>(broadcast);};
 }

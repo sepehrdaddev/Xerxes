@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <cstring>
+#include <utility>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/ip_icmp.h>
@@ -68,7 +69,7 @@ void ICMP_Flood::attack(const int *id) {
     }
 }
 
-ICMP_Flood::ICMP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(conf) {
+ICMP_Flood::ICMP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(std::move(conf)) {
 
 }
 

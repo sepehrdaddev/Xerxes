@@ -1,12 +1,13 @@
 #include <netdb.h>
 #include <cstring>
+#include <utility>
 #include <unistd.h>
 #include <openssl/ssl.h>
 
 #include "../Headers/Http_Flood.hpp"
 
 
-Http_Flood::Http_Flood(std::shared_ptr<Config> conf) : Attack_Vector(conf){
+Http_Flood::Http_Flood(std::shared_ptr<Config> conf) : Attack_Vector(std::move(conf)){
 
 }
 
@@ -194,10 +195,10 @@ void Http_Flood::attack_ssl(const int *id) {
 const SSL_METHOD *Http_Flood::GetMethod() {
     switch (conf->protocol){
         case Config::TCP:
-            return TLSv1_1_client_method();
+            return TLS_client_method();
         case Config::UDP:
 #ifdef DTLS_ANY_VERSION
-            return DTLSv1_2_client_method();
+            return DTLS_client_method();
 #else
             conf->logger->Log("Unable to find DTLS", Logger::Info);
             exit(EXIT_FAILURE);

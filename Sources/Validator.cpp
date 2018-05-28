@@ -1,11 +1,11 @@
 #include <arpa/inet.h>
 #include <netdb.h>
-
+#include <utility>
 #include "../Headers/Validator.hpp"
 
 Validator::Validator() = default;
 
-Validator::Validator(std::shared_ptr<Config> conf) : conf{conf} {
+Validator::Validator(std::shared_ptr<Config> conf) : conf{std::move(conf)} {
 
 }
 

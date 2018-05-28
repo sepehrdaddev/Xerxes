@@ -5,7 +5,7 @@
 #include <netinet/tcp.h>
 #include <netdb.h>
 #include <memory>
-
+#include <utility>
 #include "../Headers/Randomizer.hpp"
 #include "../Headers/Spoofed_TCP_Flood.hpp"
 
@@ -85,7 +85,7 @@ void Spoofed_TCP_Flood::attack(const int *id) {
     }
 }
 
-Spoofed_TCP_Flood::Spoofed_TCP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(conf) {
+Spoofed_TCP_Flood::Spoofed_TCP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(std::move(conf)) {
 
 }
 
