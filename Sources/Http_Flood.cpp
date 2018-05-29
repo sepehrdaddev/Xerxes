@@ -199,10 +199,10 @@ void Http_Flood::attack_ssl(const int *id) {
 const SSL_METHOD *Http_Flood::GetMethod() {
     switch (conf->protocol){
         case Config::TCP:
-            return TLS_client_method();
+            return TLSv1_1_client_method();
         case Config::UDP:
 #ifdef DTLS_ANY_VERSION
-            return DTLS_client_method();
+            return DTLSv1_2_client_method();
 #else
             conf->logger->Log("Unable to find DTLS", Logger::Info);
             exit(EXIT_FAILURE);
