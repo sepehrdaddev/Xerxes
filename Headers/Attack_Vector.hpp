@@ -11,12 +11,12 @@ class Attack_Vector {
 
 public:
     Attack_Vector() = default;
-    Attack_Vector(const config *conf, Logger *logger);
+    explicit Attack_Vector(std::shared_ptr<Config> config);
     virtual void run();
+    virtual ~Attack_Vector() = default;
 
 protected:
-    const config *conf;
-    Logger *logger;
+    std::shared_ptr<Config> conf;
     virtual void pause();
 
 private:

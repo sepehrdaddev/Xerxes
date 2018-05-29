@@ -7,7 +7,7 @@
 
 class Null_Flood : public Http_Flood {
 public:
-    Null_Flood(const config *conf, Logger *logger);
+    explicit Null_Flood(std::shared_ptr<Config> conf);
 
 private:
     void attack(const int *id) override;

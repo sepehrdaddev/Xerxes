@@ -5,7 +5,7 @@
 
 class Spoofed_TCP_Flood : public Spoofed_Flood {
 public:
-    Spoofed_TCP_Flood(const config *conf, Logger *logger);
+    explicit Spoofed_TCP_Flood(std::shared_ptr<Config> conf);
 
 private:
     void attack(const int *id) override;

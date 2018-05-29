@@ -13,7 +13,6 @@ script: make
 # blocklist
 branches:
   except:
-  - experimental
 
 # safelist
 branches:

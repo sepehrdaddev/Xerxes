@@ -5,7 +5,7 @@
 
 class Spoofed_UDP_Flood : public Spoofed_Flood {
 public:
-    Spoofed_UDP_Flood(const config *conf, Logger *logger);
+    explicit Spoofed_UDP_Flood(std::shared_ptr<Config> conf);
 
 private:
     void attack(const int *id) override;

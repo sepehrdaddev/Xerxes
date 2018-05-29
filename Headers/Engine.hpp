@@ -4,14 +4,13 @@
 #include "Configuration.hpp"
 #include "Logger.hpp"
 
-class Doser {
+class Engine {
 public:
-    Doser(config *conf, Logger *logger);
+    explicit Engine(std::shared_ptr<Config> conf);
     void run();
 
 private:
-    config *conf;
-    Logger *logger;
+    std::shared_ptr<Config> conf;
 
 };
 

