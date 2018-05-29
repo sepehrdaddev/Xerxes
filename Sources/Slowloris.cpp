@@ -9,9 +9,11 @@ void Slowloris::attack(const int *id) {
     int r;
     std::vector<int> sockets;
     std::vector<bool> keep_alive;
+    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
+    keep_alive.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
-        keep_alive.push_back(false);
+        sockets.emplace_back(0);
+        keep_alive.emplace_back(false);
     }
     while(true) {
         static std::string message;
@@ -50,11 +52,15 @@ void Slowloris::attack_ssl(const int *id) {
     std::vector<SSL_CTX *> CTXs;
     std::vector<SSL *> SSLs;
     std::vector<bool> keep_alive;
+    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
+    CTXs.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
+    SSLs.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
+    keep_alive.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
-        SSLs.push_back(nullptr);
-        CTXs.push_back(nullptr);
-        keep_alive.push_back(false);
+        sockets.emplace_back(0);
+        SSLs.emplace_back(nullptr);
+        CTXs.emplace_back(nullptr);
+        keep_alive.emplace_back(false);
     }
     while(true) {
         static std::string message;

@@ -119,8 +119,9 @@ int Http_Flood::write_socket(SSL *ssl, const char *string, int length) {
 void Http_Flood::attack(const int *id) {
     int r;
     std::vector<int> sockets;
+    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
+        sockets.emplace_back(0);
     }
     while(true) {
         static std::string message;
@@ -155,10 +156,13 @@ void Http_Flood::attack_ssl(const int *id) {
     std::vector<int> sockets;
     std::vector<SSL_CTX *> CTXs;
     std::vector<SSL *> SSLs;
+    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
+    CTXs.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
+    SSLs.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
-        SSLs.push_back(nullptr);
-        CTXs.push_back(nullptr);
+        sockets.emplace_back(0);
+        SSLs.emplace_back(nullptr);
+        CTXs.emplace_back(nullptr);
     }
     while(true) {
         static std::string message;

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <utility>
+#include <algorithm>
 
 #include "../Headers/Parser.hpp"
 
@@ -56,6 +57,7 @@ void Parser::show_banner() {
 }
 
 void Parser::parse_commandline(int argc, const char *argv[]) {
+    check_root();
     init_arguments();
 
     for(int i = 1; i < argc; i++){
@@ -68,7 +70,6 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             }
         }
     }
-    check_root();
     getUserAgents();
 }
 
@@ -86,12 +87,16 @@ void Parser::check_root() {
 }
 
 void Parser::getUserAgents() {
-    conf->useragents->push_back("Wget/1.16 (linux-gnu/Xerxes)");
+    conf->useragents->emplace_back("Wget/1.16 (linux-gnu/Xerxes)");
     std::ifstream filestream("useragents");
     std::string line{};
     if(filestream.good() & filestream.is_open()){
+        long count = std::count(std::istreambuf_iterator<char>(filestream), std::istreambuf_iterator<char>(), '\n');
+        filestream.clear();
+        filestream.seekg(0, std::ios::beg);
+        conf->useragents->reserve(static_cast<unsigned long>(count) +1);
         while(getline(filestream, line)){
-            conf->useragents->push_back(line);
+            conf->useragents->emplace_back(line);
         }
         filestream.close();
     }else{

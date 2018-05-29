@@ -11,8 +11,9 @@
 void ICMP_Flood::attack(const int *id) {
     int r;
     std::vector<int> sockets;
+    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
-        sockets.push_back(0);
+        sockets.emplace_back(0);
     }
     char buf[400];
     std::string message{};

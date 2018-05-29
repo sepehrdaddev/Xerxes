@@ -17,83 +17,83 @@ void Engine::run() {
     switch(conf->vector){
         case Config::HTTP:
             conf->logger->Log("Attack Vector: HTTP", Logger::Info);
-            flood = std::unique_ptr<Http_Flood>{new Http_Flood{conf}};
+            flood = std::make_unique<Http_Flood>(conf);
             break;
         case Config::NullTCP:
             conf->logger->Log("Attack Vector: NullTCP", Logger::Info);
-            flood = std::unique_ptr<Null_Flood>{new Null_Flood{conf}};
+            flood = std::make_unique<Null_Flood>(conf);
             break;
         case Config::NullUDP:
             conf->logger->Log("Attack Vector: NullUDP", Logger::Info);
-            flood = std::unique_ptr<Null_Flood>{new Null_Flood{conf}};
+            flood = std::make_unique<Null_Flood>(conf);
             break;
         case Config::UDPFlood:
             conf->logger->Log("Attack Vector: UDPFlood", Logger::Info);
-            flood = std::unique_ptr<Http_Flood>{new Http_Flood{conf}};
+            flood = std::make_unique<Http_Flood>(conf);
             break;
         case Config::TCPFlood:
             conf->logger->Log("Attack Vector: TCPFlood", Logger::Info);
-            flood = std::unique_ptr<Http_Flood>{new Http_Flood{conf}};
+            flood = std::make_unique<Http_Flood>(conf);
             break;
         case Config::Slowloris:
             conf->logger->Log("Attack Vector: Slowloris", Logger::Info);
-            flood = std::unique_ptr<Slowloris>{new Slowloris{conf}};
+            flood = std::make_unique<Slowloris>(conf);
             break;
         case Config::Rudy:
             conf->logger->Log("Attack Vector: Rudy", Logger::Info);
-            flood = std::unique_ptr<Slowloris>{new Slowloris{conf}};
+            flood = std::make_unique<Slowloris>(conf);
             break;
         case Config::ICMPFlood:
             conf->logger->Log("Attack Vector: ICMP Flood", Logger::Info);
-            flood = std::unique_ptr<ICMP_Flood>{new ICMP_Flood{conf}};
+            flood = std::make_unique<ICMP_Flood>(conf);
             break;
         case Config::Blacknurse:
             conf->logger->Log("Attack Vector: Black Nurse", Logger::Info);
-            flood = std::unique_ptr<ICMP_Flood>{new ICMP_Flood{conf}};
+            flood = std::make_unique<ICMP_Flood>(conf);
             break;
         case Config::SpoofedSyn:
             conf->logger->Log("Attack Vector: Spoofed Syn Flood", Logger::Info);
-            flood = std::unique_ptr<Spoofed_TCP_Flood>{new Spoofed_TCP_Flood{conf}};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedAck:
             conf->logger->Log("Attack Vector: Spoofed Ack Flood", Logger::Info);
-            flood = std::unique_ptr<Spoofed_TCP_Flood>{new Spoofed_TCP_Flood{conf}};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedRST:
             conf->logger->Log("Attack Vector: Spoofed Rst Flood", Logger::Info);
-            flood = std::unique_ptr<Spoofed_TCP_Flood>{new Spoofed_TCP_Flood{conf}};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedURG:
             conf->logger->Log("Attack Vector: Spoofed Urg Flood", Logger::Info);
-            flood = std::unique_ptr<Spoofed_TCP_Flood>{new Spoofed_TCP_Flood{conf}};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedPUSH:
             conf->logger->Log("Attack Vector: Spoofed Push Flood", Logger::Info);
-            flood = std::unique_ptr<Spoofed_TCP_Flood>{new Spoofed_TCP_Flood{conf}};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedFin:
             conf->logger->Log("Attack Vector: Spoofed Fin Flood", Logger::Info);
-            flood = std::unique_ptr<Spoofed_TCP_Flood>{new Spoofed_TCP_Flood{conf}};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedUDP:
             conf->logger->Log("Attack Vector: Spoofed UDP", Logger::Info);
-            flood = std::unique_ptr<Spoofed_UDP_Flood>{new Spoofed_UDP_Flood{conf}};
+            flood = std::make_unique<Spoofed_UDP_Flood>(conf);
             break;
         case Config::Beast:
             conf->logger->Log("Attack Vector: Beast", Logger::Info);
-            flood = std::unique_ptr<Beast>{new Beast{conf}};
+            flood = std::make_unique<Beast>(conf);
             break;
         case Config::TearDrop:
             conf->logger->Log("Attack Vector: Teardrop", Logger::Info);
-            flood = std::unique_ptr<Spoofed_UDP_Flood>{new Spoofed_UDP_Flood{conf}};
+            flood = std::make_unique<Spoofed_UDP_Flood>(conf);
             break;
         case Config::Land:
             conf->logger->Log("Attack Vector: Land", Logger::Info);
-            flood = std::unique_ptr<Spoofed_TCP_Flood>{new Spoofed_TCP_Flood{conf}};
+            flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::Smurf:{
             conf->logger->Log("Attack Vector: Smurf", Logger::Info);
-            flood = std::unique_ptr<ICMP_Flood>{new ICMP_Flood{conf}};
+            flood = std::make_unique<ICMP_Flood>(conf);
             break;
         }
         default:break;

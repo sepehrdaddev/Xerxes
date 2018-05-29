@@ -31,11 +31,11 @@ int main(const int argc, const char *argv[]) {
 
     Parser::show_banner();
     auto config = std::make_shared<Config>();
-    std::unique_ptr<Parser> parser{new Parser(config)};
+    auto parser = std::make_unique<Parser>(config);
     parser->parse_commandline(argc, argv);
-    std::unique_ptr<Validator> validator{new Validator(config)};
+    auto validator = std::make_unique<Validator>(config);
     if(validator->Validate()){
-        std::unique_ptr<Engine> engine{new Engine(config)};
+        auto engine = std::make_unique<Engine>(config);
         engine->run();
     }else{
         config->logger->Log("Invalid Configuration", Logger::Error);
