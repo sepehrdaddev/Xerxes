@@ -18,4 +18,3 @@ branches:
 branches:
   only:
   - master
-  - experimental
