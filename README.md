@@ -40,6 +40,7 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-sf&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Spoofed Fin Flood\
 &emsp;&emsp;&emsp;&emsp;&emsp;-td&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Teardrop\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ld&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Land\
+&emsp;&emsp;&emsp;&emsp;&emsp;-sm&emsp;&emsp;&emsp;&emsp;&emsp;set attack vector to Smurf\
 &emsp;&emsp;&emsp;&emsp;&emsp;-ss&emsp;&emsp;&emsp;&emsp;&emsp;enable SSL\
 &emsp;&emsp;&emsp;&emsp;&emsp;-w&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;wait for response\
 &emsp;&emsp;&emsp;&emsp;&emsp;-rh&emsp;&emsp;&emsp;&emsp;&emsp;randomize HTTP Header\
@@ -53,6 +54,7 @@ Options:\
 &emsp;&emsp;&emsp;&emsp;&emsp;-D&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set delay in microseconds\
 &emsp;&emsp;&emsp;&emsp;&emsp;-T&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set number of threads\
 &emsp;&emsp;&emsp;&emsp;&emsp;-C&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set number of connections per thread\
+&emsp;&emsp;&emsp;&emsp;&emsp;-B&nbsp;&emsp;&emsp;&emsp;&emsp;&emsp;set broadcast address\
 &emsp;&emsp;&emsp;&emsp;&emsp;-target&emsp;&emsp;&emsp;set host ip or url\
 &emsp;&emsp;&emsp;&emsp;&emsp;-port&emsp;&emsp;&emsp;&emsp;set target port number\
 &emsp;&emsp;&emsp;&emsp;&emsp;-help&emsp;&emsp;&emsp;&emsp;show help\

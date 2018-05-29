@@ -57,7 +57,6 @@ void Parser::show_banner() {
 }
 
 void Parser::parse_commandline(int argc, const char *argv[]) {
-    check_root();
     init_arguments();
 
     for(int i = 1; i < argc; i++){
@@ -70,6 +69,7 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
             }
         }
     }
+    check_root();
     getUserAgents();
 }
 
