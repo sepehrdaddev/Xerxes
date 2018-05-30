@@ -7,6 +7,7 @@
 #include "Logger.hpp"
 #include "Randomizer.hpp"
 #include "Attack_Vector.hpp"
+#include "httphdr.hpp"
 
 class Http_Flood : public Attack_Vector {
     friend class Slowloris;

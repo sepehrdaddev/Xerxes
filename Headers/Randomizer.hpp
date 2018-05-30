@@ -16,7 +16,7 @@ namespace Randomizer{
         return distribution(engine);
     }
 
-    static const std::string randomIP(){
+    static const std::string& randomIP(){
         std::string src{std::to_string(randomInt(1, 256))};
         src += "."
                + std::to_string(randomInt(1, 256))
@@ -31,7 +31,7 @@ namespace Randomizer{
         return randomInt(0, 65535);
     }
 
-    static const std::string randomstr(){
+    static const std::string& randomstr(){
         int string_length =  randomInt(0, 20);
         std::string string{};
         for(int i = 0; i < string_length; i++){
@@ -40,11 +40,11 @@ namespace Randomizer{
         return string;
     }
 
-    static const std::string randomize_Vector(const std::vector<std::string> &vec){
+    static const std::string& randomize_Vector(const std::vector<std::string> &vec){
         return vec[randomInt(0, static_cast<int>(vec.size()) -1)];
     }
 
-    static const std::string random_referer(){
+    static const std::string& random_referer(){
         static std::vector<std::string> referer{
             "https://www.google.com/", "https://www.yahoo.com/", "https://www.bing.com/",
             "https://twitter.com/", "https://www.facebook.com/", "https://www.msn.com/",
@@ -52,31 +52,31 @@ namespace Randomizer{
         return randomize_Vector(referer);
     }
 
-    static const std::string random_useragent(const std::vector<std::string> &useragents){
+    static const std::string& random_useragent(const std::vector<std::string> &useragents){
         return randomize_Vector(useragents);
     }
 
-    static const std::string random_encoding(){
+    static const std::string& random_encoding(){
         static std::vector<std::string> encoding{"\'\'", "*", "identity", "gzip", "deflate"};
         return randomize_Vector(encoding);
     }
 
-    static const std::string random_caching(){
+    static const std::string& random_caching(){
         static std::vector<std::string> caching{"no-cache", "max-age=0"};
         return randomize_Vector(caching);
     }
 
-    static const std::string random_charset(){
+    static const std::string& random_charset(){
         static std::vector<std::string> charset{"ISO-8859-1", "utf-8", "Windows-1251", "ISO-8859-2", "ISO-8859-15"};
         return randomize_Vector(charset);
     }
 
-    static const std::string random_contenttype(){
+    static const std::string& random_contenttype(){
         static std::vector<std::string> contenttype{"multipart/form-data", "application/x-url-encoded"};
         return randomize_Vector(contenttype);
     }
 
-    static const std::string random_method(){
+    static const std::string& random_method(){
         static std::vector<std::string> methods{"GET", "HEAD"};
         return randomize_Vector(methods);
     }
