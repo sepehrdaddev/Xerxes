@@ -13,7 +13,7 @@ public:
 private:
     void attack(const int *id) override;
     void attack_ssl(const int *id) override;
-    void init_header(std::string& header, bool keep_alive) override;
+    void init_header(httphdr *header) override;
 };
 
 

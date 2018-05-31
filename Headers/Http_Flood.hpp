@@ -30,8 +30,7 @@ private:
     int write_socket(int socket, const char* string, int length);
     int write_socket(SSL *ssl, const char* string, int length);
     const SSL_METHOD *GetMethod();
-    virtual void init_header(std::string& header);
-    virtual void init_header(std::string& header, bool);
+    virtual void init_header(httphdr *header);
 };
 
 

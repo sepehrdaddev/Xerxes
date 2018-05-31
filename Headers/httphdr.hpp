@@ -7,24 +7,10 @@
 
 class httphdr {
 public:
+    void generate();
+    void generate_unterminated();
+    void overide(std::string& header);
     std::string get();
-    std::string get_unterminated();
-    void setMethod(std::string& met);
-    void setLocation(std::string& loc);
-    void setUseragent(std::string& usr);
-    void setCacheControl(std::string& ctrl);
-    void setEncoding(std::string& enc);
-    void setCharset(std::string& first, std::string& second);
-    void setReferer(std::string& ref);
-    void setConnectionType(std::string& type);
-    void setContentType(std::string& type);
-    void setCookie(std::string& first, std::string& second);
-    void setKeepAlive(int keep);
-    void setDNT(int D);
-    void setAccept(std::string& acc);
-    void setContentLength(int length);
-
-private:
     std::string method{};
     std::string location{};
     std::string useragent{};
@@ -39,6 +25,9 @@ private:
     int DNT = 0;
     std::string accept{};
     int content_length = 0;
+    unsigned long length();
+
+private:
     std::string hdr{};
 };
 
