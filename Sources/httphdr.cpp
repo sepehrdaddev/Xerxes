@@ -23,14 +23,20 @@ void httphdr::generate() {
     hdr += TERMINATOR;
 }
 
-void httphdr::overide(std::string &header) {
-    hdr = header;
-}
-
 std::string httphdr::get() {
     return hdr;
 }
 
 unsigned long httphdr::length() {
     return hdr.length();
+}
+
+httphdr& httphdr::operator=(std::string& header) noexcept{
+    hdr = header;
+    return *this;
+}
+
+httphdr& httphdr::operator=(httphdr&& header) noexcept{
+    hdr = header.get();
+    return *this;
 }

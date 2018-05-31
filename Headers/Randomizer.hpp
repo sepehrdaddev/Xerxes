@@ -16,28 +16,25 @@ namespace Randomizer{
         return distribution(engine);
     }
 
-    static const std::string& randomIP(){
-        std::string src{std::to_string(randomInt(1, 256))};
+    static const void randomIP(std::string& src){
+        src = std::to_string(randomInt(1, 256));
         src += "."
                + std::to_string(randomInt(1, 256))
                + "."
                + std::to_string(randomInt(1, 256))
                + "."
                + std::to_string(randomInt(1, 256));
-        return src;
     }
 
     static int randomPort(){
         return randomInt(0, 65535);
     }
 
-    static const std::string& randomstr(){
+    static const void randomstr(std::string& src){
         int string_length =  randomInt(0, 20);
-        std::string string{};
         for(int i = 0; i < string_length; i++){
-            string += (static_cast<char>('0' + randomInt(0, 72)));
+            src += (static_cast<char>('0' + randomInt(0, 72)));
         }
-        return string;
     }
 
     static const std::string& randomize_Vector(const std::vector<std::string> &vec){

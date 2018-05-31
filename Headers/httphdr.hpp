@@ -7,9 +7,11 @@
 
 class httphdr {
 public:
+    httphdr& operator=(std::string& header) noexcept;
+    httphdr& operator=(httphdr&& header) noexcept;
+
     void generate();
     void generate_unterminated();
-    void overide(std::string& header);
     std::string get();
     std::string method{};
     std::string location{};

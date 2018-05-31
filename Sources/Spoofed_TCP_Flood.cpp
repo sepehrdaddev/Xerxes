@@ -39,7 +39,9 @@ void Spoofed_TCP_Flood::attack(const int *id) {
                 bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
             if(conf->RandomizeSource){
-                if((ip->saddr = inet_addr(Randomizer::randomIP().c_str())) == -1){
+                std::string ipaddr{};
+                Randomizer::randomIP(ipaddr);
+                if((ip->saddr = inet_addr(ipaddr.c_str())) == -1){
                     continue;
                 }
             }else{
