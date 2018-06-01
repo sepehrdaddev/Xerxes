@@ -28,9 +28,8 @@ void Slowloris::attack() {
                 Randomizer::randomstr((std::string&)*(&header));
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
-                }else{
-                    conf->voly++;
                 }
+                conf->voly++;
             }
         }
         conf->voly++;
@@ -71,9 +70,8 @@ void Slowloris::attack_ssl() {
                 Randomizer::randomstr((std::string&)*(&header));
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
-                }else{
-                    conf->voly++;
                 }
+                conf->voly++;
             }
         }
         conf->voly++;

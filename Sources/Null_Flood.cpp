@@ -22,9 +22,8 @@ void Null_Flood::attack() {
             }else{
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
-                }else{
-                    conf->voly++;
                 }
+                conf->voly++;
             }
         }
         conf->voly++;
@@ -61,9 +60,8 @@ void Null_Flood::attack_ssl() {
             }else{
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
-                }else{
-                    conf->voly++;
                 }
+                conf->voly++;
             }
         }
         conf->voly++;

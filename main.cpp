@@ -13,6 +13,7 @@ std::function<void()> show_stat;
 void exit_signal(int){
     if (getpid() == m_pid) {
         fprintf(stdout, "%s\n", "Shutting down...");
+        usleep(100000);
     }
     exit(EXIT_SUCCESS);
 }
