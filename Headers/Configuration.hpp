@@ -37,9 +37,11 @@ struct Config{
         }
     }timer;
     void show_stat(){
-        timer.end_time = clock();
-        fprintf(stdout, "--- %s Attack statistics ---\n%llu Voly sent, time %f s\n", website.c_str(), voly,
-                ((float)timer.get())/CLOCKS_PER_SEC);
+        if((!website.empty()) && (voly != 0)){
+            timer.end_time = clock();
+            fprintf(stdout, "--- %s Attack statistics ---\n%llu Voly sent, time %f s\n", website.c_str(), voly,
+                    ((float)timer.get())/CLOCKS_PER_SEC);
+        }
     }
 };
 

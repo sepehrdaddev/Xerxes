@@ -108,6 +108,12 @@ void Engine::run() {
     if(conf->RandomizeUserAgent){
         print_info("Useragent Randomization Enabled");
     }
+    if(conf->RandomizeSource){
+        print_info("Source Randomization Enabled");
+    }
+    if(conf->RandomizePort){
+        print_info("Port Randomization Enabled");
+    }
     fprintf(stdout, "%s", "--- press <Ctrl+C> to stop ---\n\n\n");
     flood->run();
 }
