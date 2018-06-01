@@ -2,7 +2,6 @@
 #define XERXES_DOSER_H
 
 #include "Configuration.hpp"
-#include "Logger.hpp"
 
 class Engine {
 public:

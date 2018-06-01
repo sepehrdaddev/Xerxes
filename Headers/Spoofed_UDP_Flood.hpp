@@ -8,7 +8,7 @@ public:
     explicit Spoofed_UDP_Flood(std::shared_ptr<Config> conf);
 
 private:
-    void attack(const int *id) override;
+    void attack() override;
     void init_headers(iphdr *ip, udphdr *udp, char *buf);
     void override_headers(udphdr *udp, iphdr *ip);
 };

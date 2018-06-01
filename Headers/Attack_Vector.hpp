@@ -2,7 +2,6 @@
 #define XERXES_ATTACK_VECTOR_H
 
 #include "Configuration.hpp"
-#include "Logger.hpp"
 
 class Attack_Vector {
     friend class Spoofed_Flood;
@@ -20,7 +19,7 @@ protected:
     virtual void pause();
 
 private:
-    virtual void attack(const int *id) = 0;
+    virtual void attack() = 0;
 };
 
 

@@ -4,7 +4,6 @@
 #include <openssl/ssl.h>
 
 #include "Configuration.hpp"
-#include "Logger.hpp"
 #include "Randomizer.hpp"
 #include "Attack_Vector.hpp"
 #include "httphdr.hpp"
@@ -18,8 +17,8 @@ public:
     void run() override;
 
 private:
-    void attack(const int *id) override;
-    virtual void attack_ssl(const int *id);
+    void attack() override;
+    virtual void attack_ssl();
     virtual int make_socket(const char *host, const char *port, int sock_type);
     SSL_CTX* InitCTX();
     SSL *Apply_SSL(int socket, SSL_CTX *ctx);

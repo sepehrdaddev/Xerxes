@@ -3,7 +3,7 @@
 #define TERMINATOR "\r\n"
 
 void httphdr::generate_unterminated() {
-    hdr = method + " /" + location + " HTTP/1.0" + TERMINATOR
+    hdr = method + " /" + path + " HTTP/1.0" + TERMINATOR
              + "User-Agent: " + useragent + TERMINATOR
              + "Cache-Control: " + cache_control + TERMINATOR
              + "Accept-Encoding: " + encoding + TERMINATOR
@@ -37,6 +37,20 @@ httphdr& httphdr::operator=(std::string& header) noexcept{
 }
 
 httphdr& httphdr::operator=(httphdr&& header) noexcept{
+    method = header.method;
+    path = header.path;
+    useragent = header.useragent;
+    cache_control = header.cache_control;
+    encoding = header.encoding;
+    charset = header.charset;
+    referer = header.referer;
+    content_type = header.content_type;
+    cookie = header.cookie;
+    connection_type = header.connection_type;
+    keep_alive = header.keep_alive;
+    DNT = header.DNT;
+    accept = header.accept;
+    content_length = header.content_length;
     hdr = header.get();
     return *this;
 }

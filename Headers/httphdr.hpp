@@ -13,8 +13,10 @@ public:
     void generate();
     void generate_unterminated();
     std::string get();
+    unsigned long length();
+
     std::string method{};
-    std::string location{};
+    std::string path{};
     std::string useragent{};
     std::string cache_control{};
     std::string encoding{};
@@ -27,7 +29,7 @@ public:
     int DNT = 0;
     std::string accept{};
     int content_length = 0;
-    unsigned long length();
+
 
 private:
     std::string hdr{};

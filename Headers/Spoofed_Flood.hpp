@@ -7,7 +7,6 @@
 #include <netinet/ip_icmp.h>
 
 #include "Configuration.hpp"
-#include "Logger.hpp"
 #include "Attack_Vector.hpp"
 
 class Spoofed_Flood : public Attack_Vector {

