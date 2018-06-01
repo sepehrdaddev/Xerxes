@@ -39,8 +39,8 @@ struct Config{
     void show_stat(){
         if((!website.empty()) && (voly > 0)){
             timer.end_time = clock();
-            fprintf(stdout, "--- %s Attack statistics ---\n%llu Voly sent, time %f s\n", website.c_str(), voly,
-                    ((float)timer.get())/CLOCKS_PER_SEC);
+            fprintf(stdout, "--- %s Attack statistics ---\n%llu Voly sent, %llu Request sent, Time %f s\n",
+                    website.c_str(), voly, voly * CONNECTIONS,((float)timer.get())/CLOCKS_PER_SEC);
         }
     }
 };
