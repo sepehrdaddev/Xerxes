@@ -28,7 +28,8 @@ struct Config{
     bool RandomizePort{false};
     int delay{0};
     const std::unique_ptr<std::vector<std::string>> useragents = std::make_unique<std::vector<std::string>>();
-    unsigned long long voly = 0;
+    unsigned long long *voly = new unsigned long long(0);
+    unsigned long long *req = new unsigned long long(0);
     struct Timer{
         clock_t start_time;
         clock_t end_time;
@@ -37,11 +38,13 @@ struct Config{
         }
     }timer;
     void show_stat(){
-        if((!website.empty()) && (voly > 0)){
+        if((!website.empty()) && (*voly > 0) && (*req > 0)){
             timer.end_time = clock();
             fprintf(stdout, "--- %s Attack statistics ---\n%llu Voly sent, %llu Request sent, Time %f s\n",
-                    website.c_str(), voly, voly * CONNECTIONS,((float)timer.get())/CLOCKS_PER_SEC);
+                    website.c_str(), *voly, *req,((float)timer.get())/CLOCKS_PER_SEC);
         }
+        delete voly;
+        delete req;
     }
 };
 

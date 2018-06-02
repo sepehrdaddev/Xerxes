@@ -135,9 +135,10 @@ void Http_Flood::attack() {
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
                 }
+                (*conf->req)++;
             }
         }
-        conf->voly++;
+        (*conf->voly)++;
         pause();
     }
 }
@@ -172,9 +173,10 @@ void Http_Flood::attack_ssl() {
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
                 }
+                (*conf->req)++;
             }
         }
-        conf->voly++;
+        (*conf->voly)++;
         pause();
     }
 }

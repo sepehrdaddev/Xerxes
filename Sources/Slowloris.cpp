@@ -28,9 +28,10 @@ void Slowloris::attack() {
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
                 }
+                (*conf->req)++;
             }
         }
-        conf->voly++;
+        (*conf->voly)++;
         pause();
     }
 }
@@ -68,9 +69,10 @@ void Slowloris::attack_ssl() {
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
                 }
+                (*conf->req)++;
             }
         }
-        conf->voly++;
+        (*conf->voly)++;
         pause();
     }
 }

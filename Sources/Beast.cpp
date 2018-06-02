@@ -58,8 +58,9 @@ void Beast::attack() {
                 PEER_write(&peers[i]);
                 continue;
             }
+            (*conf->req)++;
         }
-        conf->voly++;
+        (*conf->voly)++;
         pause();
     }
 
