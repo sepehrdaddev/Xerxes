@@ -23,7 +23,7 @@ void httphdr::generate() {
     hdr += TERMINATOR;
 }
 
-std::string httphdr::get() {
+std::string& httphdr::get() {
     return hdr;
 }
 

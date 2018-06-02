@@ -12,7 +12,7 @@ public:
 
     void generate();
     void generate_unterminated();
-    std::string get();
+    std::string& get();
     unsigned long length();
 
     std::string method{};
