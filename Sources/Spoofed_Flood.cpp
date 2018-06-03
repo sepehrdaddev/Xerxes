@@ -28,5 +28,11 @@ int Spoofed_Flood::make_socket(int protocol) {
         print_error("setsockopt() error");
         exit(EXIT_FAILURE);
     }
+
+    if(setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (const char*)&on, sizeof (on)) == -1){
+        print_error("setsockopt() error");
+        exit(EXIT_FAILURE);
+    }
+
     return sock;
 }
