@@ -1,5 +1,7 @@
 #include <memory>
 #include <map>
+#include <fstream>
+#include <algorithm>
 
 #include "../Headers/Engine.hpp"
 #include "../Headers/Attack_Vectors.hpp"
@@ -93,7 +95,11 @@ void Engine::show_info() {
         print_info("Header Randomization Enabled");
     }
     if(conf->RandomizeUserAgent){
-        print_info("Useragent Randomization Enabled");
+        getUserAgents();
+        snprintf(message, sizeof(message), "Useragent Randomization Enabled(%lu Useragents loaded)",
+                 conf->useragents->size());
+        print_info(message);
+
     }
     if(conf->RandomizeSource){
         print_info("Source Randomization Enabled");
@@ -104,4 +110,21 @@ void Engine::show_info() {
 
     fprintf(stdout, "%s", "--- press <Ctrl+C> to stop ---\n\n\n");
 
+}
+
+void Engine::getUserAgents() {
+    std::ifstream filestream("useragents");
+    std::string line{};
+    if(filestream.good() & filestream.is_open()){
+        long count = std::count(std::istreambuf_iterator<char>(filestream), std::istreambuf_iterator<char>(), '\n');
+        filestream.clear();
+        filestream.seekg(0, std::ios::beg);
+        conf->useragents->reserve(static_cast<unsigned long>(count) +1);
+        while(getline(filestream, line)){
+            conf->useragents->emplace_back(line);
+        }
+        filestream.close();
+    }else{
+        print_warning("Unable to find useragents file");
+    }
 }

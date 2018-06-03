@@ -11,6 +11,7 @@ public:
 
 private:
     std::shared_ptr<Config> conf;
+    void getUserAgents();
 
 };
 

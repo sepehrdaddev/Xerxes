@@ -1,7 +1,5 @@
 #include <iostream>
-#include <fstream>
 #include <unistd.h>
-#include <algorithm>
 
 #include "../Headers/Parser.hpp"
 #include "../Headers/Logging.hpp"
@@ -66,7 +64,6 @@ void Parser::parse_commandline(int argc, const char *argv[]) {
         }
     }
     check_root();
-    getUserAgents();
 }
 
 Parser::Parser() = default;
@@ -79,24 +76,6 @@ void Parser::check_root() {
     if(getuid()){
         print_error("You need to be root");
         exit(EXIT_FAILURE);
-    }
-}
-
-void Parser::getUserAgents() {
-    conf->useragents->emplace_back("Wget/1.16 (linux-gnu/Xerxes)");
-    std::ifstream filestream("useragents");
-    std::string line{};
-    if(filestream.good() & filestream.is_open()){
-        long count = std::count(std::istreambuf_iterator<char>(filestream), std::istreambuf_iterator<char>(), '\n');
-        filestream.clear();
-        filestream.seekg(0, std::ios::beg);
-        conf->useragents->reserve(static_cast<unsigned long>(count) +1);
-        while(getline(filestream, line)){
-            conf->useragents->emplace_back(line);
-        }
-        filestream.close();
-    }else{
-        print_warning("Unable to find useragents file");
     }
 }
 

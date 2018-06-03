@@ -40,12 +40,13 @@ struct Config{
     void show_stat(){
         if((!website.empty()) && (*voly > 0) && (*req > 0)){
             timer.end_time = clock();
-            fprintf(stdout, "--- %s Attack statistics ---\n%llu Voly sent, %llu Request sent, Time %f s\n",
+            fprintf(stdout, "--- %s Attack statistics ---\n%llu Volys sent, %llu Requests sent, Time %f s\n",
                     website.c_str(), *voly, *req,((float)timer.get())/CLOCKS_PER_SEC);
         }
     }
     Config(){
         useragents = new std::vector<std::string>();
+        useragents->emplace_back("Wget/1.16 (linux-gnu/Xerxes)");
         voly = new unsigned long long(0);
         req = new unsigned long long(0);
     }

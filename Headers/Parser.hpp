@@ -21,7 +21,6 @@ public:
 private:
     std::shared_ptr<Config> conf;
     void check_root();
-    void getUserAgents();
     void init_arguments();
     std::map<std::string, std::function<void(const char*)>> arguments;
 };
