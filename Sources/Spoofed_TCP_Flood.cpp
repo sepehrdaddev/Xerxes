@@ -105,7 +105,7 @@ void Spoofed_TCP_Flood::override_headers(tcphdr *tcp, iphdr *ip){
         case Config::Land:
             tcp->th_flags = TH_SYN;
             ip->saddr = ip->daddr;
-            tcp->source = tcp->th_dport;
+            tcp->th_sport = tcp->th_dport;
         default:break;
     }
 }
