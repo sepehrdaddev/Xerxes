@@ -28,11 +28,12 @@ namespace Randomizer{
 
     static int randomPort(){
         static auto init_s_port = 0;
-        if(init_s_port == 0){
-            init_s_port = 1024 + (randomInt(0, 2000));
-        }
         static int seq = 0;
         seq++;
+        if(init_s_port == 0){
+            init_s_port = 1024 + (randomInt(0, 2000));
+            return init_s_port;
+        }
         return (seq + init_s_port) % 65536;
     }
 
