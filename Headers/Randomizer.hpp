@@ -17,13 +17,13 @@ namespace Randomizer{
     }
 
     static const void randomIP(std::string& src){
-        src = std::to_string(randomInt(1, 256));
-        src += "."
-               + std::to_string(randomInt(1, 256))
-               + "."
-               + std::to_string(randomInt(1, 256))
-               + "."
-               + std::to_string(randomInt(1, 256));
+        src = std::to_string(randomInt(1, 256))
+                + "."
+                + std::to_string(randomInt(1, 256))
+                + "."
+                + std::to_string(randomInt(1, 256))
+                + "."
+                + std::to_string(randomInt(1, 256));
     }
 
     static int randomPort(){

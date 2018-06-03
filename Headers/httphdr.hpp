@@ -9,10 +9,11 @@ class httphdr {
 public:
     httphdr& operator=(std::string& header) noexcept;
     httphdr& operator=(httphdr&& header) noexcept;
-
+    httphdr();
+    virtual ~httphdr();
     void generate();
     void generate_unterminated();
-    std::string& get();
+    const char *get();
     unsigned long length();
 
     std::string method{};
@@ -32,7 +33,7 @@ public:
 
 
 private:
-    std::string hdr{};
+    std::string *hdr = nullptr;
 };
 
 

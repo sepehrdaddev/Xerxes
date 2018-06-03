@@ -2,7 +2,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
-#include <utility>
 #include <openssl/ssl.h>
 
 #include "../Headers/Beast.hpp"

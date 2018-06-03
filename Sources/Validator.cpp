@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <utility>
+
 #include "../Headers/Validator.hpp"
 
 Validator::Validator() = default;

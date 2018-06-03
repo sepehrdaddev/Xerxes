@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <memory>
 #include <ctime>
+
 #include "Headers/Parser.hpp"
 #include "Headers/Logging.hpp"
 
@@ -47,7 +48,6 @@ int main(const int argc, const char *argv[]) {
     parser->parse_commandline(argc, argv);
     auto validator = std::make_unique<Validator>(config);
     if(validator->Validate()){
-        config->timer.start_time = clock();
         auto engine = std::make_unique<Engine>(config);
         engine->run();
     }else{

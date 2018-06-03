@@ -1,6 +1,8 @@
 #ifndef XERXES_ICMP_FLOOD_H
 #define XERXES_ICMP_FLOOD_H
 
+#include <netinet/ip_icmp.h>
+
 #include "Spoofed_Flood.hpp"
 
 class ICMP_Flood : public Spoofed_Flood {

@@ -1,6 +1,8 @@
 #ifndef XERXES_SPOOFED_UDP_FLOOD_H
 #define XERXES_SPOOFED_UDP_FLOOD_H
 
+#include <netinet/udp.h>
+
 #include "Spoofed_Flood.hpp"
 
 class Spoofed_UDP_Flood : public Spoofed_Flood {

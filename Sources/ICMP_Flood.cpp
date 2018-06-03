@@ -1,9 +1,7 @@
 #include <unistd.h>
 #include <cstring>
-#include <utility>
 #include <netdb.h>
 #include <arpa/inet.h>
-#include <netinet/ip_icmp.h>
 
 #include "../Headers/ICMP_Flood.hpp"
 #include "../Headers/Randomizer.hpp"
