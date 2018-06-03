@@ -27,7 +27,13 @@ namespace Randomizer{
     }
 
     static int randomPort(){
-        return randomInt(0, 65535);
+        static auto init_s_port = 0;
+        if(init_s_port == 0){
+            init_s_port = 1024 + (randomInt(0, 2000));
+        }
+        static int seq = 0;
+        seq++;
+        return (seq + init_s_port) % 65536;
     }
 
     static const void randomstr(std::string& src){
