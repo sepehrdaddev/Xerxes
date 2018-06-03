@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <ctime>
 
 #include "Version.hpp"
-#include "Logger.hpp"
 
 struct Config{
     enum Vector{NullTCP, NullUDP, TCPFlood, UDPFlood, HTTP, Slowloris, ICMPFlood, SpoofedUDP,
@@ -27,9 +27,34 @@ struct Config{
     bool RandomizeSource{false};
     bool RandomizePort{false};
     int delay{0};
-    const std::unique_ptr<Logger> logger = std::make_unique<Logger>(Logger::Warning);
-    const std::unique_ptr<std::vector<std::string>> useragents = std::make_unique<std::vector<std::string>>();
-
+    std::vector<std::string> *useragents = nullptr;
+    unsigned long long *voly = nullptr;
+    unsigned long long *req = nullptr;
+    struct Timer{
+        clock_t start_time;
+        clock_t end_time;
+        clock_t get(){
+            return end_time - start_time;
+        }
+    }timer{};
+    void show_stat(){
+        if((!website.empty()) && (*voly > 0) && (*req > 0)){
+            timer.end_time = clock();
+            fprintf(stdout, "--- %s Attack statistics ---\n%llu Volys sent, %llu Requests sent, Time %f s\n",
+                    website.c_str(), *voly, *req,((float)timer.get())/CLOCKS_PER_SEC);
+        }
+    }
+    Config(){
+        useragents = new std::vector<std::string>();
+        useragents->emplace_back("Wget/1.16 (linux-gnu/Xerxes)");
+        voly = new unsigned long long(0);
+        req = new unsigned long long(0);
+    }
+    ~Config(){
+        delete useragents;
+        delete voly;
+        delete req;
+    }
 };
 
 const char Version[] = {

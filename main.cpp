@@ -2,16 +2,27 @@
 #include <csignal>
 #include <unistd.h>
 #include <memory>
+#include <ctime>
+
 #include "Headers/Parser.hpp"
+#include "Headers/Logging.hpp"
 
 const pid_t m_pid = getpid();
+std::function<void()> show_stat;
 
-void exiting(int){
+
+void exit_signal(int){
     if (getpid() == m_pid) {
-        std::cout << "Shutting down...\n";
-        usleep(1000000);
+        fprintf(stdout, "%s\n", "Shutting down...");
+        usleep(100000);
     }
     exit(EXIT_SUCCESS);
+}
+
+void on_exit(){
+    if (getpid() == m_pid) {
+        show_stat();
+    }
 }
 
 void broke(int){
@@ -19,11 +30,12 @@ void broke(int){
 }
 
 void init_signals(){
-    signal(SIGINT, &exiting);
-    signal(SIGABRT, &exiting);
-    signal(SIGTERM, &exiting);
-    signal(SIGTSTP, &exiting);
+    signal(SIGINT, &exit_signal);
+    signal(SIGABRT, &exit_signal);
+    signal(SIGTERM, &exit_signal);
+    signal(SIGTSTP, &exit_signal);
     signal(SIGPIPE, &broke);
+    atexit(on_exit);
 }
 
 int main(const int argc, const char *argv[]) {
@@ -31,6 +43,7 @@ int main(const int argc, const char *argv[]) {
 
     Parser::show_banner();
     auto config = std::make_shared<Config>();
+    show_stat = [&]{config->show_stat();};
     auto parser = std::make_unique<Parser>(config);
     parser->parse_commandline(argc, argv);
     auto validator = std::make_unique<Validator>(config);
@@ -38,7 +51,7 @@ int main(const int argc, const char *argv[]) {
         auto engine = std::make_unique<Engine>(config);
         engine->run();
     }else{
-        config->logger->Log("Invalid Configuration", Logger::Error);
+        print_error("Invalid Configuration");
         Parser::help();
     }
 

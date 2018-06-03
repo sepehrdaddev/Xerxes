@@ -2,15 +2,16 @@
 #define XERXES_DOSER_H
 
 #include "Configuration.hpp"
-#include "Logger.hpp"
 
 class Engine {
 public:
     explicit Engine(std::shared_ptr<Config> conf);
     void run();
+    void show_info();
 
 private:
     std::shared_ptr<Config> conf;
+    void getUserAgents();
 
 };
 

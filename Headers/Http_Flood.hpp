@@ -4,9 +4,9 @@
 #include <openssl/ssl.h>
 
 #include "Configuration.hpp"
-#include "Logger.hpp"
 #include "Randomizer.hpp"
 #include "Attack_Vector.hpp"
+#include "httphdr.hpp"
 
 class Http_Flood : public Attack_Vector {
     friend class Slowloris;
@@ -17,8 +17,8 @@ public:
     void run() override;
 
 private:
-    void attack(const int *id) override;
-    virtual void attack_ssl(const int *id);
+    void attack() override;
+    virtual void attack_ssl();
     virtual int make_socket(const char *host, const char *port, int sock_type);
     SSL_CTX* InitCTX();
     SSL *Apply_SSL(int socket, SSL_CTX *ctx);
@@ -29,8 +29,7 @@ private:
     int write_socket(int socket, const char* string, int length);
     int write_socket(SSL *ssl, const char* string, int length);
     const SSL_METHOD *GetMethod();
-    virtual void init_header(std::string& header);
-    virtual void init_header(std::string& header, bool);
+    virtual void init_header(httphdr *header);
 };
 
 
