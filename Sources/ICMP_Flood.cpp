@@ -101,8 +101,6 @@ void ICMP_Flood::init_headers(iphdr *ip, icmphdr *icmp, char *buf) {
     ip->protocol = IPPROTO_ICMP;
     ip->check = csum((unsigned short *) buf, ip->tot_len);
 
-    icmp->type = 0;
-    icmp->code = 0;
     icmp->un.echo.sequence = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
     icmp->un.echo.id = static_cast<u_int16_t>(Randomizer::randomInt(1, 1000));
 }
