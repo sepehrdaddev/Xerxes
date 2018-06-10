@@ -1,10 +1,34 @@
 #!/usr/bin/env python3
 
 
+def run(cmd):
+    process = Popen('{}'.format(cmd), shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+    output = process.communicate()[0]
+    f = open("installer.log", 'a')
+    f.write(output)
+    f.close()
+    return process.returncode
+
+
+def compile_openssl():
+    url = "https://www.openssl.org/source/openssl-1.1.0h.tar.gz"
+    current_path = getcwd()
+    script = "mv openssl-1.1.0h.tar.gz /tmp && cd /tmp && tar xvf openssl-1.1.0h.tar.gz && cd openssl-1.1.0h " \
+             "&& ./config no-shared && make -j 4 && make install -j 4 " \
+             "&& rm -rf /tmp/cd openssl-1.1.0h && cd {}".format(current_path)
+    if run("{} {}".format("curl", url)) != 0:
+        print("Dependency installation failed...")
+        exit(1)
+    else:
+        if run(script) != 0:
+            print("Dependency installation failed...")
+            exit(1)
+
+
 def dependency_install(silent=False):
     distro = linux_distribution()[0].lower()
-    dep_script = {'debian': 'apt-get update && apt-get -y install build-essential cmake libssl-dev pkgconf',
-                  'fedora': 'yum -y install cmake openssl-devel pkgconf gcc-c++'}
+    dep_script = {'debian': 'apt-get update && apt-get -y install build-essential cmake libssl-dev pkgconf curl',
+                  'fedora': 'yum -y install cmake openssl-devel pkgconf gcc-c++ curl'}
     script = ''
     if distro in ('debian', 'ubuntu', 'kali', 'parrot'):
         script = dep_script['debian']
@@ -12,11 +36,8 @@ def dependency_install(silent=False):
         script = dep_script['fedora']
     if not silent:
         print("Installing Dependencies...")
-    process = Popen('{}'.format(script), shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-    output = process.communicate()[0]
-    if process.returncode != 0:
+    if run(script) != 0:
         print("Dependency installation failed...")
-        print('{}'.format(output))
         exit(1)
     else:
         if not silent:
@@ -31,12 +52,13 @@ def compile(silent=False):
     chdir('build')
     if not silent:
         print("Compiling...")
-    process = Popen('{}'.format('cmake .. && make'), shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-    output = process.communicate()[0]
-    if process.returncode != 0:
-        print("Compilation failed...")
-        print('{}'.format(output))
-        exit(1)
+    if run('cmake .. && make -j 4') != 0:
+        if path.isfile("/usr/lib/libcrypto.a") or path.isfile("/usr/lib64/libcrypto.a"):
+            print("Compilation failed...")
+            exit(1)
+        else:
+            compile_openssl()
+            compile(silent)
     else:
         if not silent:
             print("Successfully compiled...")
@@ -100,13 +122,8 @@ def write_file(filename, content):
 
 
 def docker(silent=False):
-    cmd = ''
-    if name in ('nt', 'dos'):
-        cmd = 'where'
-    elif name in ('linux', 'posix', 'darwin', 'osx'):
-        cmd = 'which'
 
-    if call([cmd, 'docker'], stdout=PIPE, stderr=PIPE, stdin=PIPE):
+    if path.isabs('docker'):
         print('Docker is not installed')
         exit(1)
     else:
@@ -117,11 +134,8 @@ def docker(silent=False):
         if not silent:
             print('Dockerfile generated successfully...')
             print("Building docker image...")
-        process = Popen('docker build . -t xerxes', shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-        output = process.communicate()[0]
-        if process.returncode != 0:
+        if run('docker build . -t xerxes') != 0:
             print("Docker build failed...")
-            print('{}'.format(output))
             exit(1)
         else:
             if not silent:
@@ -174,8 +188,8 @@ def main(args):
 
 if __name__ == '__main__':
     from platform import linux_distribution
-    from subprocess import Popen, PIPE, call
-    from os import name, geteuid, mkdir, chdir, path, symlink, unlink, remove
+    from subprocess import Popen, PIPE
+    from os import name, geteuid, mkdir, chdir, path, symlink, unlink, remove, getcwd
     from sys import argv, exit
     from shutil import rmtree, copy
 

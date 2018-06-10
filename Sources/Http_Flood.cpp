@@ -61,7 +61,7 @@ int Http_Flood::make_socket(const char *host, const char *port, int sock_type) {
 }
 
 SSL_CTX *Http_Flood::InitCTX() {
-    SSL_library_init();
+    init_openssl();
     const SSL_METHOD *method{GetMethod()};
     SSL_CTX *ctx;
     ctx = SSL_CTX_new(method);
@@ -225,4 +225,9 @@ void Http_Flood::init_header(httphdr *header) {
         }
         default:break;
     }
+}
+
+void Http_Flood::init_openssl() {
+    SSL_load_error_strings();
+    OpenSSL_add_ssl_algorithms();
 }

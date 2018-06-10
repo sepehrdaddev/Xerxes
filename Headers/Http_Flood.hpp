@@ -29,6 +29,7 @@ private:
     int write_socket(int socket, const char* string, int length);
     int write_socket(SSL *ssl, const char* string, int length);
     const SSL_METHOD *GetMethod();
+    void init_openssl();
     virtual void init_header(httphdr *header);
 };
 

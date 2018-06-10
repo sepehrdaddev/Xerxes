@@ -10,20 +10,15 @@
 namespace Randomizer{
 
     static int randomInt(int min, int max){
-        unsigned seed = static_cast<unsigned int>(std::chrono::steady_clock::now().time_since_epoch().count());
-        std::default_random_engine engine(seed);
-        std::uniform_int_distribution<int> distribution(min, max);
+        static unsigned seed = static_cast<unsigned int>(std::chrono::steady_clock::now().time_since_epoch().count());
+        static std::default_random_engine engine(seed);
+        static std::uniform_int_distribution<int> distribution(min, max);
         return distribution(engine);
     }
 
     static const void randomIP(std::string& src){
-        src = std::to_string(randomInt(1, 256))
-                + "."
-                + std::to_string(randomInt(1, 256))
-                + "."
-                + std::to_string(randomInt(1, 256))
-                + "."
-                + std::to_string(randomInt(1, 256));
+        std::snprintf(const_cast<char*>(src.c_str()), sizeof(int) * 4, "%d.%d.%d.%d", randomInt(1, 256)
+                , randomInt(1, 256), randomInt(1, 256), randomInt(1, 256));
     }
 
     static int randomPort(){
