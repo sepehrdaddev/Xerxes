@@ -29,12 +29,13 @@ void Server::Serve() {
 
     sock = make_socket(config->port);
 
+    std::string buff{"test"};
+
     /* Handle connections */
     while(config->running){
         struct sockaddr_in addr{};
         uint len = sizeof(addr);
         SSL *ssl;
-        char reply[] = "test\n";
 
         int client = accept(sock, reinterpret_cast<sockaddr*>(&addr), &len);
         if (client < 0){
@@ -49,7 +50,7 @@ void Server::Serve() {
         if (SSL_accept(ssl) <= 0){
             ERR_print_errors_fp(stderr);
         }else{
-            SSL_write(ssl, reply, static_cast<int>(strlen(reply)));
+            write_socket(ssl, &buff);
         }
 
         SSL_free(ssl);
@@ -93,7 +94,7 @@ void Server::read_socket(SSL *sock, std::string *buff) {
 }
 
 void Server::write_socket(SSL *sock, std::string *buff) {
-    while(SSL_read(sock, const_cast<char *>(buff->c_str()), static_cast<int>(buff->length()))){}
+    SSL_write(sock, const_cast<char *>(buff->c_str()), static_cast<int>(buff->length()));
 }
 
 EVP_PKEY *Server::generate_key() {
