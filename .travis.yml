@@ -3,12 +3,12 @@ language: cpp
 compiler:
     - gcc
 
-before_script:
-    - mkdir build
-    - cd build
-    - cmake ..
+#before_script:
+#    - mkdir build
+#    - cd build
+#    - cmake ..
 
-script: make
+script: ./installer compile
 
 # blocklist
 branches:
