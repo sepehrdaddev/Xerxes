@@ -17,17 +17,7 @@ script:
   - export CC=/usr/bin/gcc-6
   - export CXX=/usr/bin/g++-6
   # Run your build commands next
-  - git clone https://github.com/openssl/openssl.git
-  - cd openssl
-  - ./config no-shared
-  - make -j9
-  - sudo make install -j9
-  - cd ..
-  - mkdir build
-  - cd build
-  - cmake ..
-  - cmake --build .
-
+  - ./installer.py compile
 # blocklist
 branches:
   except:
