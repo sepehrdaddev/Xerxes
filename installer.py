@@ -43,6 +43,7 @@ def dependency_install(silent=False):
         print(output)
         exit(1)
     else:
+        compile_openssl()
         if not silent:
             print("Dependencies installed...")
 
@@ -57,14 +58,9 @@ def compile(silent=False):
         print("Compiling...")
     rc, output = run('cmake .. && make -j 4')
     if rc != 0:
-        if path.isfile("/usr/lib/libcrypto.a") or path.isfile("/usr/lib64/libcrypto.a") \
-                or path.isfile("/usr/local/lib/libcrypto.a") or path.isfile("/usr/local/lib64/libcrypto.a"):
-            print("Compilation failed...")
-            print(output)
-            exit(1)
-        else:
-            compile_openssl()
-            compile(silent)
+        print("Compilation failed...")
+        print(output)
+        exit(1)
     else:
         if not silent:
             print("Successfully compiled...")
