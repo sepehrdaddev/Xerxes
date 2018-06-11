@@ -2,31 +2,18 @@ language: cpp
 sudo: required
 dist: trusty
 compiler:
-- clang
-- gcc
-matrix:
-  include:
-    - os: linux
-          addons:
-            apt:
-              sources:
-                - ubuntu-toolchain-r-test
-              packages:
-                - g++-7
-          env:
-            - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-    - os: linux
-          addons:
-            apt:
-              sources:
-                - llvm-toolchain-trusty-5.0
-              packages:
-                - clang-5.0
-          env:
-            - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+  - clang
+
+os: linux
+    addons:
+      apt:
+        sources:
+          - llvm-toolchain-trusty-5.0
+        packages:
+          - clang-5.0
 
 before_install:
-    - eval "${MATRIX_EVAL}"
+    - eval "CC=clang-5.0 && CXX=clang++-5.0"
     - mkdir build
     - cd build
     - cmake ..
