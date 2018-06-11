@@ -4,7 +4,7 @@
 def run(cmd):
     process = Popen('{}'.format(cmd), shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     output = process.communicate()[0]
-    return process.returncode
+    return process.returncode, output
 
 
 def compile_openssl():
@@ -12,13 +12,17 @@ def compile_openssl():
     current_path = getcwd()
     script = "mv openssl-1.1.0h.tar.gz /tmp && cd /tmp && tar xvf openssl-1.1.0h.tar.gz && cd openssl-1.1.0h " \
              "&& ./config no-shared && make -j 4 && make install -j 4 " \
-             "&& rm -rf /tmp/cd openssl-1.1.0h && cd {}".format(current_path)
-    if run("{} {}".format("curl", url)) != 0:
+             "&& cd {} && rm -rf /tmp/cd openssl-1.1.0h".format(current_path)
+    rc, output = run("{} {}".format("curl", url))
+    if rc != 0:
         print("Dependency installation failed...")
+        print(output)
         exit(1)
     else:
-        if run(script) != 0:
+        rc, output = run(script)
+        if rc != 0:
             print("Dependency installation failed...")
+            print(output)
             exit(1)
 
 
@@ -33,8 +37,10 @@ def dependency_install(silent=False):
         script = dep_script['fedora']
     if not silent:
         print("Installing Dependencies...")
-    if run(script) != 0:
+    rc, output = run(script)
+    if rc != 0:
         print("Dependency installation failed...")
+        print(output)
         exit(1)
     else:
         if not silent:
@@ -49,9 +55,11 @@ def compile(silent=False):
     chdir('build')
     if not silent:
         print("Compiling...")
-    if run('cmake .. && make -j 4') != 0:
+    rc, output = run('cmake .. && make -j 4')
+    if rc != 0:
         if path.isfile("/usr/lib/libcrypto.a") or path.isfile("/usr/lib64/libcrypto.a"):
             print("Compilation failed...")
+            print(output)
             exit(1)
         else:
             compile_openssl()
@@ -131,8 +139,10 @@ def docker(silent=False):
         if not silent:
             print('Dockerfile generated successfully...')
             print("Building docker image...")
-        if run('docker build . -t xerxes') != 0:
+        rc, output = run('docker build . -t xerxes')
+        if rc != 0:
             print("Docker build failed...")
+            print(output)
             exit(1)
         else:
             if not silent:
