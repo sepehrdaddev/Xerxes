@@ -7,8 +7,23 @@ compiler:
 #    - mkdir build
 #    - cd build
 #    - cmake ..
+- os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
-script: ./installer.py compile
+before_install:
+    - eval "${MATRIX_EVAL}"
+    - mkdir build
+    - cd build
+    - cmake ..
+
+script: make -j9
 
 # blocklist
 branches:
