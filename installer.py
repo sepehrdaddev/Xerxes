@@ -4,9 +4,6 @@
 def run(cmd):
     process = Popen('{}'.format(cmd), shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     output = process.communicate()[0]
-    f = open("installer.log", 'a')
-    f.write(output)
-    f.close()
     return process.returncode
 
 
