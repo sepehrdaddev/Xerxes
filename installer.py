@@ -13,15 +13,15 @@ def compile_openssl():
     script = "mv openssl-1.1.0h.tar.gz /tmp && cd /tmp && tar xvf openssl-1.1.0h.tar.gz && cd openssl-1.1.0h " \
              "&& ./config no-shared && make -j 4 && make install -j 4 " \
              "&& cd {} && rm -rf /tmp/cd openssl-1.1.0h".format(current_path)
-    rc, output = run("{} {}".format("curl", url))
+    rc, output = run("{} {} {}".format("curl", url, "-o openssl-1.1.0h.tar.gz"))
     if rc != 0:
-        print("Dependency installation failed...")
+        print("Compilation failed...")
         print(output)
         exit(1)
     else:
         rc, output = run(script)
         if rc != 0:
-            print("Dependency installation failed...")
+            print("Compilation failed...")
             print(output)
             exit(1)
 
@@ -43,7 +43,6 @@ def dependency_install(silent=False):
         print(output)
         exit(1)
     else:
-        compile_openssl()
         if not silent:
             print("Dependencies installed...")
 
@@ -58,13 +57,18 @@ def compile(silent=False):
         print("Compiling...")
     rc, output = run('cmake .. && make -j 4')
     if rc != 0:
-        print("Compilation failed...")
-        print(output)
-        exit(1)
+        if path.isfile("/usr/lib/libcrypto.a") or path.isfile("/usr/lib64/libcrypto.a") \
+                or path.isfile("/usr/local/lib/libcrypto.a") or path.isfile("/usr/local/lib64/libcrypto.a"):
+            print("Compilation failed...")
+            print(output)
+            exit(1)
+        else:
+            compile_openssl()
+            compile(silent)
     else:
         if not silent:
             print("Successfully compiled...")
-        cleanup()
+            cleanup()
 
 
 def install(silent=False):
