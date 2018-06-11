@@ -8,7 +8,7 @@ compiler:
 #    - cd build
 #    - cmake ..
 
-script: ./installer compile
+script: ./installer.py compile
 
 # blocklist
 branches:
