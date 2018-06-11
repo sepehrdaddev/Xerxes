@@ -17,7 +17,7 @@ script:
   - export CC=/usr/bin/gcc-6
   - export CXX=/usr/bin/g++-6
   # Run your build commands next
-  - ./installer.py compile
+  - sudo ./installer.py compile
 # blocklist
 branches:
   except:
