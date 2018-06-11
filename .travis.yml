@@ -3,14 +3,12 @@ sudo: required
 dist: trusty
 compiler:
   - clang
-
-os: linux
-    addons:
-      apt:
-        sources:
-          - llvm-toolchain-trusty-5.0
-        packages:
-          - clang-5.0
+addons:
+  apt:
+    sources:
+      - llvm-toolchain-trusty-5.0
+    packages:
+      - clang-5.0
 
 before_install:
     - eval "CC=clang-5.0 && CXX=clang++-5.0"
