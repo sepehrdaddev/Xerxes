@@ -14,6 +14,7 @@ public:
     ServerThread();
     int Create(void *Callback, void *args);
     int Join();
+    int Detach();
 
     static int InitMutex();
     static int LockMutex();

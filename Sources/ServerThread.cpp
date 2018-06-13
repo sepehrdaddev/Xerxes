@@ -47,3 +47,11 @@ int ServerThread::UnlockMutex() {
     }
     return 0;
 }
+
+int ServerThread::Detach() {
+    if((pthread_detach(this->id)) == -1){
+        print_error("Error while detach");
+        return -1;
+    }
+    return 0;
+}
