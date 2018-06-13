@@ -12,7 +12,7 @@ addons:
       - gcc-6
       - g++-6
       - cmake
-      - openssl-dev
+      - libssl-dev
 script:
   - export CC=/usr/bin/gcc-6
   - export CXX=/usr/bin/g++-6
