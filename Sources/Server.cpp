@@ -6,60 +6,55 @@
 #include <openssl/err.h>
 #include <openssl/pem.h>
 #include <openssl/x509.h>
+#include <sys/ioctl.h>
 
 #include "../Headers/Server.hpp"
 #include "../Headers/Logging.hpp"
+#include "../Headers/Randomizer.hpp"
+
+std::vector<Client *> Server::clients;
+std::vector<ServerThread *> Server::threads;
+configuration *Server::config;
 
 Server::Server(int port) {
    config = new configuration{0, port, "cert.pem", "key.pem", false};
+   ServerThread::InitMutex();
+   init_openssl();
+   config->ctx = InitCTX();
+   check_certs();
+   configure_CTX(config->ctx);
+   config->socket = make_socket(config->port);
+   clients.reserve(config->maxClients);
+   threads.reserve(config->maxClients);
 }
 
 Server::~Server(){
+    for(auto &thread : threads){
+        delete thread;
+    }
+    for(auto &client : clients){
+        delete client;
+    }
+    close(config->socket);
+    SSL_CTX_free(config->ctx);
+    cleanup_openssl();
     delete config;
 }
 
 void Server::Serve() {
-    int sock;
-    SSL_CTX *ctx;
+    config->running = true;
 
-    init_openssl();
-    ctx = InitCTX();
-    check_certs();
-    configure_CTX(ctx);
+    auto *cmd = new ServerThread{};
+    cmd->Create(reinterpret_cast<void *>(Server::command), nullptr);
 
-    sock = make_socket(config->port);
+    auto *handler = new ServerThread{};
+    handler->Create(reinterpret_cast<void *>(Server::Accept_Clients), nullptr);
 
-    std::string buff{"test"};
+    cmd->Join();
 
-    /* Handle connections */
-    while(config->running){
-        struct sockaddr_in addr{};
-        uint len = sizeof(addr);
-        SSL *ssl;
+    delete cmd;
+    delete handler;
 
-        int client = accept(sock, reinterpret_cast<sockaddr*>(&addr), &len);
-        if (client < 0){
-            print_error("Unable to accept");
-            exit(EXIT_FAILURE);
-        }
-        config->clients++;
-        printf("Connection: %s:%d\n",inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
-        ssl = SSL_new(ctx);
-        SSL_set_fd(ssl, client);
-
-        if (SSL_accept(ssl) <= 0){
-            ERR_print_errors_fp(stderr);
-        }else{
-            write_socket(ssl, &buff);
-        }
-
-        SSL_free(ssl);
-        close(client);
-    }
-
-    close(sock);
-    SSL_CTX_free(ctx);
-    cleanup_openssl();
 }
 
 int Server::make_socket(int &port) {
@@ -75,13 +70,16 @@ int Server::make_socket(int &port) {
         print_error("Unable to create socket");
         exit(EXIT_FAILURE);
     }
+    int on = 1;
+    setsockopt(s,SOL_SOCKET,SO_REUSEADDR, &on,sizeof(int));
+    setsockopt(s, SOL_SOCKET, SO_KEEPALIVE, &on, sizeof(int));
 
     if (bind(s, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) < 0) {
         print_error("Unable to bind");
         exit(EXIT_FAILURE);
     }
 
-    if (listen(s, 1) < 0) {
+    if (listen(s, 5) < 0) {
         print_error("Unable to listen");
         exit(EXIT_FAILURE);
     }
@@ -89,12 +87,12 @@ int Server::make_socket(int &port) {
     return s;
 }
 
-void Server::read_socket(SSL *sock, std::string *buff) {
-    while(SSL_read(sock, const_cast<char *>(buff->c_str()), 256)){}
+int Server::read_socket(SSL *sock, std::string *buff) {
+    return SSL_read(sock, const_cast<char *>(buff->c_str()), 256);
 }
 
-void Server::write_socket(SSL *sock, std::string *buff) {
-    SSL_write(sock, const_cast<char *>(buff->c_str()), static_cast<int>(buff->length()));
+int Server::write_socket(SSL *sock, std::string *buff) {
+    return SSL_write(sock, buff->c_str(), static_cast<int>(buff->length()));
 }
 
 EVP_PKEY *Server::generate_key() {
@@ -103,18 +101,13 @@ EVP_PKEY *Server::generate_key() {
         print_error("Unable to create EVP_PKEY structure.");
         return nullptr;
     }
-    BIGNUM *e;
-    e = BN_new();
-    BN_set_word(e, 65537);
-    RSA *rsa = nullptr;
-    RSA_generate_key_ex(rsa, 2048, e, nullptr);
+    RSA *rsa = RSA_generate_key(2048, RSA_F4, nullptr, nullptr);
+
     if(!EVP_PKEY_assign_RSA(pkey, rsa)) {
         print_error("Unable to generate 2048-bit RSA key.");
         EVP_PKEY_free(pkey);
         return nullptr;
     }
-
-    BN_free(e);
 
     return pkey;
 }
@@ -268,4 +261,118 @@ void Server::check_certs() {
     if((!key) || (!cert)){
         generate_certificates();
     }
+}
+
+void *Server::HandleClient(void *arg) {
+    auto *client = reinterpret_cast<Client *>(arg);
+    std::string buff{"Connected..."};
+    ServerThread::LockMutex();
+
+    client->id = static_cast<int>(clients.size());
+    clients.emplace_back(client);
+
+    ServerThread::UnlockMutex();
+
+    write_socket(client->ssl, &buff);
+    buff.clear();
+
+    while(config->running){
+        if(is_connected(client->ssl)){
+            int c = 0;
+            ioctl(client->socket, FIONREAD, &c);
+            if(c > 0){
+                if(read_socket(client->ssl, &buff) == -1){
+                    print_error("Error while receiving from client");
+                }
+            }
+        }else{
+            printf("Client %d diconnected", client->id);
+
+            ServerThread::LockMutex();
+
+            for(size_t i = 0; i < clients.size(); i++) {
+                if((Server::clients[i]->id) == client->id){
+                    delete client;
+                    Server::clients.erase(Server::clients.begin() + i);
+                }
+            }
+
+            ServerThread::UnlockMutex();
+            break;
+        }
+        usleep(5000000);
+    }
+
+    return nullptr;
+}
+
+void *Server::command(void *) {
+
+    std::string cmd{};
+
+    while(config->running){
+        printf("> ");
+        std::getline(std::cin, cmd);
+        if(cmd == "exit"){
+            config->running = false;
+            exit(EXIT_SUCCESS);
+        }else if(!cmd.empty()){
+            SendToAll(&cmd);
+        }
+    }
+    return nullptr;
+}
+
+void Server::SendToAll(std::string *buff) {
+    //Acquire the lock
+    ServerThread::LockMutex();
+
+    for (auto &client : clients) {
+        if(is_connected(client->ssl)){
+            write_socket(client->ssl, buff);
+        }
+    }
+
+    buff->clear();
+
+    //Release the lock
+    ServerThread::UnlockMutex();
+}
+
+void *Server::Accept_Clients(void *) {
+    Client *client;
+    ServerThread *thread;
+
+    while(config->running){
+        if(clients.size() <= config->maxClients){
+            client = new Client{};
+            struct sockaddr_in addr{};
+            uint len = sizeof(addr);
+            client->socket = accept(config->socket, reinterpret_cast<sockaddr*>(&addr), &len);
+            if (client->socket < 0){
+                print_error("Unable to accept");
+                delete client;
+            }else{
+                config->clients++;
+                printf("Connection: %s:%d\n",inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
+                client->ssl = SSL_new(config->ctx);
+                SSL_set_fd(client->ssl, client->socket);
+
+                if (SSL_accept(client->ssl) <= 0){
+                    ERR_print_errors_fp(stderr);
+                }else{
+                    thread = new ServerThread{};
+                    thread->Create(reinterpret_cast<void *>(Server::HandleClient), client);
+                    threads.emplace_back(thread);
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
+bool Server::is_connected(SSL *ssl) {
+    char data[] = "\0";
+    auto rc = SSL_write(ssl, reinterpret_cast<void *>(data), 1);
+    return rc > 0;
 }

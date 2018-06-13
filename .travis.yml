@@ -12,12 +12,15 @@ addons:
       - gcc-6
       - g++-6
       - cmake
-      - curl
+      - openssl-dev
 script:
   - export CC=/usr/bin/gcc-6
   - export CXX=/usr/bin/g++-6
   # Run your build commands next
-  - sudo ./installer.py compile
+  - mkdir bin
+  - cd bin
+  - cmake ..
+  - make
 # blocklist
 branches:
   except:

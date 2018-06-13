@@ -188,7 +188,7 @@ const SSL_METHOD *Http_Flood::GetMethod() {
 #ifdef DTLS_ANY_VERSION
             return DTLS_client_method();
 #else
-            conf->logger->Log("Unable to find DTLS", Logger::Info);
+            print_error("Unable to find DTLS");
             exit(EXIT_FAILURE);
 #endif
         default:
