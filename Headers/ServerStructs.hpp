@@ -18,6 +18,7 @@ struct Client {
     int id;
     int socket;
     SSL *ssl;
+    std::string addr;
     virtual ~Client(){
         SSL_free(ssl);
         close(socket);

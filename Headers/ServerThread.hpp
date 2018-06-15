@@ -12,6 +12,7 @@ private:
 
 public:
     ServerThread();
+    explicit ServerThread(void *Callback, void *args);
     int Create(void *Callback, void *args);
     int Join();
     int Detach();

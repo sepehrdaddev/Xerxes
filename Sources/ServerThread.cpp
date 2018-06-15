@@ -3,7 +3,6 @@
 
 pthread_mutex_t ServerThread::mutex;
 
-ServerThread::ServerThread() = default;
 
 int ServerThread::Create(void *Callback, void *args) {
     int rc;
@@ -55,3 +54,9 @@ int ServerThread::Detach() {
     }
     return 0;
 }
+
+ServerThread::ServerThread(void *Callback, void *args) {
+    ServerThread::Create(Callback, args);
+}
+
+ServerThread::ServerThread() = default;

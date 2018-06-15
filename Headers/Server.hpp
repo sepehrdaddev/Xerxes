@@ -30,6 +30,8 @@ private:
     void check_certs();
     static bool is_connected(SSL *ssl);
     static void SendToAll(std::string *buff);
+    static void List_clients();
+    static void remove_client(Client *client);
 
     static configuration *config;
     static std::vector<Client *> clients;

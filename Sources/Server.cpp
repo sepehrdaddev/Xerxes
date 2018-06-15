@@ -7,6 +7,8 @@
 #include <openssl/pem.h>
 #include <openssl/x509.h>
 #include <sys/ioctl.h>
+#include <functional>
+#include <map>
 
 #include "../Headers/Server.hpp"
 #include "../Headers/Logging.hpp"
@@ -24,8 +26,8 @@ Server::Server(int port) {
    check_certs();
    configure_CTX(config->ctx);
    config->socket = make_socket(config->port);
-   clients.reserve(config->maxClients);
-   threads.reserve(config->maxClients);
+   clients.reserve(static_cast<unsigned long>(config->maxClients));
+   threads.reserve(static_cast<unsigned long>(config->maxClients));
 }
 
 Server::~Server(){
@@ -62,7 +64,7 @@ int Server::make_socket(int &port) {
     struct sockaddr_in addr{};
 
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
+    addr.sin_port = htons(static_cast<uint16_t>(port));
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     s = socket(AF_INET, SOCK_STREAM, 0);
@@ -101,7 +103,15 @@ EVP_PKEY *Server::generate_key() {
         print_error("Unable to create EVP_PKEY structure.");
         return nullptr;
     }
-    RSA *rsa = RSA_generate_key(2048, RSA_F4, nullptr, nullptr);
+    BIGNUM *e = BN_new();
+    RSA *rsa = RSA_new();
+
+    BN_set_word(e, 65537);
+
+    RSA_generate_key_ex(rsa, 2048, e, nullptr);
+
+    BN_free(e);
+    e = nullptr;
 
     if(!EVP_PKEY_assign_RSA(pkey, rsa)) {
         print_error("Unable to generate 2048-bit RSA key.");
@@ -286,18 +296,7 @@ void *Server::HandleClient(void *arg) {
                 }
             }
         }else{
-            printf("Client %d diconnected", client->id);
-
-            ServerThread::LockMutex();
-
-            for(size_t i = 0; i < clients.size(); i++) {
-                if((Server::clients[i]->id) == client->id){
-                    delete client;
-                    Server::clients.erase(Server::clients.begin() + i);
-                }
-            }
-
-            ServerThread::UnlockMutex();
+            remove_client(client);
             break;
         }
         usleep(5000000);
@@ -308,16 +307,18 @@ void *Server::HandleClient(void *arg) {
 
 void *Server::command(void *) {
 
+    std::map<std::string, std::function<void()>> Commands;
+    Commands["list"] = [&](){Server::List_clients();};
+    Commands["exit"] = [&](){config->running = false; exit(EXIT_SUCCESS);};
+
     std::string cmd{};
+
 
     while(config->running){
         printf("> ");
         std::getline(std::cin, cmd);
-        if(cmd == "exit"){
-            config->running = false;
-            exit(EXIT_SUCCESS);
-        }else if(!cmd.empty()){
-            SendToAll(&cmd);
+        if(Commands[cmd]){
+            Commands[cmd]();
         }
     }
     return nullptr;
@@ -354,15 +355,15 @@ void *Server::Accept_Clients(void *) {
                 delete client;
             }else{
                 config->clients++;
-                printf("Connection: %s:%d\n",inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
+                sprintf(const_cast<char *>(client->addr.c_str()),"%s:%d", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
                 client->ssl = SSL_new(config->ctx);
                 SSL_set_fd(client->ssl, client->socket);
 
                 if (SSL_accept(client->ssl) <= 0){
                     ERR_print_errors_fp(stderr);
                 }else{
-                    thread = new ServerThread{};
-                    thread->Create(reinterpret_cast<void *>(Server::HandleClient), client);
+                    thread = new ServerThread{reinterpret_cast<void *>(Server::HandleClient), client};
+                    //thread->Create(reinterpret_cast<void *>(Server::HandleClient), client);
                     threads.emplace_back(thread);
                 }
             }
@@ -375,4 +376,35 @@ bool Server::is_connected(SSL *ssl) {
     char data[] = "\0";
     auto rc = SSL_write(ssl, reinterpret_cast<void *>(data), 1);
     return rc > 0;
+}
+
+void Server::List_clients() {
+    ServerThread::LockMutex();
+
+    printf("============================= List Clients =============================\n");
+
+    for (auto &client : clients) {
+        if(is_connected(client->ssl)){
+            printf(" Client addr: %s id: %d \n", client->addr.c_str(), client->id);
+        }
+    }
+
+    printf("========================================================================\n");
+
+    ServerThread::UnlockMutex();
+}
+
+void Server::remove_client(Client *client) {
+    ServerThread::LockMutex();
+
+    printf("Client %d diconnected\n", client->id);
+
+    for(size_t i = 0; i < clients.size(); i++) {
+        if((Server::clients[i]->id) == client->id){
+            delete client;
+            Server::clients.erase(Server::clients.begin() + i);
+        }
+    }
+
+    ServerThread::UnlockMutex();
 }
