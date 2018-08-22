@@ -4,8 +4,8 @@
 #include <memory>
 #include <ctime>
 
-#include "Headers/Parser.hpp"
-#include "Headers/Logging.hpp"
+#include "../Headers/Parser.hpp"
+#include "../Headers/Logging.hpp"
 
 const pid_t m_pid = getpid();
 std::function<void()> show_stat;
