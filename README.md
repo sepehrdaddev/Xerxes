@@ -1,4 +1,4 @@
-<img align="left" width="100" height="100" src="/XerxesTheGreat.jpg">
+<img align="left" width="100" height="100" src="img/XerxesTheGreat.jpg">
 
 # Xerxes
 

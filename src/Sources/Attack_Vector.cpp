@@ -2,11 +2,11 @@
 
 #include "../Headers/Attack_Vector.hpp"
 
-Attack_Vector::Attack_Vector(std::shared_ptr<Config> conf) : conf{std::move(conf)}{
+Attack_Vector::Attack_Vector(std::shared_ptr<Config> config) : config{std::move(config)}{
 }
 
 void Attack_Vector::run() {
-    for (int x = 0; x < conf->THREADS; ++x) {
+    for (int x = 0; x < config->THREADS; ++x) {
         if(fork()){
             attack();
         }
@@ -15,8 +15,8 @@ void Attack_Vector::run() {
 }
 
 void Attack_Vector::pause() {
-    if(conf->delay > 0){
-        usleep(static_cast<__useconds_t>(conf->delay));
+    if(config->delay > 0){
+        usleep(static_cast<__useconds_t>(config->delay));
     }else{
         return;
     }

@@ -13,9 +13,10 @@ public:
     explicit Attack_Vector(std::shared_ptr<Config> config);
     virtual void run();
     virtual ~Attack_Vector() = default;
+    std::string Title{};
 
 protected:
-    std::shared_ptr<Config> conf;
+    std::shared_ptr<Config> config;
     virtual void pause();
 
 private:
