@@ -8,14 +8,14 @@
 #include "../Headers/Logging.hpp"
 
 
-Http_Flood::Http_Flood(std::shared_ptr<Config> conf) : Attack_Vector(std::move(conf)){
+Http_Flood::Http_Flood(std::shared_ptr<Config> config) : Attack_Vector(std::move(config)){
 
 }
 
 void Http_Flood::run() {
-    for (int x = 0; x < conf->THREADS; x++) {
+    for (int x = 0; x < config->THREADS; x++) {
         if(fork()){
-            if(conf->UseSSL){
+            if(config->UseSSL){
                 attack_ssl();
             }else{
                 attack();

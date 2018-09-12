@@ -2,11 +2,13 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "Socket.hpp"
+#include "../Headers/Socket.hpp"
 #include "../Headers/Logging.hpp"
 
 
-Socket::Socket(Host host, Protocol proto) : host{host}, protocol{proto}{
+Socket::Socket(Host host, Protocol proto){
+	SetHost(host);
+	SetSocketType(proto);
 	Connect();
 }
 
@@ -15,14 +17,14 @@ Socket::~Socket(){
 }
 
 void Socket::Disconnect(){
-	if(socket){
-		close(socket);
-		socket = 0;
+	if(sock){
+		close(sock);
+		sock = 0;
 	}
 }
 
 void Socket::Connect(){
-	if(!socket)
+	if(!sock)
 		create();
 }
 
@@ -39,10 +41,10 @@ void Socket::create(){
 		exit(EXIT_FAILURE);
 	}
 	for(p = servinfo; p != nullptr; p = p->ai_next) {
-		if((socket = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+		if((sock= socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
 			continue;
 		}
-		if(connect(socket, p->ai_addr, p->ai_addrlen) == -1) {
+		if(connect(sock, p->ai_addr, p->ai_addrlen) == -1) {
 			Disconnect();
 			continue;
 		}
@@ -56,8 +58,8 @@ void Socket::create(){
 	}
 }
 
-void Socket::Write(std::string& string){
-	if(write(socket, string.c_str(), string.length()) == -1){
+void Socket::Write(const char *string){
+	if(write(sock, string, strlen(string)) == -1){
 		Disconnect();
 		Connect();
 	}
@@ -65,12 +67,8 @@ void Socket::Write(std::string& string){
 
 void Socket::SetHost(Host h){
 	host = h;
-	Disconnect();
-	Connect();
 }
 
 void Socket::SetSocketType(Protocol p){
 	protocol = p;
-	Disconnect();
-	Connect();
 }

