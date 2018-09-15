@@ -24,7 +24,7 @@ namespace Randomizer{
     static int randomPort(){
         static auto init_s_port = 0;
         static int seq = 0;
-        seq++;
+        ++seq;
         if(init_s_port == 0){
             init_s_port = 1024 + (randomInt(0, 2000));
             return init_s_port;
@@ -33,8 +33,8 @@ namespace Randomizer{
     }
 
     static void randomstr(std::string& src){
-        int string_length =  randomInt(0, 20);
-        for(int i = 0; i < string_length; i++){
+        static int string_length =  randomInt(0, 20);
+        for(int i = 0; i < string_length; ++i){
             src += (static_cast<char>('0' + randomInt(0, 72)));
         }
     }

@@ -13,8 +13,8 @@ Raw_Socket::~Raw_Socket() {
 
 
 unsigned short Raw_Socket::checksum(unsigned short *buf, int len){
-	unsigned long sum;
-	for(sum=0; len>0; len--)
+	static unsigned long sum;
+	for(sum = 0;len > 0;len--)
 		sum += *buf++;
 	sum = (sum >> 16) + (sum &0xffff);
 	sum += (sum >> 16);
@@ -27,7 +27,9 @@ void Raw_Socket::Create(){
 }
 
 void Raw_Socket::Send(const char *buffer){
-	if((static_cast<int>(sendto(sock, buffer, iph->tot_len, 0, reinterpret_cast<sockaddr *>(&dst), sizeof(dst)))) == -1){
+  dst->sin_addr.s_addr = iph->daddr;
+  dst->sin_family = AF_UNSPEC;
+  if((static_cast<int>(sendto(sock, buffer, iph->tot_len, 0, reinterpret_cast<sockaddr *>(&dst), sizeof(dst)))) == -1){
 		Close();
 		Create();
 	}

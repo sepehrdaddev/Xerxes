@@ -15,11 +15,11 @@ void Base_Flood::attack(){
   sockets.reserve(config->CONNECTIONS);
   Socket::Host host{config->website, config->port};
   httphdr httph{};
-  for(auto& sock : sockets){
+  for(size_t i = 0; i < sockets.capacity(); ++i){
     if(config->UseSSL)
-      sock = std::make_unique<Secure_Socket>(host, static_cast<Socket::Protocol>(config->protocol));
+      sockets.emplace_back(std::make_unique<Secure_Socket>(host, static_cast<Socket::Protocol>(config->protocol)));
     else
-    	sock = std::make_unique<Socket>(host, static_cast<Socket::Protocol>(config->protocol));
+    	sockets.emplace_back(std::make_unique<Socket>(host, static_cast<Socket::Protocol>(config->protocol)));
   }
 
   while(true){
