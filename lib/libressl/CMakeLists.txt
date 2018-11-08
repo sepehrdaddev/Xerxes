@@ -40,7 +40,7 @@ if(NOT LIBRESSL_SKIP_INSTALL)
 endif(NOT LIBRESSL_SKIP_INSTALL)
 
 
-set(BUILD_NC true)
+set(BUILD_NC false)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	add_definitions(-fno-common)

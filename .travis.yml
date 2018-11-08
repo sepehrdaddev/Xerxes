@@ -20,10 +20,8 @@ script:
   - mkdir bin
   - cd bin
   - cmake ..
-  - make
-# blocklist
-branches:
-  except:
+  - make -j9
+  - make test
 
 # safelist
 branches:
