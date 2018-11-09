@@ -3,40 +3,64 @@
 
 #include <string>
 #include <random>
+#include <arpa/inet.h>
+#include <netdb.h>
 
 namespace utils {
-    static int randomInt(int min, int max){
-        static std::mt19937 engine{};
-        std::uniform_int_distribution<int> distribution(min, max);
-        return distribution(engine);
-    }
-    static void randomIP(std::string& src){
-        src.clear();
-        src = std::to_string(randomInt(1, 256))
-                + "."
-                + std::to_string(randomInt(1, 256))
-                + "."
-                +  std::to_string(randomInt(1, 256))
-                + "."
-                + std::to_string(randomInt(1, 256));
-    }
-    static int randomPort(){
-        static auto init_s_port = 0;
-        static int seq = 0;
-        if(init_s_port == 0){
-            init_s_port = 1024 + (randomInt(0, 2000));
-            return init_s_port;
+
+    namespace randomizer{
+        static int randomInt(int min, int max){
+            static std::mt19937 engine{};
+            std::uniform_int_distribution<int> distribution(min, max);
+            return distribution(engine);
         }
-        ++seq;
-        return (seq + init_s_port) % 65536;
-    }
-    static void randomstr(std::string& src){
-        static int string_length = randomInt(0, 30);
-        src.clear();
-        for(int i = 0; i < string_length; ++i){
-            src += (static_cast<char>('0' + randomInt(0, 72)));
+        static void randomIP(std::string& src){
+            src.clear();
+            src = std::to_string(randomInt(1, 255))
+                  + "."
+                  + std::to_string(randomInt(1, 255))
+                  + "."
+                  +  std::to_string(randomInt(1, 255))
+                  + "."
+                  + std::to_string(randomInt(1, 255));
+        }
+        static int randomPort(){
+            static auto init_s_port = 0;
+            static int seq = 0;
+            if(init_s_port == 0){
+                init_s_port = 1024 + (randomInt(0, 2000));
+                return init_s_port;
+            }
+            ++seq;
+            return (seq + init_s_port) % 65536;
+        }
+        static void randomstr(std::string& src){
+            int string_length = randomInt(1, 30);
+            src.clear();
+            for(int i = 0; i < string_length; ++i){
+                src += (static_cast<char>('0' + randomInt(0, 72)));
+            }
         }
     }
+
+
+    namespace validator{
+        static bool valid_host(const std::string &host){
+            struct sockaddr_in sa{};
+            return static_cast<bool>(inet_pton(AF_INET, host.c_str(), &(sa.sin_addr)));
+        }
+
+        static bool valid_hostname(const std::string &hostname){
+            hostent *record = gethostbyname(hostname.c_str());
+            return record != nullptr;
+        }
+
+        static bool valid_port(const std::string &port){
+            int temp = static_cast<int>(strtol(port.c_str(), nullptr, 10));
+            return temp < 65535 && temp > 0;
+        }
+    }
+
 
     static void pause(timespec time){
         nanosleep(&time, nullptr);

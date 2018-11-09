@@ -23,7 +23,7 @@ TEST_CASE("test utils random int"){
     nums.reserve(10000);
     int min = -100000, max = 100000, rand;
     for(int i = 0; i < 10000; ++i){
-        rand = utils::randomInt(min, max);
+        rand = utils::randomizer::randomInt(min, max);
         REQUIRE(rand >= min);
         REQUIRE(rand <= max);
         nums.emplace_back(rand);
@@ -37,12 +37,12 @@ TEST_CASE("test utils random ip"){
     std::string temp{};
     std::vector<std::string> temp_vec{};
     for(int i = 0; i < 10000; ++i) {
-        utils::randomIP(temp);
+        utils::randomizer::randomIP(temp);
         temp_vec = split(temp, '.');
         REQUIRE(temp_vec.size() == 4);
         for(auto& val : temp_vec){
-            REQUIRE(utils::to_int(val) >= 1);
-            REQUIRE(utils::to_int(val) <= 256);
+            REQUIRE(utils::to_int(val) > 0);
+            REQUIRE(utils::to_int(val) < 256);
         }
 
         ips.emplace_back(temp);
@@ -57,9 +57,9 @@ TEST_CASE("test utils random port"){
     int port;
     bool is_continious = true;
     for(int i = 0; i < 10000; ++i){
-        port = utils::randomPort();
-        REQUIRE(port >= 0);
-        REQUIRE(port <= 65536);
+        port = utils::randomizer::randomPort();
+        REQUIRE(port > 0);
+        REQUIRE(port < 65536);
         ports.emplace_back(port);
     }
 
@@ -78,7 +78,7 @@ TEST_CASE("test utils random str"){
     strs.reserve(10000);
     std::string temp{};
     for(int i = 0; i < 10000; ++i) {
-        utils::randomstr(temp);
+        utils::randomizer::randomstr(temp);
         REQUIRE_FALSE(temp.empty());
         REQUIRE(temp.size() <= 30);
         strs.emplace_back(temp);
@@ -117,4 +117,24 @@ TEST_CASE("test utils to_int"){
     for(int i = -10000; i < 10000; ++i){
         REQUIRE(utils::to_int(std::to_string(i)) == i);
     }
+}
+
+TEST_CASE("test utils valid port"){
+    std::string temp{};
+    int i;
+    for(i = 1; i < 65535; ++i){
+        temp = std::to_string(i);
+        REQUIRE(utils::validator::valid_port(temp));
+    }
+
+    for(i = 0; i > -65536; --i){
+        temp = std::to_string(i);
+        REQUIRE_FALSE(utils::validator::valid_port(temp));
+    }
+
+    for(i = 65535; i < 131070; ++i){
+        temp = std::to_string(i);
+        REQUIRE_FALSE(utils::validator::valid_port(temp));
+    }
+
 }
