@@ -6,7 +6,7 @@
 
 class Ssocket : public Socket {
 public:
-    Ssocket(const char *host, const char *port);
+    Ssocket(std::string host, std::string port);
     ~Ssocket() override = default;
 
     ssize_t Write(const char *str, size_t len) override;

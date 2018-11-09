@@ -3,11 +3,12 @@
 
 
 #include <cstdio>
+#include <string>
 
 class Socket {
 
 public:
-    Socket(const char *host, const char *port, int sock_type);
+    Socket(std::string host, std::string port, int sock_type);
     virtual ~Socket() = default;
     virtual ssize_t Write(const char *str, size_t len);
     virtual bool Open();
@@ -17,8 +18,8 @@ public:
 protected:
     bool open();
     bool close();
-    const char *rhost;
-    const char *rport;
+    std::string rhost;
+    std::string rport;
     int fd;
     int sock_type;
 };

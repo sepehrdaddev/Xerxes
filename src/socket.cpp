@@ -1,12 +1,12 @@
-#include "socket.h"
-
 #include <iostream>
 #include <unistd.h>
 #include <netdb.h>
 #include <cstring>
 
-Socket::Socket(const char *host, const char *port, int sock_type) :
-                rhost{host}, rport{port}, sock_type{sock_type}{
+#include "socket.h"
+
+Socket::Socket(std::string host, std::string port, int sock_type) :
+                rhost{std::move(host)}, rport{std::move(port)}, sock_type{sock_type}{
 
 }
 
@@ -20,7 +20,7 @@ bool Socket::open() {
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = sock_type;
-    if((rc = getaddrinfo(rhost, rport, &hints, &servinfo))!= 0) {
+    if((rc = getaddrinfo(rhost.c_str(), rport.c_str(), &hints, &servinfo))!= 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rc));
         exit(0);
     }
@@ -42,7 +42,7 @@ bool Socket::open() {
     }
     if(servinfo)
         freeaddrinfo(servinfo);
-    fprintf(stderr, "[Connected -> %s:%s]\n", rhost, rport);
+    fprintf(stderr, "[Connected -> %s:%s]\n", rhost.c_str(), rport.c_str());
     return (fd > 0);
 }
 

@@ -3,7 +3,7 @@
 
 #include <string>
 
-#define NULL_TCP (0)
+enum __Vector__{NULL_TCP = 0, NULL_UDP, TCP_FLOOD, UDP_FLOOD};
 
 struct Config{
     std::string rhost;
@@ -12,7 +12,6 @@ struct Config{
     int vec;
     int trds;
     int conn;
-    int dly;
     bool tls;
     bool rand_lhost;
     bool rand_lport;

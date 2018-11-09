@@ -6,6 +6,8 @@
 #include "config.h"
 
 class engine {
+
+public:
     explicit  engine(std::shared_ptr<Config> config);
     virtual ~engine() = default;
 };

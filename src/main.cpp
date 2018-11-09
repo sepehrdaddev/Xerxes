@@ -1,6 +1,13 @@
 #include <iostream>
 #include <string>
 #include <args.hxx>
+#include <memory>
+#include <algorithm>
+#include <csignal>
+
+
+#include "engine.h"
+#include "utils.h"
 
 const char *__author__ = "Sepehrdad Sh";
 const char *__license__ = "GPLv3";
@@ -14,6 +21,23 @@ void version(){
 void banner(){
     printf("--==[ %s by %s ]==--\n\n", __project__, __author__);
 }
+
+void exit_signal(int){
+    exit(EXIT_SUCCESS);
+}
+
+void broke(int){
+    // pass
+}
+
+void init_signals(){
+    signal(SIGINT, &exit_signal);
+    signal(SIGABRT, &exit_signal);
+    signal(SIGTERM, &exit_signal);
+    signal(SIGTSTP, &exit_signal);
+    signal(SIGPIPE, &broke);
+}
+
 
 
 int main(int argc, const char *argv[]){
@@ -50,8 +74,20 @@ int main(int argc, const char *argv[]){
         version();
         exit(EXIT_SUCCESS);
     }
-
-
+    init_signals();
+    std::shared_ptr<Config> config = std::make_shared<Config>();
+    utils::set_dly(args::get(dly), &config->time);
+    config->rhost = args::get(rhost);
+    config->rport = args::get(rport);
+    config->vec = args::get(vec);
+    config->conn = args::get(conn);
+    config->trds = args::get(trds);
+    config->tls = tls;
+    config->rand_hdr = randomize_hdr;
+    config->rand_lhost = randomize_host;
+    config->rand_lport = randomize_port;
+    config->rand_usr = randomize_useragent;
+    engine eng{config};
 
     return 0;
 }

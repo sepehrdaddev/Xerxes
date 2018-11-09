@@ -1,9 +1,13 @@
+#include <utility>
+
+#include <utility>
+
 #include "ssocket.h"
 
 #include <iostream>
 #include <sys/socket.h>
 
-Ssocket::Ssocket(const char *host, const char *port) : Socket(host, port, SOCK_STREAM) {
+Ssocket::Ssocket(std::string host, std::string port) : Socket(std::move(host), std::move(port), SOCK_STREAM) {
 
 }
 
@@ -21,7 +25,7 @@ bool Ssocket::Open() {
     tls_config_insecure_noverifyname(tls_config);
 
     tls_configure(tls, tls_config);
-    if((rc = tls_connect_socket(tls, fd, rhost)) < 0) {
+    if((rc = tls_connect_socket(tls, fd, rhost.c_str())) < 0) {
         printf("tls_connect error\n");
         printf("%s\n", tls_error(tls));
         exit(EXIT_FAILURE);
