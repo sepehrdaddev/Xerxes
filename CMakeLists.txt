@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.9)
 
 project(Xerxes)
 
+enable_testing()
+
 set(CMAKE_CXX_STANDARD 11)
 
 if(NOT CMAKE_BUILD_TYPE)

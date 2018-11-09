@@ -18,6 +18,7 @@ struct Config{
     bool rand_lport;
     bool rand_usr;
     bool rand_hdr;
+    timespec time;
 };
 
 #endif //XERXES_CONFIG_H

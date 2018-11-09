@@ -3,7 +3,6 @@
 
 #include <string>
 #include <random>
-#include <chrono>
 
 namespace utils {
     static int randomInt(int min, int max){
@@ -33,10 +32,34 @@ namespace utils {
     }
     static void randomstr(std::string& src){
         static int string_length = randomInt(0, 30);
-        src.reserve(string_length);
+        src.clear();
         for(int i = 0; i < string_length; ++i){
             src += (static_cast<char>('0' + randomInt(0, 72)));
         }
+    }
+
+    static void pause(timespec time){
+        nanosleep(&time, nullptr);
+    }
+
+    static void set_dly(int dly, timespec *time){
+        if(time){
+            if((dly - 999999999) > 0){
+                time->tv_sec = dly - 999999999;
+                time->tv_nsec = abs(1000000000 - dly);
+            }else if (dly <= 0){
+                time->tv_nsec = 1;
+                time->tv_sec = 0;
+            }else{
+                time->tv_nsec = dly;
+                time->tv_sec = 0;
+            }
+        }
+
+    }
+
+    static int to_int(const std::string& str){
+        return static_cast<int>(strtol(str.c_str(), nullptr, 10));
     }
 
 };
