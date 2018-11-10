@@ -21,7 +21,7 @@ bool Socket::open() {
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = sock_type;
     if((rc = getaddrinfo(rhost.c_str(), rport.c_str(), &hints, &servinfo))!= 0) {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rc));
+        fprintf(stderr, "[-] getaddrinfo: %s\n", gai_strerror(rc));
         exit(0);
     }
     for(p = servinfo; p != nullptr; p = p->ai_next) {
@@ -37,7 +37,7 @@ bool Socket::open() {
     if(p == nullptr) {
         if(servinfo)
             freeaddrinfo(servinfo);
-        fprintf(stderr, "No connection could be made\n");
+        fprintf(stderr, "[-] No connection could be made\n");
         exit(0);
     }
     if(servinfo)

@@ -14,12 +14,21 @@ const char *__license__ = "GPLv3";
 const char *__version__ = "2.0alpha";
 const char *__project__ = "Xerxes enhanced";
 
+std::vector<std::string> __str_vectors__{"NULL TCP", "NULL UDP", "TCP Flood", "UDP Flood"};
+
 void version(){
     printf("%s v%s\n", __project__, __version__);
 }
 
 void banner(){
     printf("--==[ %s by %s ]==--\n\n", __project__, __author__);
+}
+
+void print_vectors(){
+    puts("[+] available vectors");
+
+    for(int i = 0; i < __str_vectors__.size(); ++i)
+        printf("    > %d  - %s\n", i, __str_vectors__[i].c_str());
 }
 
 void exit_signal(int){
@@ -73,7 +82,12 @@ int main(int argc, const char *argv[]){
     if(ver){
         version();
         exit(EXIT_SUCCESS);
+    }else if(vects){
+        print_vectors();
+        exit(EXIT_SUCCESS);
     }
+
+
     init_signals();
     std::shared_ptr<Config> config = std::make_shared<Config>();
     utils::set_dly(args::get(dly), &config->time);

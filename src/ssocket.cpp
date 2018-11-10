@@ -26,8 +26,7 @@ bool Ssocket::Open() {
 
     tls_configure(tls, tls_config);
     if((rc = tls_connect_socket(tls, fd, rhost.c_str())) < 0) {
-        printf("tls_connect error\n");
-        printf("%s\n", tls_error(tls));
+        fprintf(stderr, "[-] tls_connect error: %s\n", tls_error(tls));
         exit(EXIT_FAILURE);
     }
     return (rc > 0);
