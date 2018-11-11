@@ -13,10 +13,10 @@ std::istream& operator>>(std::istream& is, std::tuple<int, int>& ints)
     return is;
 }
 
-#include <args.hxx>
+#include "args.hxx"
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "../catch/catch.hpp"
 
 TEST_CASE("Help flag throws Help exception", "[args]")
 {
@@ -681,7 +681,7 @@ TEST_CASE("Nargs work as expected", "[args]")
 #undef ARGS_HXX
 #define ARGS_TESTNAMESPACE
 #define ARGS_NOEXCEPT
-#include <args.hxx>
+#include "args.hxx"
 
 TEST_CASE("Noexcept mode works as expected", "[args]")
 {

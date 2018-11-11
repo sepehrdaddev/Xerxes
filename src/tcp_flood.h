@@ -4,18 +4,14 @@
 #include <memory>
 #include <string>
 
-#include "Vector.h"
+#include "base_flood.h"
 #include "config.h"
 
-class tcp_flood : public Vector{
+class tcp_flood : public base_flood {
 
 public:
     explicit tcp_flood(std::shared_ptr<Config> config);
     ~tcp_flood() override = default;
-    void run() override;
-
-protected:
-    virtual int gen_hdr(std::string& string);
 };
 
 

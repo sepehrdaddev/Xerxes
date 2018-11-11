@@ -42,7 +42,7 @@ bool Socket::open() {
     }
     if(servinfo)
         freeaddrinfo(servinfo);
-    fprintf(stderr, "[Connected -> %s:%s]\n", rhost.c_str(), rport.c_str());
+    fprintf(stderr, "[+] Connected -> %s:%s\n", rhost.c_str(), rport.c_str());
     return (fd > 0);
 }
 

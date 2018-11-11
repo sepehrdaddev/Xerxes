@@ -13,7 +13,7 @@ endif()
 if(STATIC)
 	set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 	set(BUILD_SHARED_LIBRARIES OFF)
-set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++ -Wl,--whole-archive -Wl,--no-whole-archive")
+	set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++ -Wl,--whole-archive -Wl,--no-whole-archive")
 endif()
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
