@@ -15,11 +15,8 @@ struct httphdr{
     std::string referer{};
     std::string content_type{};
     std::string cookie[2]{};
-    std::string connection_type{};
-    int keep_alive = 0;
-    int DNT = 0;
-    std::string accept{};
-    int content_length = 0;
+    std::string connection_type{"Keep-Alive"};
+    std::string accept{"*/*"};
 };
 
 namespace http{

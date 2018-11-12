@@ -93,15 +93,15 @@ int main(int argc, const char *argv[]){
     }catch(args::ParseError& e){
         std::cerr << e.what() << std::endl;
         std::cerr << parser;
-        return 1;
+        return -1;
     }
 
     if(ver){
         version();
-        exit(EXIT_SUCCESS);
+        return 0;
     }else if(vects){
         print_vectors();
-        exit(EXIT_SUCCESS);
+        return 0;
     }
 
 
@@ -116,6 +116,21 @@ int main(int argc, const char *argv[]){
     config->tls = tls;
     config->rand_lhost = randomize_host;
     config->rand_lport = randomize_port;
+
+    if(!(utils::validator::valid_host(config->rhost)) || !(utils::validator::valid_hostname(config->rhost))){
+        fputs("[-] Invalid rhost address\n", stderr);
+        return -1;
+    }else if(!(utils::validator::valid_port(config->rport))){
+        fputs("[-] Invalid rport number\n", stderr);
+        return -1;
+    }else if(config->conn <= 0){
+        fputs("[-] Invalid connections number\n", stderr);
+        return -1;
+    }else if(config->trds <= 0){
+        fputs("[-] Invalid threads number\n", stderr);
+        return -1;
+    }
+
     engine eng{config};
 
     return 0;

@@ -55,7 +55,7 @@ namespace http{
     }
 
     void hdr_gen(httphdr& hdr, std::string& str){
-        str = hdr.method + " /" + hdr.path + " HTTP/1.0" + TERMINATOR
+        str = hdr.method + " /" + hdr.path + " HTTP/1.1" + TERMINATOR
               + "User-Agent: " + hdr.useragent + TERMINATOR
               + "Cache-Control: " + hdr.cache_control + TERMINATOR
               + "Accept-Encoding: " + hdr.encoding + TERMINATOR
@@ -64,10 +64,7 @@ namespace http{
               + "Accept: " + hdr.accept + TERMINATOR
               + "Connection: " + hdr.connection_type + TERMINATOR
               + "Content-Type: " + hdr.content_type + TERMINATOR
-              + (hdr.content_length ? "Content-Length: " + std::to_string(hdr.content_length) + TERMINATOR : "")
-              + "Cookie: " + hdr.cookie[0] + "=" + hdr.cookie[1] + TERMINATOR
-              + "Keep-Alive: " + std::to_string(hdr.keep_alive) + TERMINATOR
-              + "DNT: " + std::to_string(hdr.DNT) + TERMINATOR;
+              + "Cookie: " + hdr.cookie[0] + "=" + hdr.cookie[1] + TERMINATOR;
     }
 
     static void load_usr(std::vector<std::string>& useragents){
