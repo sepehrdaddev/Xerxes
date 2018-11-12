@@ -14,7 +14,7 @@ const char *__license__ = "GPLv3";
 const char *__version__ = "2.0alpha";
 const char *__project__ = "Xerxes enhanced";
 
-std::vector<std::string> __str_vectors__{"NULL TCP", "NULL UDP", "TCP Flood", "UDP Flood"};
+std::vector<std::string> __str_vectors__{"NULL TCP", "NULL UDP", "TCP Flood", "UDP Flood", "HTTP Flood"};
 
 void version(){
     printf("%s v%s\n", __project__, __version__);
@@ -52,21 +52,38 @@ void init_signals(){
 int main(int argc, const char *argv[]){
     banner();
     args::ArgumentParser parser("Xerxes dos tool enhanced");
+    
     args::HelpFlag help(parser, "help", "display this help menu", {'h', "help"});
-    args::Flag ver(parser, "version", "display version", {'v', "version"});
-    args::Flag vects(parser, "available vectors", "display available vectors", {'V', "vectors"});
+
+    args::Flag ver(parser, "version", "display version", {'V', "version"});
+
+    args::Flag vects(parser, "available vectors", "display available vectors", {"vecs"});
+
     args::ValueFlag<std::string> rhost(parser, "rhost", "remote host address [default 127.0.0.1]"
-            , {"rhost"}, "127.0.0.1");
-    args::ValueFlag<std::string> rport(parser, "rport", "remote host port [default 80]", {"rport"}, "80");
-    args::ValueFlag<int> vec(parser,  "vector", "attack vector [default 0]", {"vec"}, 0);
-    args::ValueFlag<int> dly(parser,  "delay", "attack delay [default 1 ns]", {"dly"}, 1);
-    args::ValueFlag<int> trds(parser,  "threads", "number of threads [default 10]", {"trds"}, 10);
-    args::ValueFlag<int> conn(parser,  "connections", "number of connections [default 25]", {"conn"}, 25);
+            , {'a', "rhost"}, "127.0.0.1");
+
+    args::ValueFlag<std::string> rport(parser, "rport", "remote host port [default 80]",
+            {'p', "rport"}, "80");
+
+    args::ValueFlag<int> vec(parser,  "vector", "attack vector [default 0]",
+            {'v', "vec"}, 0);
+
+    args::ValueFlag<int> dly(parser,  "delay", "attack delay [default 1 ns]",
+            {'d', "dly"}, 1);
+
+    args::ValueFlag<int> trds(parser,  "threads", "number of threads [default 10]",
+            {'t', "trds"}, 10);
+
+    args::ValueFlag<int> conn(parser,  "connections", "number of connections [default 25]",
+            {'c', "conn"}, 25);
+
     args::Flag tls(parser, "enable tls", "enable tls", {"tls"});
-    args::Flag randomize_host(parser, "randomize lhost", "enable local host randomization", {"rand-lhost"});
-    args::Flag randomize_port(parser, "randomize lport", "enable local port randomization", {"rand-lport"});
-    args::Flag randomize_useragent(parser, "randomize useragent", "enable useragent randomization", {"rand-usr"});
-    args::Flag randomize_hdr(parser, "randomize header", "enable http header randomization", {"rand-hdr"});
+
+    args::Flag randomize_host(parser, "randomize lhost", "enable local host randomization",
+            {"rand-lhost"});
+
+    args::Flag randomize_port(parser, "randomize lport", "enable local port randomization",
+            {"rand-lport"});
 
     try{
         parser.ParseCLI(argc, argv);
@@ -97,10 +114,8 @@ int main(int argc, const char *argv[]){
     config->conn = args::get(conn);
     config->trds = args::get(trds);
     config->tls = tls;
-    config->rand_hdr = randomize_hdr;
     config->rand_lhost = randomize_host;
     config->rand_lport = randomize_port;
-    config->rand_usr = randomize_useragent;
     engine eng{config};
 
     return 0;

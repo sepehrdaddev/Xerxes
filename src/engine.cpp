@@ -3,6 +3,7 @@
 #include "udp_flood.h"
 #include "null_tcp.h"
 #include "null_udp.h"
+#include "http_flood.h"
 
 #include <memory>
 #include <unistd.h>
@@ -21,6 +22,9 @@ engine::engine(std::shared_ptr<Config> config) {
             break;
         case NULL_UDP:
             flood.reset(new null_udp(config));
+            break;
+        case HTTP_FLOOD:
+            flood.reset(new http_flood(config));
             break;
         default:
             fputs("[-] invalid Vector selected\n", stderr);
