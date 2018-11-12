@@ -52,15 +52,15 @@ void init_signals(){
 int main(int argc, const char *argv[]){
     banner();
     args::ArgumentParser parser("Xerxes dos tool enhanced");
-    
-    args::HelpFlag help(parser, "help", "display this help menu", {'h', "help"});
+
+    args::HelpFlag help(parser, "help", "display this help menu", {'H', "help"});
 
     args::Flag ver(parser, "version", "display version", {'V', "version"});
 
     args::Flag vects(parser, "available vectors", "display available vectors", {"vecs"});
 
     args::ValueFlag<std::string> rhost(parser, "rhost", "remote host address [default 127.0.0.1]"
-            , {'a', "rhost"}, "127.0.0.1");
+            , {'h', "rhost"}, "127.0.0.1");
 
     args::ValueFlag<std::string> rport(parser, "rport", "remote host port [default 80]",
             {'p', "rport"}, "80");
