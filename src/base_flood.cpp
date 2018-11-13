@@ -17,15 +17,15 @@ void base_flood::init_sockets(std::vector<std::unique_ptr<Socket>> &sockets) {
         switch(sock_type){
             case SOCK_STREAM:
                 if(config->tls){
-                    sockets.emplace_back(std::unique_ptr<Socket>(new Ssocket(config->rhost.c_str(),
-                            config->rport.c_str())));
+                    sockets.emplace_back(std::unique_ptr<Socket>(new Ssocket(config->rhost,
+                            config->rport)));
                     break;
                 }
             case SOCK_DGRAM:
                 if(config->tls)
                     fputs("[-] tls is not available on udp\n", stderr);
-                sockets.emplace_back(std::unique_ptr<Socket>(new Socket(config->rhost.c_str(), 
-                        config->rport.c_str(), sock_type)));
+                sockets.emplace_back(std::unique_ptr<Socket>(new Socket(config->rhost,
+                        config->rport, sock_type)));
                 break;
             default:
                 break;
@@ -35,7 +35,6 @@ void base_flood::init_sockets(std::vector<std::unique_ptr<Socket>> &sockets) {
 
 void base_flood::run() {
     std::vector<std::unique_ptr<Socket>> sockets{};
-    sockets.reserve(config->conn);
     std::string hdr{};
     int len = 0;
     init_sockets(sockets);

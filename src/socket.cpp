@@ -20,15 +20,15 @@ bool Socket::open() {
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = sock_type;
-    if((rc = getaddrinfo(rhost.c_str(), rport.c_str(), &hints, &servinfo))!= 0) {
+    if((rc = getaddrinfo(rhost.c_str(), rport.c_str(), &hints, &servinfo)) != 0) {
         fprintf(stderr, "[-] getaddrinfo: %s\n", gai_strerror(rc));
-        exit(0);
+        exit(EXIT_FAILURE);
     }
     for(p = servinfo; p != nullptr; p = p->ai_next) {
         if((fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
             continue;
         }
-        if(connect(fd, p->ai_addr, p->ai_addrlen)==-1) {
+        if(connect(fd, p->ai_addr, p->ai_addrlen) == -1) {
             ::close(fd);
             continue;
         }
@@ -38,7 +38,7 @@ bool Socket::open() {
         if(servinfo)
             freeaddrinfo(servinfo);
         fprintf(stderr, "[-] No connection could be made\n");
-        exit(0);
+        exit(EXIT_FAILURE);
     }
     if(servinfo)
         freeaddrinfo(servinfo);
@@ -51,7 +51,7 @@ bool Socket::close() {
 }
 
 bool Socket::Alive() {
-    return fd > 0;
+    return (fd > 0);
 }
 
 bool Socket::Open() {
