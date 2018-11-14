@@ -36,7 +36,8 @@ bool Rsocket::open() {
     }
 
     dst.sin_family = AF_UNSPEC;
-
+    bzero(dst.sin_zero, sizeof(dst.sin_zero));
+    fprintf(stderr, "[+] Connected -> %s:%s\n", rhost.c_str(), rport.c_str());
     return (fd > 0);
 }
 
@@ -60,12 +61,6 @@ ssize_t Rsocket::Write(const char *str, size_t len) {
     return static_cast<int>(sendto(fd, str, len, 0, reinterpret_cast<sockaddr*>(&dst), sizeof(struct sockaddr_in)));
 }
 
-unsigned short Rsocket::csum(unsigned short *buf, int len) {
-    unsigned long sum;
-    for(sum=0; len>0; len--){
-        sum += *buf++;
-    }
-    sum = (sum >> 16) + (sum &0xffff);
-    sum += (sum >> 16);
-    return (unsigned short)(~sum);
+sockaddr_in *Rsocket::GetDst() {
+    return &dst;
 }

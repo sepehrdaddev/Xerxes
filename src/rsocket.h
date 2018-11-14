@@ -14,7 +14,7 @@ public:
     virtual bool Open();
     virtual bool Close();
     virtual bool Alive();
-    unsigned short csum(unsigned short *buf, int len);
+    sockaddr_in *GetDst();
 
 protected:
     bool open();

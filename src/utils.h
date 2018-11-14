@@ -38,6 +38,7 @@ namespace utils {
 
     int to_int(const std::string& str);
 
+    unsigned short csum(unsigned short *buf, int len);
 };
 
 

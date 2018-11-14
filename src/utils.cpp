@@ -89,4 +89,21 @@ namespace utils {
         return static_cast<int>(strtol(str.c_str(), nullptr, 10));
     }
 
+    unsigned short csum(unsigned short *buf, int len) {
+        unsigned long sum;
+
+        sum = 0;
+        while (len > 1) {
+            sum += *buf++;
+            len -= 2;
+        }
+
+        if (len == 1) {
+            sum += *buf;
+        }
+
+        sum = (sum >> 16) + (sum & 0xffff);
+        sum += (sum >> 16);
+        return static_cast<unsigned short>(~sum);
+    }
 };

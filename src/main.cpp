@@ -14,7 +14,7 @@ const char *__license__ = "GPLv3";
 const char *__version__ = "2.0alpha";
 const char *__project__ = "Xerxes enhanced";
 
-std::vector<std::string> __str_vectors__{"NULL TCP", "NULL UDP", "TCP Flood", "UDP Flood", "HTTP Flood"};
+std::vector<std::string> __str_vectors__{"NULL TCP", "NULL UDP", "TCP Flood", "UDP Flood", "HTTP Flood", "ICMP Flood"};
 
 void version(){
     printf("%s v%s\n", __project__, __version__);
@@ -51,6 +51,7 @@ void init_signals(){
 
 int main(int argc, const char *argv[]){
     banner();
+
     args::ArgumentParser parser("Xerxes dos tool enhanced");
 
     args::HelpFlag help(parser, "help", "display this help menu", {'H', "help"});
@@ -96,7 +97,10 @@ int main(int argc, const char *argv[]){
         return -1;
     }
 
-    if(ver){
+    if(argc < 2){
+        std::cout << parser.Help();
+        return 0;
+    }else if(ver){
         version();
         return 0;
     }else if(vects){

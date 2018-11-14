@@ -3,19 +3,18 @@
 
 #include "Vector.h"
 #include "rsocket.h"
-#include <vector>
 
-class base_spoofed_flood : Vector {
+class base_spoofed_flood : public Vector {
 public:
     base_spoofed_flood(std::shared_ptr<Config> config, int protocol);
     ~base_spoofed_flood() override = default;
     void run() override;
 
 protected:
-    virtual int gen_hdr(char string[]) = 0;
+    virtual char *gen_hdr(sockaddr_in *dst, int len) = 0;
     virtual void init_sockets(std::vector<std::unique_ptr<Rsocket>> &sockets);
     int proto{};
-    int hdr_len;
+    int hdr_len{};
 };
 
 
