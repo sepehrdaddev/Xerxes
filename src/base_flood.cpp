@@ -13,6 +13,8 @@ int base_flood::gen_hdr(std::string &string) {
 
 void base_flood::init_sockets(std::vector<std::unique_ptr<Socket>> &sockets) {
     sockets.reserve(config->conn);
+    if(config->tls && sock_type == SOCK_DGRAM)
+        fputs("[-] tls is not available on udp\n", stderr);
     for(int i = 0; i < config->conn; ++i){
         switch(sock_type){
             case SOCK_STREAM:
@@ -22,8 +24,6 @@ void base_flood::init_sockets(std::vector<std::unique_ptr<Socket>> &sockets) {
                     break;
                 }
             case SOCK_DGRAM:
-                if(config->tls)
-                    fputs("[-] tls is not available on udp\n", stderr);
                 sockets.emplace_back(std::unique_ptr<Socket>(new Socket(config->rhost,
                         config->rport, sock_type)));
                 break;

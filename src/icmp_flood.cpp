@@ -7,7 +7,8 @@
 
 
 icmp_flood::icmp_flood(std::shared_ptr<Config> config) : base_spoofed_flood(std::move(config), IPPROTO_ICMP) {
-
+    if(config->rand_lport)
+        fputs("[-] local port randomization is not available on icmp\n", stderr);
 }
 
 char *icmp_flood::gen_hdr(sockaddr_in *dst, int len) {
@@ -22,7 +23,7 @@ char *icmp_flood::gen_hdr(sockaddr_in *dst, int len) {
     if(config->rand_lhost){
         utils::randomizer::randomIP(ipaddr);
         ip->saddr = inet_addr(ipaddr.c_str());
-    } else{
+    }else{
         ip->saddr = 0;
     }
 

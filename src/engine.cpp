@@ -5,6 +5,7 @@
 #include "null_udp.h"
 #include "http_flood.h"
 #include "icmp_flood.h"
+#include "syn_flood.h"
 
 #include <memory>
 #include <unistd.h>
@@ -29,6 +30,9 @@ engine::engine(std::shared_ptr<Config> config) {
             break;
         case ICMP_FLOOD:
             flood.reset(new icmp_flood(config));
+            break;
+        case SYN_FLOOD:
+            flood.reset(new syn_flood(config));
             break;
         default:
             fputs("[-] invalid Vector selected\n", stderr);
