@@ -43,6 +43,10 @@ void base_spoofed_flood::init_sockets(std::vector<std::unique_ptr<Rsocket>> &soc
     sockets.reserve(config->conn);
     if(config->tls)
         fputs("[-] tls is not available on spoofed packets\n", stderr);
+
+    if(proto == IPPROTO_ICMP && config->rand_lport)
+        fputs("[-] local port randomization is not available on icmp\n", stderr);
+
     for(int i = 0; i < config->conn; ++i)
         sockets.emplace_back(std::unique_ptr<Rsocket>(new Rsocket(config->rhost, config->rport, proto)));
 }

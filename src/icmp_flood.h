@@ -3,6 +3,9 @@
 
 #include "base_spoofed_flood.h"
 
+#include <netinet/ip_icmp.h>
+#include <netinet/ip.h>
+
 class icmp_flood : public base_spoofed_flood {
 
 public:
@@ -11,6 +14,8 @@ public:
 
 protected:
     char *gen_hdr(sockaddr_in *dst, int len) override;
+    virtual void init_hdr(icmphdr *icmp, iphdr *ip);
+    virtual void finalize_hdr(icmphdr *icmp, iphdr *ip);
 };
 
 
