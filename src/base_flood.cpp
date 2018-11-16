@@ -15,6 +15,10 @@ void base_flood::init_sockets(std::vector<std::unique_ptr<Socket>> &sockets) {
     sockets.reserve(config->conn);
     if(config->tls && sock_type == SOCK_DGRAM)
         fputs("[-] tls is not available on udp\n", stderr);
+    if(config->rand_lhost)
+        fputs("[-] local host randomization is not available on normal sockets\n", stderr);
+    if(config->rand_lport)
+        fputs("[-] local port randomization is not available on normal sockets\n", stderr);
     for(int i = 0; i < config->conn; ++i){
         switch(sock_type){
             case SOCK_STREAM:

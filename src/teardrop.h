@@ -7,7 +7,6 @@ class teardrop : public spoofed_udp_flood{
 
 public:
     explicit teardrop(std::shared_ptr<Config> config);
-
     ~teardrop() override = default;
 
 protected:

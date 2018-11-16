@@ -11,7 +11,7 @@
 
 const char *__author__ = "Sepehrdad Sh";
 const char *__license__ = "GPLv3";
-const char *__version__ = "2.0alpha";
+const char *__version__ = "2.0beta";
 const char *__project__ = "Xerxes enhanced";
 
 std::vector<std::string> __str_vectors__{"NULL TCP", "NULL UDP", "TCP Flood", "UDP Flood", "HTTP Flood", "ICMP Flood",
