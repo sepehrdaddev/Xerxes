@@ -3,7 +3,8 @@
 
 #include <string>
 
-enum __Vector__{NULL_TCP = 0, NULL_UDP, TCP_FLOOD, UDP_FLOOD, HTTP_FLOOD, ICMP_FLOOD, SYN_FLOOD, ACK_FLOOD};
+enum __Vector__{NULL_TCP = 0, NULL_UDP, TCP_FLOOD, UDP_FLOOD, HTTP_FLOOD, ICMP_FLOOD, SYN_FLOOD,
+        ACK_FLOOD, SPOOFED_UDP_FLOOD, TEARDROP, BLACKNURSE, LAND};
 
 struct Config{
     std::string rhost;

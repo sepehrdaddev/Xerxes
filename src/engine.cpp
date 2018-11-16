@@ -1,12 +1,5 @@
 #include "engine.h"
-#include "tcp_flood.h"
-#include "udp_flood.h"
-#include "null_tcp.h"
-#include "null_udp.h"
-#include "http_flood.h"
-#include "icmp_flood.h"
-#include "syn_flood.h"
-#include "ack_flood.h"
+#include "vectors.h"
 
 #include <memory>
 #include <unistd.h>
@@ -37,6 +30,18 @@ engine::engine(std::shared_ptr<Config> config) {
             break;
         case ACK_FLOOD:
             flood.reset(new ack_flood(config));
+            break;
+        case SPOOFED_UDP_FLOOD:
+            flood.reset(new spoofed_udp_flood(config));
+            break;
+        case TEARDROP:
+            flood.reset(new teardrop(config));
+            break;
+        case BLACKNURSE:
+            flood.reset(new blacknurse(config));
+            break;
+        case LAND:
+            flood.reset(new land(config));
             break;
         default:
             fputs("[-] invalid Vector selected\n", stderr);

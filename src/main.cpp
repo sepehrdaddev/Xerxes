@@ -15,7 +15,7 @@ const char *__version__ = "2.0alpha";
 const char *__project__ = "Xerxes enhanced";
 
 std::vector<std::string> __str_vectors__{"NULL TCP", "NULL UDP", "TCP Flood", "UDP Flood", "HTTP Flood", "ICMP Flood",
-                                         "SYN Flood", "ACK Flood"};
+                                         "SYN Flood", "ACK Flood", "Spoofed UDP Flood", "Teardrop", "Blacknurse", "Land"};
 
 void version(){
     printf("%s v%s\n", __project__, __version__);

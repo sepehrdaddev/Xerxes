@@ -64,5 +64,5 @@ void spoofed_tcp_flood::finalize_hdr(tcphdr *tcp, iphdr *ip) {
 
     bcopy(tcp, &psh.tcp, sizeof(tcphdr));
 
-    tcp->check = utils::csum((unsigned short *) &psh, sizeof(psh));
+    tcp->th_sum = utils::csum((unsigned short *) &psh, sizeof(psh));
 }
