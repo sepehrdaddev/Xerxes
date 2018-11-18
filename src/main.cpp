@@ -15,7 +15,8 @@ const char *__version__ = "2.0beta";
 const char *__project__ = "Xerxes enhanced";
 
 std::vector<std::string> __str_vectors__{"NULL TCP", "NULL UDP", "TCP Flood", "UDP Flood", "HTTP Flood", "ICMP Flood",
-                                         "SYN Flood", "ACK Flood", "Spoofed UDP Flood", "Teardrop", "Blacknurse", "Land"};
+                                         "SYN Flood", "ACK Flood", "FIN Flood", "Spoofed UDP Flood", "Teardrop",
+                                         "Blacknurse", "Land", "Smurf"};
 
 void version(){
     printf("%s v%s\n", __project__, __version__);
@@ -67,6 +68,9 @@ int main(int argc, const char *argv[]){
     args::ValueFlag<std::string> rport(parser, "rport", "remote host port [default 80]",
             {'p', "rport"}, "80");
 
+    args::ValueFlag<std::string> bcast(parser, "bcast", "broadcast address [default 127.0.0.1]",
+            {'b', "bcast"}, "127.0.0.1");
+
     args::ValueFlag<int> vec(parser,  "vector", "attack vector [default 0]",
             {'v', "vec"}, 0);
 
@@ -115,6 +119,7 @@ int main(int argc, const char *argv[]){
     utils::set_dly(args::get(dly), &config->time);
     config->rhost = args::get(rhost);
     config->rport = args::get(rport);
+    config->bcast = args::get(bcast);
     config->vec = args::get(vec);
     config->conn = args::get(conn);
     config->trds = args::get(trds);

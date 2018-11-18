@@ -31,6 +31,9 @@ engine::engine(std::shared_ptr<Config> config) {
         case ACK_FLOOD:
             flood.reset(new ack_flood(config));
             break;
+        case FIN_FLOOD:
+            flood.reset(new fin_flood(config));
+            break;
         case SPOOFED_UDP_FLOOD:
             flood.reset(new spoofed_udp_flood(config));
             break;
@@ -42,6 +45,9 @@ engine::engine(std::shared_ptr<Config> config) {
             break;
         case LAND:
             flood.reset(new land(config));
+            break;
+        case SMURF:
+            flood.reset(new smurf(config));
             break;
         default:
             fputs("[-] invalid Vector selected\n", stderr);

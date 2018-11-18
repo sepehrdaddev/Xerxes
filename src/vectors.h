@@ -13,5 +13,7 @@
 #include "teardrop.h"
 #include "blacknurse.h"
 #include "land.h"
+#include "fin_flood.h"
+#include "smurf.h"
 
 #endif //XERXES_VECTORS_H
