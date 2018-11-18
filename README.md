@@ -38,6 +38,7 @@ $ ./Xerxes -H
         --vecs                            display available vectors
         -h[rhost], --rhost=[rhost]        remote host address [default 127.0.0.1]
         -p[rport], --rport=[rport]        remote host port [default 80]
+        -b[bcast], --bcast=[bcast]        broadcast address [default 127.0.0.1]
         -v[vector], --vec=[vector]        attack vector [default 0]
         -d[delay], --dly=[delay]          attack delay [default 1 ns]
         -t[threads], --trds=[threads]     number of threads [default 10]
