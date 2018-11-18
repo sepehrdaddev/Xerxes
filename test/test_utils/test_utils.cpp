@@ -87,6 +87,26 @@ TEST_CASE("test utils random str"){
     REQUIRE(std::adjacent_find(strs.begin(), strs.end()) == strs.end());
 }
 
+TEST_CASE("test utils random vector"){
+    std::vector<std::string> strs{};
+    strs.reserve(10000);
+    std::string temp{};
+    for(int i = 0; i < 10000; ++i) {
+        utils::randomizer::randomstr(temp);
+        strs.emplace_back(temp);
+    }
+
+    std::vector<std::string> random_strs{};
+    strs.reserve(5000);
+
+    for(int i = 0; i < 5000; ++i){
+        utils::randomizer::random_vec(strs, temp);
+        random_strs.emplace_back(temp);
+    }
+
+    REQUIRE(std::adjacent_find(random_strs.begin(), random_strs.end()) == random_strs.end());
+}
+
 TEST_CASE("test utils set dly"){
     timespec time{};
     int dly{};
@@ -117,6 +137,43 @@ TEST_CASE("test utils to_int"){
     for(int i = -10000; i < 10000; ++i){
         REQUIRE(utils::to_int(std::to_string(i)) == i);
     }
+}
+
+TEST_CASE("test utils valid host"){
+    std::vector<std::string> invalid_hosts{
+        "random", "rand.rand", "192.aaa.2.5", "aaa.8.5.3", "7.4.ee.1", "1.1.1.a", "random.randm.random.rand"
+    };
+
+    for(auto& i : invalid_hosts)
+        REQUIRE_FALSE(utils::validator::valid_host(i));
+
+    std::vector<std::string> valid_hosts{
+        "1.1.1.1", "8.8.8.8", "1.0.0.1", "8.8.4.4", "127.0.0.1"
+    };
+
+    for(auto& i : valid_hosts)
+        REQUIRE(utils::validator::valid_host(i));
+
+}
+
+TEST_CASE("test utils valid hostname"){
+    std::vector<std::string> valid_hostnames{
+        "google.com", "yahoo.com", "microsoft.com", "duckduckgo.com"
+    };
+    for(auto& i : valid_hostnames)
+        REQUIRE(utils::validator::valid_hostname(i));
+
+    std::vector<std::string> invalid_hostnames{};
+    invalid_hostnames.reserve(10);
+    std::string temp{};
+    for(int i = 0; i < 10; ++i){
+        utils::randomizer::randomstr(temp);
+        invalid_hostnames.emplace_back(temp);
+    }
+
+    for(auto& i : invalid_hostnames)
+        REQUIRE_FALSE(utils::validator::valid_hostname(i));
+
 }
 
 TEST_CASE("test utils valid port"){
