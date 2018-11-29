@@ -1,25 +1,16 @@
 dist: trusty
-sudo: required
-language:
-  - cpp
-compiler:
-  - gcc
+sudo: false
+language: cpp
+
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - gcc-6
       - g++-6
-      - cmake
-      - libssl-dev
+
 script:
-  - export CC=/usr/bin/gcc-6
-  - export CXX=/usr/bin/g++-6
-  # Run your build commands next
-  - mkdir bin
-  - cd bin
-  - cmake ..
+  - CXX=/usr/bin/g++-6 CC=/usr/bin/gcc-6 cmake .
   - make -j9
   - make test
 
