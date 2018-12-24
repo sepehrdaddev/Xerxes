@@ -16,7 +16,7 @@ std::istream& operator>>(std::istream& is, std::tuple<int, int>& ints)
 #include "args.hxx"
 
 #define CATCH_CONFIG_MAIN
-#include "../catch/catch.hpp"
+#include <catch.hpp>
 
 TEST_CASE("Help flag throws Help exception", "[args]")
 {

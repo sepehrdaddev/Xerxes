@@ -1,11 +1,13 @@
 #define CATCH_CONFIG_MAIN
 
-#include "../../lib/catch/catch.hpp"
 #include "../../src/utils.h"
 
 #include <iostream>
 #include <vector>
 #include <string>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <catch.hpp>
 
 std::vector<std::string> split(const std::string& s, char delimiter) {
     std::vector<std::string> tokens;
@@ -111,7 +113,8 @@ TEST_CASE("test utils random vector"){
 TEST_CASE("test utils set dly"){
     timespec time{};
     int dly{};
-
+    spdlog::stdout_color_mt("logger");
+    spdlog::set_pattern("[%^%l%$] %v");
     for(int i = 1; i < 5000; ++i){
         dly = 999999999 + i;
         utils::set_dly(dly, &time);

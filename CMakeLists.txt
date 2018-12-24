@@ -24,13 +24,12 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -s")
 
+include_directories(lib/catch/single_include/catch2)
+include_directories(lib/args)
+include_directories(lib/spdlog/include)
+include_directories(lib/libressl/include)
+
 include(CTest)
+add_subdirectory(lib)
 add_subdirectory(src)
 add_subdirectory(test)
-add_subdirectory(lib)
-
-
-target_include_directories(Xerxes PRIVATE lib/args)
-target_include_directories(Xerxes PRIVATE lib/catch/include)
-target_include_directories(Xerxes PRIVATE lib/spdlog/include)
-target_include_directories(Xerxes PRIVATE lib/libressl/include)
