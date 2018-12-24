@@ -3,6 +3,8 @@
 #include <fstream>
 #include <algorithm>
 
+#include <spdlog/spdlog.h>
+
 #define TERMINATOR "\r\n"
 
 
@@ -12,15 +14,18 @@ namespace http{
 
         void random_referer(std::string& src){
             static std::vector<std::string> referer{
-                    "https://www.google.com/", "https://www.yahoo.com/", "https://www.bing.com/",
-                    "https://twitter.com/", "https://www.facebook.com/", "https://www.msn.com/",
-                    "https://www.youtube.com/", "https://yandex.com/", "https://www.amazon.com/"};
+                    "https://www.google.com/", "https://www.yahoo.com/",
+					"https://www.bing.com/", "https://twitter.com/",
+					"https://www.facebook.com/", "https://www.msn.com/",
+                    "https://www.youtube.com/", "https://yandex.com/",
+					"https://www.amazon.com/"};
             utils::randomizer::random_vec(referer, src);
         }
 
         void random_useragent(std::string& src){
             static bool load = false;
-            static std::vector<std::string> useragents{"Wget/1.16 (linux-gnu/Xerxes)"};
+            static std::vector<std::string> useragents{
+            	"Wget/1.16 (linux-gnu/Xerxes)"};
             if(!load){
                 http::load_usr(useragents);
                 load = true;
@@ -29,7 +34,8 @@ namespace http{
         }
 
         void random_encoding(std::string& src){
-            static std::vector<std::string> encoding{"\'\'", "*", "identity", "gzip", "deflate"};
+            static std::vector<std::string> encoding{"\'\'", "*", "identity",
+            	"gzip", "deflate"};
             utils::randomizer::random_vec(encoding, src);
         }
 
@@ -39,12 +45,14 @@ namespace http{
         }
 
         void random_charset(std::string& src){
-            static std::vector<std::string> charset{"ISO-8859-1", "utf-8", "Windows-1251", "ISO-8859-2", "ISO-8859-15"};
+            static std::vector<std::string> charset{"ISO-8859-1", "utf-8",
+            	"Windows-1251", "ISO-8859-2", "ISO-8859-15"};
             utils::randomizer::random_vec(charset, src);
         }
 
         void random_contenttype(std::string& src){
-            static std::vector<std::string> contenttype{"multipart/form-data", "application/x-url-encoded"};
+            static std::vector<std::string> contenttype{"multipart/form-data",
+            	"application/x-url-encoded"};
             utils::randomizer::random_vec(contenttype, src);
         }
 
@@ -59,7 +67,8 @@ namespace http{
               + "User-Agent: " + hdr.useragent + TERMINATOR
               + "Cache-Control: " + hdr.cache_control + TERMINATOR
               + "Accept-Encoding: " + hdr.encoding + TERMINATOR
-              + "Accept-Charset: " + hdr.charset[0] + ", " + hdr.charset[1] + TERMINATOR
+              + "Accept-Charset: " + hdr.charset[0] + ", "
+			  + hdr.charset[1] + TERMINATOR
               + "Referer: " + hdr.referer + TERMINATOR
               + "Accept: " + hdr.accept + TERMINATOR
               + "Connection: " + hdr.connection_type + TERMINATOR
@@ -71,7 +80,8 @@ namespace http{
         std::ifstream filestream("useragents");
         std::string line{};
         if(filestream.good() & filestream.is_open()){
-            long count = std::count(std::istreambuf_iterator<char>(filestream), std::istreambuf_iterator<char>(), '\n');
+            long count = std::count(std::istreambuf_iterator<char>(filestream),
+            		std::istreambuf_iterator<char>(), '\n');
             filestream.clear();
             filestream.seekg(0, std::ios::beg);
             useragents.reserve(static_cast<unsigned long>(count) +1);
@@ -79,8 +89,7 @@ namespace http{
                 useragents.emplace_back(line);
             }
             filestream.close();
-        }else{
-            fputs("[-] Unable to find useragents file", stderr);
-        }
+        }else
+            spdlog::get("logger")->error("Unable to find useragents file");
     }
 }

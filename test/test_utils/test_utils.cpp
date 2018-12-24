@@ -104,7 +104,8 @@ TEST_CASE("test utils random vector"){
         random_strs.emplace_back(temp);
     }
 
-    REQUIRE(std::adjacent_find(random_strs.begin(), random_strs.end()) == random_strs.end());
+    REQUIRE(std::adjacent_find(random_strs.begin(),
+    		random_strs.end()) == random_strs.end());
 }
 
 TEST_CASE("test utils set dly"){
@@ -141,7 +142,8 @@ TEST_CASE("test utils to_int"){
 
 TEST_CASE("test utils valid host"){
     std::vector<std::string> invalid_hosts{
-        "random", "rand.rand", "192.aaa.2.5", "aaa.8.5.3", "7.4.ee.1", "1.1.1.a", "random.randm.random.rand"
+        "random", "rand.rand", "192.aaa.2.5", "aaa.8.5.3", "7.4.ee.1",
+		"1.1.1.a", "random.randm.random.rand"
     };
 
     for(auto& i : invalid_hosts)

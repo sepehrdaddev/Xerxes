@@ -1,4 +1,8 @@
-cmake_minimum_required(VERSION 2.9)
+cmake_minimum_required(VERSION 3.0)
+
+if(POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW) # CMake 3.0.0
+endif()
 
 project(Xerxes)
 
@@ -24,3 +28,9 @@ include(CTest)
 add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(lib)
+
+
+target_include_directories(Xerxes PRIVATE lib/args)
+target_include_directories(Xerxes PRIVATE lib/catch/include)
+target_include_directories(Xerxes PRIVATE lib/spdlog/include)
+target_include_directories(Xerxes PRIVATE lib/libressl/include)

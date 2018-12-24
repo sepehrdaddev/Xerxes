@@ -1,6 +1,7 @@
 #include "ack_flood.h"
 
-ack_flood::ack_flood(std::shared_ptr<Config> config) : spoofed_tcp_flood(std::move(config)) {
+ack_flood::ack_flood(std::shared_ptr<Config> config) :
+					   spoofed_tcp_flood(std::move(config)) {
 
 }
 

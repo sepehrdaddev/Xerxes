@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include <spdlog/spdlog.h>
+
 namespace utils {
 
     namespace randomizer{
@@ -41,7 +43,8 @@ namespace utils {
         }
 
         void random_vec(std::vector<std::string> &vec, std::string &str){
-            str = vec[randomizer::randomInt(0, static_cast<int>(vec.size()) -1)];
+            str = vec[randomizer::randomInt(0,
+            		static_cast<int>(vec.size()) -1)];
         }
     }
 
@@ -50,7 +53,8 @@ namespace utils {
 
         bool valid_host(const std::string &host){
             struct sockaddr_in sa{};
-            return static_cast<bool>(inet_pton(AF_INET, host.c_str(), &(sa.sin_addr)));
+            return static_cast<bool>(inet_pton(AF_INET, host.c_str(),
+            		&(sa.sin_addr)));
         }
 
         bool valid_hostname(const std::string &hostname){
@@ -75,7 +79,8 @@ namespace utils {
                 time->tv_sec = dly - 999999999;
                 time->tv_nsec = abs(1000000000 - dly);
             }else if (dly <= 0){
-                fputs("[-] delay cannot be less than 1 ns, setting to default\n", stderr);
+                spdlog::get("logger")->error(
+                		"delay cannot be less than 1 ns, setting to default");
                 time->tv_nsec = 1;
                 time->tv_sec = 0;
             }else{

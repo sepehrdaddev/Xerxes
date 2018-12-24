@@ -22,7 +22,7 @@ protected:
     std::string rhost;
     std::string rport;
     int proto;
-    int fd;
+    int fd{};
     sockaddr_in dst;
 };
 

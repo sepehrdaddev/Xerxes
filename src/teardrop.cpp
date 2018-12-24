@@ -1,6 +1,7 @@
 #include "teardrop.h"
 
-teardrop::teardrop(std::shared_ptr<Config> config) : spoofed_udp_flood(std::move(config)) {
+teardrop::teardrop(std::shared_ptr<Config> config) :
+					spoofed_udp_flood(std::move(config)) {
 
 }
 

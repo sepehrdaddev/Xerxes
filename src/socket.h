@@ -20,7 +20,7 @@ protected:
     bool close();
     std::string rhost;
     std::string rport;
-    int fd;
+    int fd{};
     int sock_type;
 };
 

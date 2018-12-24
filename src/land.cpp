@@ -1,6 +1,7 @@
 #include "land.h"
 
-land::land(std::shared_ptr<Config> config) : spoofed_tcp_flood(std::move(config)) {
+land::land(std::shared_ptr<Config> config) :
+			spoofed_tcp_flood(std::move(config)) {
 
 }
 

@@ -5,8 +5,11 @@
 
 #include "socket.h"
 
+#include <spdlog/spdlog.h>
+
 Socket::Socket(std::string host, std::string port, int sock_type) :
-                rhost{std::move(host)}, rport{std::move(port)}, sock_type{sock_type}{
+                rhost{std::move(host)}, rport{std::move(port)},
+				sock_type{sock_type}{
 
 }
 
@@ -20,8 +23,10 @@ bool Socket::open() {
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = sock_type;
-    if((rc = getaddrinfo(rhost.c_str(), rport.c_str(), &hints, &servinfo)) != 0) {
-        fprintf(stderr, "[-] getaddrinfo: %s\n", gai_strerror(rc));
+    if((rc = getaddrinfo(rhost.c_str(), rport.c_str(),
+    		&hints, &servinfo)) != 0) {
+        spdlog::get("logger")->error(std::string{"getaddrinfo: "} +
+        		gai_strerror(rc));
         exit(EXIT_FAILURE);
     }
     for(p = servinfo; p != nullptr; p = p->ai_next) {
@@ -37,12 +42,13 @@ bool Socket::open() {
     if(p == nullptr) {
         if(servinfo)
             freeaddrinfo(servinfo);
-        fprintf(stderr, "[-] No connection could be made\n");
+        spdlog::get("logger")->error("No connection could be made");
         exit(EXIT_FAILURE);
     }
     if(servinfo)
         freeaddrinfo(servinfo);
-    fprintf(stderr, "[+] Connected -> %s:%s\n", rhost.c_str(), rport.c_str());
+    spdlog::get("logger")->info(std::string{"Connected -> "}
+        								+ rhost + ":" + rport);
     return (fd > 0);
 }
 

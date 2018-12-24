@@ -1,6 +1,7 @@
 #include "null_udp.h"
 
-null_udp::null_udp(std::shared_ptr<Config> config) : udp_flood(std::move(config)) {
+null_udp::null_udp(std::shared_ptr<Config> config) :
+					udp_flood(std::move(config)) {
 
 }
 

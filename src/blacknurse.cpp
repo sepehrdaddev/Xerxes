@@ -1,6 +1,7 @@
 #include "blacknurse.h"
 
-blacknurse::blacknurse(std::shared_ptr<Config> config) : icmp_flood(std::move(config)) {
+blacknurse::blacknurse(std::shared_ptr<Config> config) :
+						icmp_flood(std::move(config)) {
 
 }
 

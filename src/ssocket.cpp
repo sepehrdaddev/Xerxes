@@ -1,13 +1,12 @@
-#include <utility>
-
-#include <utility>
-
 #include "ssocket.h"
 
 #include <iostream>
 #include <sys/socket.h>
 
-Ssocket::Ssocket(std::string host, std::string port) : Socket(std::move(host), std::move(port), SOCK_STREAM) {
+#include <spdlog/spdlog.h>
+
+Ssocket::Ssocket(std::string host, std::string port) : Socket(std::move(host),
+		std::move(port), SOCK_STREAM) {
 
 }
 
@@ -26,7 +25,8 @@ bool Ssocket::Open() {
 
     tls_configure(tls, tls_config);
     if((rc = tls_connect_socket(tls, fd, rhost.c_str())) < 0) {
-        fprintf(stderr, "[-] tls_connect error: %s\n", tls_error(tls));
+    	spdlog::get("logger")->error(std::string{"tls_connect error: "}
+    														+ tls_error(tls));
         exit(EXIT_FAILURE);
     }
     return (rc > 0);

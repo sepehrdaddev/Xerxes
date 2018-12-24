@@ -1,6 +1,7 @@
 #include "fin_flood.h"
 
-fin_flood::fin_flood(std::shared_ptr<Config> config) : spoofed_tcp_flood(std::move(config)) {
+fin_flood::fin_flood(std::shared_ptr<Config> config) :
+						spoofed_tcp_flood(std::move(config)) {
 
 }
 

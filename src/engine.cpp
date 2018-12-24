@@ -4,6 +4,8 @@
 #include <memory>
 #include <unistd.h>
 
+#include <spdlog/spdlog.h>
+
 engine::engine(std::shared_ptr<Config> config) {
     std::unique_ptr<Vector> flood{};
     switch(config->vec){
@@ -50,7 +52,7 @@ engine::engine(std::shared_ptr<Config> config) {
             flood.reset(new smurf(config));
             break;
         default:
-            fputs("[-] invalid Vector selected\n", stderr);
+            spdlog::get("logger")->error("invalid Vector selected");
             exit(EXIT_FAILURE);
     }
 
