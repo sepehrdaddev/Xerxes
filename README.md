@@ -9,7 +9,7 @@
 [![Version: 2.0beta](https://img.shields.io/badge/Version-2.0beta-blue.svg)](https://github.com/sepehrdaddev/Xerxes.git)
 
 
-Xerxes Dos Tool Rewritten in C++
+Xerxes dos tool enhanced with many features for stress testing.
 
 ## Features
 **Xerxes has many features, some of these features are:**
