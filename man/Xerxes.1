@@ -1,0 +1,84 @@
+.TH "XERXES" "1" "" "" ""
+.SH NAME
+.PP
+Xerxes \- Xerxes Dos Tool Rewritten in C++.
+.SH SYNOPSIS
+.PP
+Xerxes {OPTIONS}
+.SH DESCRIPTION
+.PP
+Xerxes dos tool enhanced with many features for stress testing.
+.SH OPTIONS
+.TP
+\fB\-H\fR, \fB\-\-help\fR
+display help menu
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+display version
+.TP
+\fB\-\-vecs\fR
+display available vectors
+.TP
+\fB\-h[rhost]\fR, \fB\-\-rhost\fR=\fI\,[rhost]\/\fR
+remote host address [default 127.0.0.1]
+.TP
+\fB\-p[rport]\fR, \fB\-\-rport\fR=\fI\,[rport]\/\fR
+remote host port [default 80]
+.TP
+\fB\-b[bcast]\fR, \fB\-\-bcast\fR=\fI\,[bcast]\/\fR
+broadcast address [default 127.0.0.1]
+.TP
+\fB\-v[vector]\fR, \fB\-\-vec\fR=\fI\,[vector]\/\fR
+attack vector [default 0]
+.TP
+\fB\-d[delay]\fR, \fB\-\-dly\fR=\fI\,[delay]\/\fR
+attack delay [default 1 ns]
+.TP
+\fB\-t[threads]\fR, \fB\-\-trds\fR=\fI\,[threads]\/\fR
+number of threads [default 10]
+.HP
+\fB\-c[connections], \-\-conn\fR=\fI\,[connections]\/\fR
+number of connections [default 25]
+.TP
+\fB\-\-tls\fR
+enable tls
+.TP
+\fB\-\-rand\-lhost\fR
+enable local host randomization
+.TP
+\fB\-\-rand\-lport\fR
+enable local port randomization
+.SH AVAILABLE VECTORS
+.TP
+\fB0\fR  - NULL TCP
+.TP
+\fB1\fR  - NULL UDP
+.TP
+\fB2\fR  - TCP Flood
+.TP
+\fB3\fR  - UDP Flood
+.TP
+\fB4\fR  - HTTP Flood
+.TP
+\fB5\fR  - ICMP Flood
+.TP
+\fB6\fR  - SYN Flood
+.TP
+\fB7\fR  - ACK Flood
+.TP
+\fB8\fR  - FIN Flood
+.TP
+\fB9\fR  - Spoofed UDP Flood
+.TP
+\fB10\fR  - Teardrop
+.TP
+\fB11\fR  - Blacknurse
+.TP
+\fB12\fR  - Land
+.TP
+\fB13\fR\fR  - Smurf
+.SH LEGAL NOTICE
+.PP
+THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL USE ONLY!
+IF YOU ENGAGE IN ANY ILLEGAL ACTIVITY THE AUTHOR DOES NOT TAKE ANY RESPONSIBILITY FOR IT.
+BY USING THIS SOFTWARE YOU AGREE WITH THESE TERMS.

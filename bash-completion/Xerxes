@@ -1,0 +1,30 @@
+# Attention: this is a Bash Script, not `sh`.
+
+#_Xerxes_options="-H                           display help menu
+#-V                           display version
+#--vecs                       display available vectors
+#-h[rhost]                    remote host address [default 127.0.0.1]
+#-p[rport]                    remote host port [default 80]
+#-b[bcast]                    broadcast address [default 127.0.0.1]
+#-v[vector]                   attack vector [default 0]
+#-d[delay]                    attack delay [default 1 ns]
+#-t[threads]                  number of threads [default 10]
+#-c[connections]              number of connections [default 25]
+#--tls                        enable tls
+#--rand-lhost                 enable local host randomization
+#--rand-lport                 enable local port randomization"
+
+_Xerxes()
+{
+    local current options
+
+    options="-H -V --vecs -h -p -b -v -d -t -c --tls --rand-lhost --rand-lport"
+
+    current="${COMP_WORDS[COMP_CWORD]}"
+
+    if [[ "${current}" == -* ]]; then
+        COMPREPLY=($(compgen -W "${options}" -- ${current}))
+    fi
+}
+
+complete -F _Xerxes Xerxes
