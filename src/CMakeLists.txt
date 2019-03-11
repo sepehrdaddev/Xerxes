@@ -5,5 +5,3 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 add_executable(Xerxes main.cpp engine.cpp engine.h utils.h config.h tcp_flood.cpp tcp_flood.h socket.cpp socket.h ssocket.cpp ssocket.h Vector.cpp Vector.h null_tcp.cpp null_tcp.h udp_flood.cpp udp_flood.h null_udp.cpp null_udp.h base_flood.cpp base_flood.h http_flood.cpp http_flood.h http.h http.cpp utils.cpp rsocket.cpp rsocket.h base_spoofed_flood.cpp base_spoofed_flood.h icmp_flood.cpp icmp_flood.h spoofed_tcp_flood.cpp spoofed_tcp_flood.h syn_flood.cpp syn_flood.h ack_flood.cpp ack_flood.h spoofed_udp_flood.cpp spoofed_udp_flood.h teardrop.cpp teardrop.h vectors.h blacknurse.cpp blacknurse.h land.cpp land.h fin_flood.cpp fin_flood.h smurf.cpp smurf.h)
 
 target_link_libraries(Xerxes tls ssl crypto pthread dl)
-add_custom_command(TARGET Xerxes POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/useragents ${CMAKE_BINARY_DIR}/bin/useragents)
-add_custom_command(TARGET Xerxes POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/Dockerfile ${CMAKE_BINARY_DIR}/bin/Dockerfile)

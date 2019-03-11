@@ -33,3 +33,8 @@ include(CTest)
 add_subdirectory(lib)
 add_subdirectory(src)
 add_subdirectory(test)
+
+file(COPY bash-completion DESTINATION ${CMAKE_BINARY_DIR}/bin)
+file(COPY man DESTINATION ${CMAKE_BINARY_DIR}/bin)
+file(COPY Dockerfile DESTINATION ${CMAKE_BINARY_DIR}/bin)
+file(COPY useragents DESTINATION ${CMAKE_BINARY_DIR}/bin)
