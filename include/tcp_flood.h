@@ -10,9 +10,8 @@
 class tcp_flood : public base_flood {
 
 public:
-    explicit tcp_flood(std::shared_ptr<Config> config);
-    ~tcp_flood() override = default;
+  explicit tcp_flood(std::shared_ptr<Config> config);
+  ~tcp_flood() override = default;
 };
 
-
-#endif //XERXES_TCP_FLOOD_H
+#endif // XERXES_TCP_FLOOD_H

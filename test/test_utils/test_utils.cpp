@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
 
-#include "../../src/utils.h"
+#include <utils.h>
 
 #include <iostream>
 #include <vector>

@@ -8,9 +8,8 @@
 class engine {
 
 public:
-    explicit  engine(std::shared_ptr<Config> config);
-    virtual ~engine() = default;
+  explicit engine(std::shared_ptr<Config> config);
+  virtual ~engine() = default;
 };
 
-
-#endif //XERXES_ENGINE_H
+#endif // XERXES_ENGINE_H
