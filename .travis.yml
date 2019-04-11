@@ -10,7 +10,7 @@ addons:
       - g++-6
 
 script:
-  - CXX=/usr/bin/g++-6 CC=/usr/bin/gcc-6 cmake .
+  - CXX=/usr/bin/g++-6 CC=/usr/bin/gcc-6 cmake -DBUILD_TESTING=TRUE .
   - make -j9
   - make test
 
