@@ -29,8 +29,10 @@ bool Rsocket::open() {
 
   hostent *hp{};
   if ((hp = gethostbyname(rhost.c_str())) == nullptr) {
-    if ((dst.sin_addr.s_addr = inet_addr(rhost.c_str())) == -1) {
-      spdlog::get("logger")->error("can't resolve the host");
+    try {
+      dst.sin_addr.s_addr = inet_addr(rhost.c_str());
+    } catch (const std::exception &e) {
+      spdlog::get("logger")->error("can't resolve the host: {0}", e.what());
       exit(EXIT_FAILURE);
     }
   } else {
@@ -40,8 +42,7 @@ bool Rsocket::open() {
 
   dst.sin_family = AF_UNSPEC;
   bzero(dst.sin_zero, sizeof(dst.sin_zero));
-  spdlog::get("logger")->info(std::string{"Connected -> "} + rhost + ":" +
-                              rport);
+  spdlog::get("logger")->info("Connected -> {0}:{1}", rhost, rport);
   return (fd > 0);
 }
 

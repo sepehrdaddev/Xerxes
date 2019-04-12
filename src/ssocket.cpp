@@ -23,8 +23,7 @@ bool Ssocket::Open() {
 
   tls_configure(tls, tls_config);
   if ((rc = tls_connect_socket(tls, fd, rhost.c_str())) < 0) {
-    spdlog::get("logger")->error(std::string{"tls_connect error: "} +
-                                 tls_error(tls));
+    spdlog::get("logger")->error("tls_connect error: {0}", tls_error(tls));
     exit(EXIT_FAILURE);
   }
   return (rc > 0);

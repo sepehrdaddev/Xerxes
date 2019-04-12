@@ -23,8 +23,7 @@ bool Socket::open() {
   hints.ai_socktype = sock_type;
   if ((rc = getaddrinfo(rhost.c_str(), rport.c_str(), &hints, &servinfo)) !=
       0) {
-    spdlog::get("logger")->error(std::string{"getaddrinfo: "} +
-                                 gai_strerror(rc));
+    spdlog::get("logger")->error("getaddrinfo: {0}", gai_strerror(rc));
     exit(EXIT_FAILURE);
   }
   for (p = servinfo; p != nullptr; p = p->ai_next) {
@@ -45,8 +44,7 @@ bool Socket::open() {
   }
   if (servinfo)
     freeaddrinfo(servinfo);
-  spdlog::get("logger")->info(std::string{"Connected -> "} + rhost + ":" +
-                              rport);
+  spdlog::get("logger")->info("Connected -> {0}:{1}", rhost, rport);
   return (fd > 0);
 }
 

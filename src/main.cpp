@@ -26,7 +26,7 @@ void version() { printf("%s v%s\n", __project__, __version__); }
 void banner() { printf("--==[ %s by %s ]==--\n\n", __project__, __author__); }
 
 void print_vectors() {
-  puts("available vectors");
+  puts("available vectors:");
 
   for (long unsigned int i = 0; i < __str_vectors__.size(); ++i)
     printf("    > %ld  - %s\n", i, __str_vectors__[i].c_str());
@@ -99,7 +99,7 @@ int main(int argc, const char *argv[]) {
     std::cout << parser;
     return 0;
   } catch (args::ParseError &e) {
-    spdlog::get("logger")->error(e.what());
+    spdlog::get("logger")->error("can't parse arguments: {0}", e.what());
     return -1;
   }
 

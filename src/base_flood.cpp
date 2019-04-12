@@ -23,20 +23,13 @@ void base_flood::init_sockets(std::vector<std::unique_ptr<Socket>> &sockets) {
     spdlog::get("logger")->error(
         "local port randomization is not available on normal sockets");
   for (int i = 0; i < config->conn; ++i) {
-    switch (sock_type) {
-    case SOCK_STREAM:
-      if (config->tls) {
-        sockets.emplace_back(
-            std::unique_ptr<Socket>(new Ssocket(config->rhost, config->rport)));
-        break;
+    sockets.emplace_back([&]() -> Socket * {
+      if (config->tls && sock_type == SOCK_STREAM) {
+        return new Ssocket(config->rhost, config->rport);
+      } else {
+        return new Socket(config->rhost, config->rport, sock_type);
       }
-    case SOCK_DGRAM:
-      sockets.emplace_back(std::unique_ptr<Socket>(
-          new Socket(config->rhost, config->rport, sock_type)));
-      break;
-    default:
-      break;
-    }
+    }());
   }
 }
 

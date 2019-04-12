@@ -48,6 +48,6 @@ void icmp_flood::init_hdr(icmphdr *icmp, iphdr *ip) {
       htons(static_cast<uint16_t>(utils::randomizer::randomInt(1, 1000)));
 }
 
-void icmp_flood::finalize_hdr(icmphdr *icmp, iphdr *ip) {
+void icmp_flood::finalize_hdr(icmphdr *icmp, iphdr *) {
   icmp->checksum = utils::csum((unsigned short *)icmp, sizeof(icmphdr));
 }
