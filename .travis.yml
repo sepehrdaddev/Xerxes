@@ -10,8 +10,9 @@ addons:
       - g++-6
 
 script:
+  - CORES=$(grep -c ^processor /proc/cpuinfo)
   - CXX=/usr/bin/g++-6 CC=/usr/bin/gcc-6 cmake -DBUILD_TESTING=TRUE .
-  - make -j9
+  - make -j $CORES -l $CORES
   - make test
 
 # safelist
