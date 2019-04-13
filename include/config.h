@@ -18,7 +18,8 @@ enum __Vector__ {
   BLACKNURSE,
   LAND,
   SMURF,
-  ACK_PSH_FLOOD
+  ACK_PSH_FLOOD,
+  RST_FLOOD
 };
 
 struct Config {

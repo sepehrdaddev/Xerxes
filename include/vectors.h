@@ -10,6 +10,7 @@
 #include "land.h"
 #include "null_tcp.h"
 #include "null_udp.h"
+#include "rst_flood.h"
 #include "smurf.h"
 #include "spoofed_udp_flood.h"
 #include "syn_flood.h"

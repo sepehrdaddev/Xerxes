@@ -39,6 +39,8 @@ engine::engine(std::shared_ptr<Config> config) {
       return new smurf(config);
     case ACK_PSH_FLOOD:
       return new ack_psh_flood(config);
+    case RST_FLOOD:
+      return new rst_flood(config);
     default:
       spdlog::get("logger")->error("invalid Vector selected");
       exit(EXIT_FAILURE);

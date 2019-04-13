@@ -19,7 +19,8 @@ const char *__project__ = "Xerxes enhanced";
 std::vector<std::string> __str_vectors__{
     "NULL TCP",   "NULL UDP",   "TCP Flood", "UDP Flood", "HTTP Flood",
     "ICMP Flood", "SYN Flood",  "ACK Flood", "FIN Flood", "Spoofed UDP Flood",
-    "Teardrop",   "Blacknurse", "Land",      "Smurf",     "ACK PSH Flood"};
+    "Teardrop",   "Blacknurse", "Land",      "Smurf",     "ACK PSH Flood",
+    "RST Flood"};
 
 void version() { printf("%s v%s\n", __project__, __version__); }
 
