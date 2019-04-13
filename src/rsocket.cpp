@@ -17,22 +17,21 @@ bool Rsocket::open() {
   }
 
   if (setsockopt(fd, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) == -1) {
-    spdlog::get("logger")->error("setsockopt error");
+    spdlog::get("logger")->error("setsockopt error: {0}", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
   if (setsockopt(fd, SOL_SOCKET, SO_BROADCAST,
                  reinterpret_cast<const char *>(&on), sizeof(on)) == -1) {
-    spdlog::get("logger")->error("setsockopt error");
+    spdlog::get("logger")->error("setsockopt error: {0}", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
-  hostent *hp{};
-  if ((hp = gethostbyname(rhost.c_str())) == nullptr) {
-    try {
-      dst.sin_addr.s_addr = inet_addr(rhost.c_str());
-    } catch (const std::exception &e) {
-      spdlog::get("logger")->error("can't resolve the host: {0}", e.what());
+  hostent *hp{gethostbyname(rhost.c_str())};
+  if (hp == nullptr) {
+    dst.sin_addr.s_addr = inet_addr(rhost.c_str());
+    if (dst.sin_addr.s_addr == INADDR_NONE) {
+      spdlog::get("logger")->error("can't resolve the host");
       exit(EXIT_FAILURE);
     }
   } else {
