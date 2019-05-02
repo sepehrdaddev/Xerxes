@@ -37,6 +37,8 @@ void set_dly(int dly, timespec *time);
 int to_int(const std::string &str);
 
 unsigned short csum(unsigned short *buf, int len);
+
+void daemonize();
 }; // namespace utils
 
 #endif // XERXES_UTILS_H

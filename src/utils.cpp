@@ -103,4 +103,23 @@ unsigned short csum(unsigned short *buf, int len) {
   sum += (sum >> 16);
   return static_cast<unsigned short>(~sum);
 }
+
+void daemonize() {
+  pid_t pid = 0;
+  pid = fork();
+  if (pid < 0) {
+    spdlog::get("logger")->error("fork failed!");
+    exit(1);
+  }
+  if (pid > 0) {
+    spdlog::get("logger")->info("daemon pid {}", pid);
+    exit(0);
+  }
+  umask(0);
+  if (setsid() < 0)
+    exit(1);
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+}
 }; // namespace utils

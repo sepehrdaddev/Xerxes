@@ -91,6 +91,8 @@ int main(int argc, const char *argv[]) {
   args::Flag randomize_port(parser, "randomize lport",
                             "enable local port randomization", {"rand-lport"});
 
+  args::Flag daemonize(parser, "daemonize", "daemonize", {"daemonize"});
+
   spdlog::stdout_color_mt("logger");
   spdlog::set_pattern("[%^%l%$] %v");
 
