@@ -6,8 +6,8 @@
 class land : public spoofed_tcp_flood {
 
 public:
-  explicit land(std::shared_ptr<Config> config);
-  ~land() override = default;
+  land();
+  ~land() = default;
 
 protected:
   void finalize_hdr(tcphdr *tcp, iphdr *ip) override;

@@ -6,8 +6,8 @@
 class smurf : public icmp_flood {
 
 public:
-  explicit smurf(std::shared_ptr<Config> config);
-  ~smurf() override = default;
+  smurf();
+  ~smurf() = default;
 
 protected:
   void finalize_hdr(icmphdr *icmp, iphdr *ip) override;

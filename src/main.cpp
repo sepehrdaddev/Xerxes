@@ -1,15 +1,11 @@
-#include <algorithm>
-#include <csignal>
-#include <iostream>
-#include <memory>
-#include <string>
-
-#include <args.hxx>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
-
 #include "engine.h"
+#include "stdafx.h"
 #include "utils.h"
+
+#include <algorithm>
+#include <args.hxx>
+#include <csignal>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 const char *__author__ = "Sepehrdad Sh";
 const char *__license__ = "GPLv3";
@@ -118,34 +114,33 @@ int main(int argc, const char *argv[]) {
   }
 
   init_signals();
-  std::shared_ptr<Config> config = std::make_shared<Config>();
-  utils::set_dly(args::get(dly), &config->time);
-  config->rhost = args::get(rhost);
-  config->rport = args::get(rport);
-  config->bcast = args::get(bcast);
-  config->vec = args::get(vec);
-  config->conn = args::get(conn);
-  config->trds = args::get(trds);
-  config->tls = tls;
-  config->rand_lhost = randomize_host;
-  config->rand_lport = randomize_port;
+  utils::set_dly(args::get(dly), &Config::get().time);
+  Config::get().rhost = args::get(rhost);
+  Config::get().rport = args::get(rport);
+  Config::get().bcast = args::get(bcast);
+  Config::get().vec = args::get(vec);
+  Config::get().conn = args::get(conn);
+  Config::get().trds = args::get(trds);
+  Config::get().tls = tls;
+  Config::get().rand_lhost = randomize_host;
+  Config::get().rand_lport = randomize_port;
 
-  if (!(utils::validator::valid_host(config->rhost)) ||
-      !(utils::validator::valid_hostname(config->rhost))) {
+  if (!(utils::validator::valid_host(Config::get().rhost)) ||
+      !(utils::validator::valid_hostname(Config::get().rhost))) {
     spdlog::get("logger")->error("Invalid rhost address");
     return -1;
-  } else if (!(utils::validator::valid_port(config->rport))) {
+  } else if (!(utils::validator::valid_port(Config::get().rport))) {
     spdlog::get("logger")->error("Invalid rport number");
     return -1;
-  } else if (config->conn <= 0) {
+  } else if (Config::get().conn <= 0) {
     spdlog::get("logger")->error("Invalid connections number");
     return -1;
-  } else if (config->trds <= 0) {
+  } else if (Config::get().trds <= 0) {
     spdlog::get("logger")->error("Invalid threads number");
     return -1;
   }
 
-  engine eng{config};
+  engine eng{};
 
   return 0;
 }

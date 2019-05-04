@@ -1,11 +1,8 @@
-#include <cstring>
-#include <iostream>
+#include "socket.h"
+#include "stdafx.h"
+
 #include <netdb.h>
 #include <unistd.h>
-
-#include "socket.h"
-
-#include <spdlog/spdlog.h>
 
 Socket::Socket(std::string host, std::string port, int sock_type)
     : rhost{std::move(host)}, rport{std::move(port)}, sock_type{sock_type} {}

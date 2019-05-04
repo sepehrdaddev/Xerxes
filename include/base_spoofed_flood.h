@@ -1,13 +1,13 @@
 #ifndef XERXES_BASE_SPOOFED_FLOOD_H
 #define XERXES_BASE_SPOOFED_FLOOD_H
 
-#include "Vector.h"
 #include "rsocket.h"
+#include "vector.h"
 
-class base_spoofed_flood : public Vector {
+class base_spoofed_flood : public IVector {
 public:
-  base_spoofed_flood(std::shared_ptr<Config> config, int protocol);
-  ~base_spoofed_flood() override = default;
+  explicit base_spoofed_flood(int protocol);
+  ~base_spoofed_flood() = default;
   void run() override;
 
 protected:

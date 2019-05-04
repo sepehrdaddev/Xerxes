@@ -1,9 +1,7 @@
 #include "ssocket.h"
+#include "stdafx.h"
 
-#include <iostream>
 #include <sys/socket.h>
-
-#include <spdlog/spdlog.h>
 
 Ssocket::Ssocket(std::string host, std::string port)
     : Socket(std::move(host), std::move(port), SOCK_STREAM) {}

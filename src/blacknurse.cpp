@@ -1,7 +1,6 @@
 #include "blacknurse.h"
 
-blacknurse::blacknurse(std::shared_ptr<Config> config)
-    : icmp_flood(std::move(config)) {}
+blacknurse::blacknurse() : icmp_flood() {}
 
 void blacknurse::finalize_hdr(icmphdr *icmp, iphdr *ip) {
   icmp->type = ICMP_DEST_UNREACH;

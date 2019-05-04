@@ -1,9 +1,8 @@
 #include "http.h"
+#include "stdafx.h"
 
 #include <algorithm>
 #include <fstream>
-
-#include <spdlog/spdlog.h>
 
 #define TERMINATOR "\r\n"
 

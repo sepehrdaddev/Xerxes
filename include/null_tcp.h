@@ -5,9 +5,9 @@
 
 class null_tcp : public tcp_flood {
 public:
-  explicit null_tcp(std::shared_ptr<Config> config);
+  null_tcp();
 
-  ~null_tcp() override = default;
+  ~null_tcp() = default;
 
 protected:
   int gen_hdr(std::string &string) override;

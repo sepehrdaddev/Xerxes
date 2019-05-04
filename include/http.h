@@ -1,9 +1,8 @@
 #ifndef XERXES_HTTP_H
 #define XERXES_HTTP_H
 
+#include "stdafx.h"
 #include "utils.h"
-#include <string>
-#include <vector>
 
 struct httphdr {
   std::string method{};

@@ -9,8 +9,8 @@
 class spoofed_tcp_flood : public base_spoofed_flood {
 
 public:
-  explicit spoofed_tcp_flood(std::shared_ptr<Config> config);
-  ~spoofed_tcp_flood() override = default;
+  spoofed_tcp_flood();
+  ~spoofed_tcp_flood() = default;
 
 protected:
   char *gen_hdr(sockaddr_in *dst, int len) override;

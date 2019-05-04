@@ -6,8 +6,8 @@
 class rst_flood : public spoofed_tcp_flood {
 
 public:
-  explicit rst_flood(std::shared_ptr<Config> config);
-  ~rst_flood() override = default;
+  rst_flood();
+  ~rst_flood() = default;
 
 protected:
   void finalize_hdr(tcphdr *tcp, iphdr *ip) override;

@@ -19,5 +19,4 @@ int http_flood::gen_hdr(std::string &string) {
   return static_cast<int>(string.length());
 }
 
-http_flood::http_flood(std::shared_ptr<Config> config)
-    : tcp_flood(std::move(config)) {}
+http_flood::http_flood() : tcp_flood() {}

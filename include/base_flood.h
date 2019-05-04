@@ -1,15 +1,15 @@
 #ifndef XERXES_BASE_FLOOD_H
 #define XERXES_BASE_FLOOD_H
 
-#include "Vector.h"
 #include "socket.h"
-#include <vector>
+#include "stdafx.h"
+#include "vector.h"
 
-class base_flood : public Vector {
+class base_flood : public IVector {
 
 public:
-  base_flood(std::shared_ptr<Config> config, int sock_type);
-  ~base_flood() override = default;
+  explicit base_flood(int sock_type);
+  ~base_flood() = default;
   void run() override;
 
 protected:

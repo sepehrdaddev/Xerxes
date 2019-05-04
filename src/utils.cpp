@@ -1,7 +1,7 @@
 #include "utils.h"
+#include "stdafx.h"
 
 #include <random>
-#include <spdlog/spdlog.h>
 
 namespace utils {
 

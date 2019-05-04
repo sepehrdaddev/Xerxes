@@ -1,9 +1,9 @@
 #ifndef XERXES_RSOCKET_H
 #define XERXES_RSOCKET_H
 
+#include "stdafx.h"
+
 #include <netdb.h>
-#include <string>
-#include <vector>
 
 class Rsocket {
 

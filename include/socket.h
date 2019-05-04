@@ -1,8 +1,7 @@
 #ifndef XERXES_SOCKET_H
 #define XERXES_SOCKET_H
 
-#include <cstdio>
-#include <string>
+#include "stdafx.h"
 
 class Socket {
 

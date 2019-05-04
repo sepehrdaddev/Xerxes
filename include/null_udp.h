@@ -5,9 +5,9 @@
 
 class null_udp : public udp_flood {
 public:
-  explicit null_udp(std::shared_ptr<Config> config);
+  null_udp();
 
-  ~null_udp() override = default;
+  ~null_udp() = default;
 
 protected:
   int gen_hdr(std::string &string) override;

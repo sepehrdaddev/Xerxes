@@ -2,6 +2,7 @@
 #define XERXES_SSOCKET_H
 
 #include "socket.h"
+
 #include <tls.h>
 
 class Ssocket : public Socket {

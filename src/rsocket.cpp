@@ -1,10 +1,8 @@
-#include <arpa/inet.h>
-#include <cstring>
-#include <unistd.h>
-
 #include "rsocket.h"
+#include "stdafx.h"
 
-#include <spdlog/spdlog.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 Rsocket::Rsocket(std::string host, std::string port, int proto)
     : rhost{std::move(host)}, rport{std::move(port)}, proto{proto} {}

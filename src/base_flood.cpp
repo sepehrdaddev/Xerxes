@@ -2,10 +2,7 @@
 #include "ssocket.h"
 #include "utils.h"
 
-#include <spdlog/spdlog.h>
-
-base_flood::base_flood(std::shared_ptr<Config> config, int sock_type)
-    : Vector(std::move(config)), sock_type{sock_type} {}
+base_flood::base_flood(int sock_type) : sock_type{sock_type} {}
 
 int base_flood::gen_hdr(std::string &string) {
   utils::randomizer::randomstr(string);
@@ -13,21 +10,21 @@ int base_flood::gen_hdr(std::string &string) {
 }
 
 void base_flood::init_sockets(std::vector<std::unique_ptr<Socket>> &sockets) {
-  sockets.reserve(config->conn);
-  if (config->tls && sock_type == SOCK_DGRAM)
+  sockets.reserve(Config::get().conn);
+  if (Config::get().tls && sock_type == SOCK_DGRAM)
     spdlog::get("logger")->error("tls is not available on udp");
-  if (config->rand_lhost)
+  if (Config::get().rand_lhost)
     spdlog::get("logger")->error(
         "local host randomization is not available on normal sockets");
-  if (config->rand_lport)
+  if (Config::get().rand_lport)
     spdlog::get("logger")->error(
         "local port randomization is not available on normal sockets");
-  for (int i = 0; i < config->conn; ++i) {
+  for (int i = 0; i < Config::get().conn; ++i) {
     sockets.emplace_back([&]() -> Socket * {
-      if (config->tls && sock_type == SOCK_STREAM) {
-        return new Ssocket(config->rhost, config->rport);
+      if (Config::get().tls && sock_type == SOCK_STREAM) {
+        return new Ssocket(Config::get().rhost, Config::get().rport);
       } else {
-        return new Socket(config->rhost, config->rport, sock_type);
+        return new Socket(Config::get().rhost, Config::get().rport, sock_type);
       }
     }());
   }
@@ -50,6 +47,6 @@ void base_flood::run() {
       }
       spdlog::get("logger")->info("Voly Sent");
     }
-    utils::pause(config->time);
+    utils::pause(Config::get().time);
   }
 }

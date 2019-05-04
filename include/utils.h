@@ -1,10 +1,10 @@
 #ifndef XERXES_UTILS_H
 #define XERXES_UTILS_H
 
+#include "stdafx.h"
+
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <string>
-#include <vector>
 
 namespace utils {
 

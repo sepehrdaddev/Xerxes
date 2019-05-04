@@ -6,8 +6,8 @@
 class fin_flood : public spoofed_tcp_flood {
 
 public:
-  explicit fin_flood(std::shared_ptr<Config> config);
-  ~fin_flood() override = default;
+  fin_flood();
+  ~fin_flood() = default;
 
 protected:
   void finalize_hdr(tcphdr *tcp, iphdr *ip) override;

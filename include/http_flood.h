@@ -5,8 +5,8 @@
 
 class http_flood : public tcp_flood {
 public:
-  explicit http_flood(std::shared_ptr<Config> config);
-  ~http_flood() override = default;
+  http_flood();
+  ~http_flood() = default;
 
 protected:
   int gen_hdr(std::string &string) override;

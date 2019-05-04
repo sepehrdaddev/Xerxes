@@ -6,8 +6,8 @@
 class blacknurse : public icmp_flood {
 
 public:
-  explicit blacknurse(std::shared_ptr<Config> config);
-  ~blacknurse() override = default;
+  blacknurse();
+  ~blacknurse() = default;
 
 protected:
   void finalize_hdr(icmphdr *icmp, iphdr *ip) override;

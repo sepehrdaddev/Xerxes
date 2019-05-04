@@ -8,8 +8,8 @@
 
 class spoofed_udp_flood : public base_spoofed_flood {
 public:
-  explicit spoofed_udp_flood(std::shared_ptr<Config> config);
-  ~spoofed_udp_flood() override = default;
+  spoofed_udp_flood();
+  ~spoofed_udp_flood() = default;
 
 protected:
   char *gen_hdr(sockaddr_in *dst, int len) override;
