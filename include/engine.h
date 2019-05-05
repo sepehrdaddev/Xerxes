@@ -3,18 +3,22 @@
 
 #include "config.h"
 
-class engine {
+class Engine {
 
 public:
-  engine();
+  void start();
+  static Engine &get();
 
-  engine(const engine &) = default;
-  engine &operator=(const engine &) = default;
+private:
+  Engine() = default;
 
-  engine(engine &&) = default;
-  engine &operator=(engine &&) = default;
+  Engine(const Engine &) = delete;
+  Engine &operator=(const Engine &) = delete;
 
-  ~engine() = default;
+  Engine(Engine &&) = delete;
+  Engine &operator=(Engine &&) = delete;
+
+  ~Engine() = default;
 };
 
 #endif // XERXES_ENGINE_H

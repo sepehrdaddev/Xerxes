@@ -18,7 +18,7 @@ int randomPort();
 
 void randomstr(std::string &src);
 
-void random_vec(std::vector<std::string> &vec, std::string &str);
+void random_vec(const std::vector<std::string> &vec, std::string &str);
 } // namespace randomizer
 
 namespace validator {
@@ -30,9 +30,7 @@ bool valid_hostname(const std::string &hostname);
 bool valid_port(const std::string &port);
 } // namespace validator
 
-void pause(timespec time);
-
-void set_dly(int dly, timespec *time);
+void pause(const unsigned int dly);
 
 int to_int(const std::string &str);
 

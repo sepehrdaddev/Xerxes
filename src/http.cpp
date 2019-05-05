@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <fstream>
 
-#define TERMINATOR "\r\n"
+const char TERMINATOR[] = "\r\n";
 
 namespace http {
 
@@ -31,8 +31,8 @@ void random_useragent(std::string &src) {
 }
 
 void random_encoding(std::string &src) {
-  static std::vector<std::string> encoding{"\'\'", "*", "identity", "gzip",
-                                           "deflate"};
+  static const std::vector<std::string> encoding{"\'\'", "*", "identity",
+                                                 "gzip", "deflate"};
   utils::randomizer::random_vec(encoding, src);
 }
 

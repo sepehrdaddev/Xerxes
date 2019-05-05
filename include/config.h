@@ -31,13 +31,14 @@ public:
   std::string rhost{};
   std::string rport{};
   std::string bcast{};
-  int vec{};
-  int trds{};
-  int conn{};
+  unsigned int vec{};
+  unsigned int trds{};
+  unsigned int conn{};
+  unsigned int dly{};
   bool tls{};
   bool rand_lhost{};
   bool rand_lport{};
-  timespec time{};
+  bool daemonize{};
 
 private:
   Config() = default;

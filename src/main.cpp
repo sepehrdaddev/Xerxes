@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <args.hxx>
 #include <csignal>
+#include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 const char *__author__ = "Sepehrdad Sh";
@@ -12,20 +13,20 @@ const char *__license__ = "GPLv3";
 const char *__version__ = "2.0beta";
 const char *__project__ = "Xerxes enhanced";
 
-std::vector<std::string> __str_vectors__{
-    "NULL TCP",   "NULL UDP",   "TCP Flood", "UDP Flood", "HTTP Flood",
-    "ICMP Flood", "SYN Flood",  "ACK Flood", "FIN Flood", "Spoofed UDP Flood",
-    "Teardrop",   "Blacknurse", "Land",      "Smurf",     "ACK PSH Flood",
-    "RST Flood"};
-
 void version() { printf("%s v%s\n", __project__, __version__); }
 
 void banner() { printf("--==[ %s by %s ]==--\n\n", __project__, __author__); }
 
 void print_vectors() {
+  static const std::vector<std::string> __str_vectors__{
+      "NULL TCP",   "NULL UDP",   "TCP Flood", "UDP Flood", "HTTP Flood",
+      "ICMP Flood", "SYN Flood",  "ACK Flood", "FIN Flood", "Spoofed UDP Flood",
+      "Teardrop",   "Blacknurse", "Land",      "Smurf",     "ACK PSH Flood",
+      "RST Flood"};
+
   puts("available vectors:");
 
-  for (long unsigned int i = 0; i < __str_vectors__.size(); ++i)
+  for (size_t i = 0; i < __str_vectors__.size(); ++i)
     printf("    > %ld  - %s\n", i, __str_vectors__[i].c_str());
 }
 
@@ -114,16 +115,46 @@ int main(int argc, const char *argv[]) {
   }
 
   init_signals();
-  utils::set_dly(args::get(dly), &Config::get().time);
+
   Config::get().rhost = args::get(rhost);
   Config::get().rport = args::get(rport);
   Config::get().bcast = args::get(bcast);
-  Config::get().vec = args::get(vec);
-  Config::get().conn = args::get(conn);
-  Config::get().trds = args::get(trds);
   Config::get().tls = tls;
   Config::get().rand_lhost = randomize_host;
   Config::get().rand_lport = randomize_port;
+
+  Config::get().vec = [&]() {
+    if (args::get(vec) < 0) {
+      spdlog::get("logger")->error("Invalid attack vector");
+      exit(-1);
+    }
+    return args::get(vec);
+  }();
+
+  Config::get().conn = [&]() {
+    if (args::get(conn) <= 0) {
+      spdlog::get("logger")->error("Invalid connections number");
+      exit(-1);
+    }
+    return args::get(conn);
+  }();
+
+  Config::get().trds = [&]() {
+    if (args::get(trds) <= 0) {
+      spdlog::get("logger")->error("Invalid threads number");
+      exit(-1);
+    }
+    return args::get(trds);
+  }();
+
+  Config::get().dly = [&]() -> unsigned int {
+    if (args::get(dly) <= 0) {
+      spdlog::get("logger")->error(
+          "delay cannot be less than 1 ns, setting to default");
+      return 1;
+    }
+    return args::get(dly);
+  }();
 
   if (!(utils::validator::valid_host(Config::get().rhost)) ||
       !(utils::validator::valid_hostname(Config::get().rhost))) {
@@ -132,15 +163,9 @@ int main(int argc, const char *argv[]) {
   } else if (!(utils::validator::valid_port(Config::get().rport))) {
     spdlog::get("logger")->error("Invalid rport number");
     return -1;
-  } else if (Config::get().conn <= 0) {
-    spdlog::get("logger")->error("Invalid connections number");
-    return -1;
-  } else if (Config::get().trds <= 0) {
-    spdlog::get("logger")->error("Invalid threads number");
-    return -1;
   }
 
-  engine eng{};
+  Engine::get().start();
 
   return 0;
 }

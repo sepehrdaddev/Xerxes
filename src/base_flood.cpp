@@ -19,7 +19,7 @@ void base_flood::init_sockets(std::vector<std::unique_ptr<Socket>> &sockets) {
   if (Config::get().rand_lport)
     spdlog::get("logger")->error(
         "local port randomization is not available on normal sockets");
-  for (int i = 0; i < Config::get().conn; ++i) {
+  for (unsigned int i = 0; i < Config::get().conn; ++i) {
     sockets.emplace_back([&]() -> Socket * {
       if (Config::get().tls && sock_type == SOCK_STREAM) {
         return new Ssocket(Config::get().rhost, Config::get().rport);
@@ -47,6 +47,6 @@ void base_flood::run() {
       }
       spdlog::get("logger")->info("Voly Sent");
     }
-    utils::pause(Config::get().time);
+    utils::pause(Config::get().dly);
   }
 }

@@ -32,7 +32,7 @@ void base_spoofed_flood::run() {
       spdlog::get("logger")->info("Voly Sent");
       delete[] hdr;
     }
-    utils::pause(Config::get().time);
+    utils::pause(Config::get().dly);
   }
 }
 
@@ -46,7 +46,7 @@ void base_spoofed_flood::init_sockets(
     spdlog::get("logger")->error(
         "local port randomization is not available on icmp");
 
-  for (int i = 0; i < Config::get().conn; ++i)
+  for (unsigned int i = 0; i < Config::get().conn; ++i)
     sockets.emplace_back(std::unique_ptr<Rsocket>(
         new Rsocket(Config::get().rhost, Config::get().rport, proto)));
 }
