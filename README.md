@@ -4,7 +4,7 @@
 
 [![Build Status](https://travis-ci.org/sepehrdaddev/Xerxes.svg?branch=master)](https://travis-ci.org/sepehrdaddev/Xerxes)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![SSL: LibreSSL v2.8.2](https://img.shields.io/badge/SSL-LibreSSL%20v2.8.2-green.svg)](https://www.libressl.org/)
+[![SSL: LibreSSL v2.9.1](https://img.shields.io/badge/SSL-LibreSSL%20v2.9.1-green.svg)](https://www.libressl.org/)
 [![Platform: Linux](https://img.shields.io/badge/Platform-Linux-blue.svg)](https://www.linux.org/)
 [![Version: 2.0beta](https://img.shields.io/badge/Version-2.0beta-blue.svg)](https://github.com/sepehrdaddev/Xerxes.git)
 
