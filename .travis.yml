@@ -2,6 +2,12 @@ dist: trusty
 sudo: false
 language: cpp
 
+git:
+  submodules: false
+before_install:
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
+
 addons:
   apt:
     sources:
@@ -13,9 +19,9 @@ script:
   - CORES=$(grep -c ^processor /proc/cpuinfo)
   - CXX=/usr/bin/g++-6 CC=/usr/bin/gcc-6 cmake -DBUILD_TESTING=TRUE .
   - make -j $CORES -l $CORES
-  - make test
+  - make test -j $CORES -l $CORES
 
 # safelist
 branches:
   only:
-  - master
+    - master
