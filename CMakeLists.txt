@@ -39,7 +39,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -s")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 
 include_directories(include)
-include_directories(lib/catch/single_include/catch2)
+include_directories(lib/catch)
 include_directories(lib/args)
 include_directories(lib/spdlog/include)
 include_directories(lib/libressl/include)
