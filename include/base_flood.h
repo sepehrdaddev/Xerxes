@@ -1,9 +1,9 @@
 #ifndef XERXES_BASE_FLOOD_H
 #define XERXES_BASE_FLOOD_H
 
+#include "ivector.h"
 #include "socket.h"
 #include "stdafx.h"
-#include "vector.h"
 
 class base_flood : public IVector {
 

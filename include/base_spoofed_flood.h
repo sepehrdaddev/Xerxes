@@ -1,8 +1,8 @@
 #ifndef XERXES_BASE_SPOOFED_FLOOD_H
 #define XERXES_BASE_SPOOFED_FLOOD_H
 
+#include "ivector.h"
 #include "rsocket.h"
-#include "vector.h"
 
 class base_spoofed_flood : public IVector {
 public:
