@@ -18,8 +18,8 @@ public:
 private:
   addrinfo hints{};
   addrinfo *servinfo{};
-  std::string rhost;
-  std::string rport;
+  std::string rhost{};
+  std::string rport{};
   int fd{};
 };
 

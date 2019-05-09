@@ -2,7 +2,7 @@
 
 base_socket::base_socket(std::string &rhost, std::string &rport,
                          __socket_type socktype)
-    : rhost{rhost}, rport{rport} {
+    : rhost{std::move(rhost)}, rport{std::move(rport)} {
 
   bzero(&hints, sizeof(hints));
   hints.ai_family = AF_UNSPEC;
@@ -15,8 +15,9 @@ ssize_t base_socket::write(const char *str, size_t len) {
 
 bool base_socket::open() {
   addrinfo *p{};
-  int rc{getaddrinfo(rhost.c_str(), rport.c_str(), &hints, &servinfo)};
-  if (rc != 0) {
+
+  if (int rc{getaddrinfo(rhost.c_str(), rport.c_str(), &hints, &servinfo)};
+      rc != 0) {
     spdlog::get("logger")->error("getaddrinfo: {0}", gai_strerror(rc));
     exit(EXIT_FAILURE);
   }

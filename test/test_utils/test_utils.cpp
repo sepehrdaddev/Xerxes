@@ -1,13 +1,10 @@
 #define CATCH_CONFIG_MAIN
 
-#include <utils.h>
+#include "stdafx.h"
 
 #include <catch.hpp>
-#include <iostream>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
-#include <string>
-#include <vector>
+#include <regex>
+#include <utils.h>
 
 std::vector<std::string> split(const std::string &s, char delimiter) {
   std::vector<std::string> tokens;
@@ -38,11 +35,11 @@ TEST_CASE("test utils random ip") {
   std::string temp{};
   std::vector<std::string> temp_vec{};
   for (int i = 0; i < 10000; ++i) {
+    std::regex re("^[1-9][0-9]{0,2}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
     utils::randomizer::randomIP(temp);
     temp_vec = split(temp, '.');
-    REQUIRE(temp_vec.size() == 4);
     for (auto &val : temp_vec) {
-      REQUIRE(utils::to_int(val) > 0);
+      REQUIRE(std::regex_match(temp, re));
       REQUIRE(utils::to_int(val) < 256);
     }
 

@@ -15,7 +15,6 @@ int http_flood::gen_hdr(std::string &string) {
   utils::randomizer::randomstr(hdr.cookie[0]);
   utils::randomizer::randomstr(hdr.cookie[1]);
   http::hdr_gen(hdr, string);
-  string += "\r\n";
   return static_cast<int>(string.length());
 }
 

@@ -14,10 +14,8 @@ int randomInt(int min, int max) {
 }
 
 void randomIP(std::string &src) {
-  src = std::to_string(randomInt(1, 255)) + "." +
-        std::to_string(randomInt(1, 255)) + "." +
-        std::to_string(randomInt(1, 255)) + "." +
-        std::to_string(randomInt(1, 255));
+  src = fmt::format("{}.{}.{}.{}", randomInt(1, 255), randomInt(0, 255),
+                    randomInt(0, 255), randomInt(0, 255));
 }
 
 int randomPort() {

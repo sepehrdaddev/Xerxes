@@ -5,17 +5,16 @@
 #include <algorithm>
 #include <args.hxx>
 #include <csignal>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
 
-const char *__author__ = "Sepehrdad Sh";
-const char *__license__ = "GPLv3";
-const char *__version__ = "2.0beta";
-const char *__project__ = "Xerxes enhanced";
+const std::string __author__ = "Sepehrdad Sh", __license__ = "GPLv3",
+                  __version__ = "v2.0beta", __project__ = "Xerxes enhanced";
 
-void version() { printf("%s v%s\n", __project__, __version__); }
+void version() { fmt::print("{} {}\n", __project__, __version__); }
 
-void banner() { printf("--==[ %s by %s ]==--\n\n", __project__, __author__); }
+void banner() {
+  fmt::print(fg(fmt::color::red) | fmt::emphasis::bold,
+             "--==[ {} by {} ]==--\n\n", __project__, __author__);
+}
 
 void print_vectors() {
   static const std::vector<std::string> __str_vectors__{
@@ -24,10 +23,10 @@ void print_vectors() {
       "Teardrop",   "Blacknurse", "Land",      "Smurf",     "ACK PSH Flood",
       "RST Flood"};
 
-  puts("available vectors:");
+  fmt::print("available vectors:\n");
 
   for (size_t i = 0; i < __str_vectors__.size(); ++i)
-    printf("    > %ld  - %s\n", i, __str_vectors__[i].c_str());
+    fmt::print("    > {}   - {}\n", i, __str_vectors__[i]);
 }
 
 void exit_signal(int) { exit(EXIT_SUCCESS); }
@@ -88,7 +87,7 @@ int main(int argc, const char *argv[]) {
   args::Flag randomize_port(parser, "randomize lport",
                             "enable local port randomization", {"rand-lport"});
 
-  args::Flag daemonize(parser, "daemonize", "daemonize", {"daemonize"});
+  args::Flag daemonize(parser, "daemonize", "daemonize", {'D', "daemonize"});
 
   spdlog::stdout_color_mt("logger");
   spdlog::set_pattern("[%^%l%$] %v");
