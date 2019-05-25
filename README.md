@@ -10,15 +10,6 @@
 
 Dos tool with multiple vectors available for stress testing internet services.
 
-**Features:**
-
-- TLS Support
-- HTTP header randomization
-- Useragent randomization
-- Multiprocessing support
-- Multiple Attack vectors
-- etc...
-
 ## Usage
 
 ```
@@ -47,10 +38,6 @@ $ ./Xerxes -H
       --rand-lport                      enable local port randomization
       --daemonize                       daemonize
 ```
-
-## Questions ?
-
-If you have any questions feel free to visit our <a href="https://github.com/sepehrdaddev/Xerxes/wiki">Wiki page</a>
 
 ## License
 
