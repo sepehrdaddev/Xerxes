@@ -8,11 +8,9 @@
 [![Platform: Linux](https://img.shields.io/badge/Platform-Linux-blue.svg)](https://www.linux.org/)
 [![Version: 2.0beta](https://img.shields.io/badge/Version-2.0beta-blue.svg)](https://github.com/sepehrdaddev/Xerxes.git)
 
-Xerxes dos tool enhanced with many features for stress testing.
+Dos tool with multiple vectors available for stress testing internet services.
 
-## Features
-
-**Xerxes has many features, some of these features are:**
+**Features:**
 
 - TLS Support
 - HTTP header randomization
@@ -20,8 +18,6 @@ Xerxes dos tool enhanced with many features for stress testing.
 - Multiprocessing support
 - Multiple Attack vectors
 - etc...
-
-Not only that but also we are aggressively developing it and adding a lot more features and functionalities.
 
 ## Usage
 

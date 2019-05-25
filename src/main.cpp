@@ -18,10 +18,15 @@ void banner() {
 
 void print_vectors() {
   static const std::vector<std::string> __str_vectors__{
-      "NULL TCP",   "NULL UDP",   "TCP Flood", "UDP Flood", "HTTP Flood",
-      "ICMP Flood", "SYN Flood",  "ACK Flood", "FIN Flood", "Spoofed UDP Flood",
-      "Teardrop",   "Blacknurse", "Land",      "Smurf",     "ACK PSH Flood",
-      "RST Flood"};
+      "NULL TCP",      "NULL UDP",
+      "TCP Flood",     "UDP Flood",
+      "HTTP Flood",    "ICMP Flood",
+      "SYN Flood",     "ACK Flood",
+      "FIN Flood",     "Spoofed UDP Flood",
+      "Teardrop",      "Blacknurse",
+      "Land",          "Smurf",
+      "ACK PSH Flood", "RST Flood",
+      "SYN ACK Flood", "XMAS Flood"};
 
   fmt::print("available vectors:\n");
 

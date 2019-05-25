@@ -13,9 +13,11 @@
 #include "rst_flood.h"
 #include "smurf.h"
 #include "spoofed_udp_flood.h"
+#include "syn_ack.h"
 #include "syn_flood.h"
 #include "tcp_flood.h"
 #include "teardrop.h"
 #include "udp_flood.h"
+#include "xmas_flood.h"
 
 #endif // XERXES_VECTORS_H

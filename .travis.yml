@@ -19,7 +19,6 @@ script:
   - CORES=$(grep -c ^processor /proc/cpuinfo)
   - CXX=/usr/bin/g++-8 CC=/usr/bin/gcc-8 cmake -DBUILD_TESTING=TRUE .
   - make -j $CORES -l $CORES
-  - make test -j $CORES -l $CORES
 
 # safelist
 branches:

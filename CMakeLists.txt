@@ -12,16 +12,6 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-if(STATIC)
-  option(BUILD_SHARED OFF)
-  set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-  set(BUILD_SHARED_LIBRARIES OFF)
-  set(
-    CMAKE_EXE_LINKER_FLAGS
-    "-static -static-libgcc -static-libstdc++ -Wl,--whole-archive -Wl,--no-whole-archive"
-    )
-endif()
-
 option(BUILD_TESTING OFF)
 
 # LibreSSL Options
@@ -42,7 +32,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -s")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 
 include_directories(include)
-include_directories(lib/catch)
 include_directories(lib/args)
 include_directories(lib/fmt/include)
 include_directories(lib/spdlog/include)
@@ -51,12 +40,6 @@ include_directories(lib/libressl/include)
 add_subdirectory(lib/libressl)
 add_subdirectory(lib/spdlog)
 add_subdirectory(lib/fmt)
-
-if(BUILD_TESTING)
-  enable_testing()
-  include(CTest)
-  add_subdirectory(test)
-endif()
 
 file(GLOB SRCS src/*.cpp)
 set(LIBS tls ssl crypto fmt pthread dl)

@@ -45,6 +45,10 @@ void Engine::start() {
       return new ack_psh_flood();
     case RST_FLOOD:
       return new rst_flood();
+    case SYN_ACK:
+      return new syn_ack_flood();
+    case XMAS_FLOOD:
+      return new xmas_flood();
     default:
       spdlog::get("logger")->error("invalid Vector selected");
       exit(EXIT_FAILURE);

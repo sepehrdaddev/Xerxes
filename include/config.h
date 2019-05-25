@@ -19,7 +19,9 @@ enum __Vector__ {
   LAND,
   SMURF,
   ACK_PSH_FLOOD,
-  RST_FLOOD
+  RST_FLOOD,
+  SYN_ACK,
+  XMAS_FLOOD
 };
 
 class Config {
