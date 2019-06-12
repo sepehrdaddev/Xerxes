@@ -1,6 +1,6 @@
-#include "base_flood.h"
-#include "ssocket.h"
-#include "utils.h"
+#include "base_flood.hpp"
+#include "ssocket.hpp"
+#include "utils.hpp"
 
 base_flood::base_flood(int sock_type) : sock_type{sock_type} {}
 

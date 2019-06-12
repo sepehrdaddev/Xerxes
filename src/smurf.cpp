@@ -1,4 +1,4 @@
-#include "smurf.h"
+#include "smurf.hpp"
 
 #include <arpa/inet.h>
 

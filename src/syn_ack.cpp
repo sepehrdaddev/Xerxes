@@ -1,4 +1,4 @@
-#include "syn_ack.h"
+#include "syn_ack.hpp"
 
 syn_ack_flood::syn_ack_flood() : spoofed_tcp_flood() {}
 

@@ -1,6 +1,6 @@
-#include "engine.h"
-#include "utils.h"
-#include "vectors.h"
+#include "engine.hpp"
+#include "utils.hpp"
+#include "vectors.hpp"
 
 #include <memory>
 #include <unistd.h>

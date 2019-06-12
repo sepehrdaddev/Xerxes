@@ -1,4 +1,4 @@
-#include "tcp_flood.h"
+#include "tcp_flood.hpp"
 
 #include <arpa/inet.h>
 

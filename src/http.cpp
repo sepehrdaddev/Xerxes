@@ -1,5 +1,5 @@
-#include "http.h"
-#include "stdafx.h"
+#include "http.hpp"
+#include "stdafx.hpp"
 
 #include <algorithm>
 #include <fstream>

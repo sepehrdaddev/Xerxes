@@ -1,6 +1,6 @@
-#include "spoofed_udp_flood.h"
-#include "stdafx.h"
-#include "utils.h"
+#include "spoofed_udp_flood.hpp"
+#include "stdafx.hpp"
+#include "utils.hpp"
 
 spoofed_udp_flood::spoofed_udp_flood() : base_spoofed_flood(IPPROTO_UDP) {}
 

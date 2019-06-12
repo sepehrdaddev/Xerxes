@@ -1,4 +1,4 @@
-#include "xmas_flood.h"
+#include "xmas_flood.hpp"
 
 xmas_flood::xmas_flood() : spoofed_tcp_flood() {}
 

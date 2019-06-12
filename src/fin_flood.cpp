@@ -1,4 +1,4 @@
-#include "fin_flood.h"
+#include "fin_flood.hpp"
 
 fin_flood::fin_flood() : spoofed_tcp_flood() {}
 

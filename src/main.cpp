@@ -1,6 +1,6 @@
-#include "engine.h"
-#include "stdafx.h"
-#include "utils.h"
+#include "engine.hpp"
+#include "stdafx.hpp"
+#include "utils.hpp"
 
 #include <algorithm>
 #include <args.hxx>

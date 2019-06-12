@@ -1,6 +1,6 @@
-#include "spoofed_tcp_flood.h"
-#include "stdafx.h"
-#include "utils.h"
+#include "spoofed_tcp_flood.hpp"
+#include "stdafx.hpp"
+#include "utils.hpp"
 
 spoofed_tcp_flood::spoofed_tcp_flood() : base_spoofed_flood(IPPROTO_TCP) {}
 

@@ -1,5 +1,5 @@
-#include "socket.h"
-#include "stdafx.h"
+#include "socket.hpp"
+#include "stdafx.hpp"
 
 #include <netdb.h>
 #include <unistd.h>

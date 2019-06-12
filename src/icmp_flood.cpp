@@ -1,6 +1,6 @@
-#include "icmp_flood.h"
-#include "stdafx.h"
-#include "utils.h"
+#include "icmp_flood.hpp"
+#include "stdafx.hpp"
+#include "utils.hpp"
 
 icmp_flood::icmp_flood() : base_spoofed_flood(IPPROTO_ICMP) {}
 

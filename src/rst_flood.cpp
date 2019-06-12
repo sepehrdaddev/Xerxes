@@ -1,4 +1,4 @@
-#include "rst_flood.h"
+#include "rst_flood.hpp"
 
 rst_flood::rst_flood() : spoofed_tcp_flood() {}
 

@@ -1,5 +1,5 @@
-#include "base_spoofed_flood.h"
-#include "utils.h"
+#include "base_spoofed_flood.hpp"
+#include "utils.hpp"
 
 base_spoofed_flood::base_spoofed_flood(int protocol) : proto{protocol} {
   hdr_len = [&]() {

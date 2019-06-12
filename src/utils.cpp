@@ -1,5 +1,5 @@
-#include "utils.h"
-#include "stdafx.h"
+#include "utils.hpp"
+#include "stdafx.hpp"
 
 #include <random>
 

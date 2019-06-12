@@ -1,5 +1,5 @@
-#include "rsocket.h"
-#include "stdafx.h"
+#include "rsocket.hpp"
+#include "stdafx.hpp"
 
 #include <arpa/inet.h>
 #include <unistd.h>

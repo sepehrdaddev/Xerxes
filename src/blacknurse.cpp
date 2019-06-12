@@ -1,4 +1,4 @@
-#include "blacknurse.h"
+#include "blacknurse.hpp"
 
 blacknurse::blacknurse() : icmp_flood() {}
 

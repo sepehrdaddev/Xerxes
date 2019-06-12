@@ -1,5 +1,5 @@
-#include "ssocket.h"
-#include "stdafx.h"
+#include "ssocket.hpp"
+#include "stdafx.hpp"
 
 #include <sys/socket.h>
 

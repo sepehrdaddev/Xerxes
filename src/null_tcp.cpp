@@ -1,4 +1,4 @@
-#include "null_tcp.h"
+#include "null_tcp.hpp"
 
 null_tcp::null_tcp() : tcp_flood() {}
 

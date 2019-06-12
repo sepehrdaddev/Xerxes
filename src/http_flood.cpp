@@ -1,5 +1,5 @@
-#include "http_flood.h"
-#include "http.h"
+#include "http_flood.hpp"
+#include "http.hpp"
 
 int http_flood::gen_hdr(std::string &string) {
   httphdr hdr{};

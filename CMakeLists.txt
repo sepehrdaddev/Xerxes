@@ -49,7 +49,7 @@ target_link_libraries(Xerxes ${LIBS})
 
 include(PCH)
 add_precompiled_header(Xerxes
-                       include/stdafx.h
+                       include/stdafx.hpp
                        SOURCE_CXX
                        src/stdafx.cpp
                        FORCEINCLUDE)
