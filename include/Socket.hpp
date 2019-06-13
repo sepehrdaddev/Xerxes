@@ -75,7 +75,7 @@ protected:
   sockaddr_in dst{};
   std::string rhost{}, rport{};
   u_int8_t proto{};
-  int fd{}, on{1};
+  int fd{}, on{1}, hdr_len{8192};
 
 public:
   base_raw_socket(std::string &rhost, std::string &rport, u_int8_t proto)
@@ -207,7 +207,9 @@ public:
 class icmp : public base_raw_socket {
 public:
   icmp(std::string &rhost, std::string &rport)
-      : base_raw_socket(rhost, rport, IPPROTO_ICMP) {}
+      : base_raw_socket(rhost, rport, IPPROTO_ICMP) {
+    hdr_len = 400;
+  }
 
   virtual ~icmp() = default;
 };

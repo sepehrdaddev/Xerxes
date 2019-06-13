@@ -68,7 +68,7 @@ void hdr_gen(httphdr &hdr, std::string &str) {
                     hdr.cookie[0], hdr.cookie[1]);
 }
 
-void random_hdr(std::string &str) {}
+void random_hdr(std::string &) {}
 
 void load_usr(std::vector<std::string> &useragents) {
   std::ifstream filestream("useragents");
