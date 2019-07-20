@@ -3,6 +3,7 @@
 
 #include "base_spoofed_flood.hpp"
 
+#define __FAVOR_BSD
 #include <netinet/ip.h>
 #include <netinet/udp.h>
 
@@ -24,6 +25,16 @@ protected:
     u_int16_t len = 0;
     udphdr udp;
   };
+};
+
+class teardrop : public spoofed_udp_flood {
+
+public:
+  teardrop();
+  ~teardrop() = default;
+
+protected:
+  void finalize_hdr(udphdr *udp, iphdr *ip) override;
 };
 
 #endif // XERXES_SPOOFED_UDP_FLOOD_H

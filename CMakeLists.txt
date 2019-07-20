@@ -42,7 +42,13 @@ add_subdirectory(lib/spdlog)
 add_subdirectory(lib/fmt)
 
 file(GLOB SRCS src/*.cpp)
-set(LIBS tls ssl crypto fmt pthread dl)
+set(LIBS
+    tls
+    ssl
+    crypto
+    fmt
+    pthread
+    dl)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_executable(Xerxes ${SRCS})
 target_link_libraries(Xerxes ${LIBS})
