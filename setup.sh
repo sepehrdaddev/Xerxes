@@ -2,6 +2,8 @@
 
 # Installation Shell Script (To make life easier) must be sudo
 # By: @Nat-As <jandrews7348@floridapoly.edu>
+
+clear
 cat << EOF      
 
 ██╗  ██╗███████╗██████╗ ██╗  ██╗███████╗███████╗
@@ -21,13 +23,18 @@ read pauser
 printf "\033[1;33m Compiling File... \033[0m\n"
 
 function compile(){
-    cd ..
     mkdir Xerxes
-    cmake -S Xerxes-master -B Xerxes
+    sudo cmake -S Xerxes-master/ -B Xerxes .
+}
+
+function cleanup(){
+    rm -r Xerxes || printf "\033[0;31mCleanup Failed!\033[0m\n"
+    exit 0
 }
 
 function compilationerr(){
-    echo Failed to compile!!!
+    printf "\033[0;31mCompilation Failed!\033[0m\n"
+    cleanup
 }
 
 compile || compilationerr
@@ -35,11 +42,12 @@ compile || compilationerr
 printf "\033[1;33m Building File... \033[0m\n"
 
 function Build(){
-    sudo docker build -f Documents/Xerxes-master/Dockerfile .
+    cd Xerxes/bin
+    sudo docker build -f Dockerfile .
 }
 
 function BuildErr(){
-    echo Build Failed!
+    printf "\033[0;31mBuild Failed!\033[0m\n"
 }
 
 Build || BuildErr
