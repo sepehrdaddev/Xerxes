@@ -20,15 +20,30 @@ printf "Make sure you are running this with \033[1;33m./setupsh\033[0m and not \
 printf "Press any key to continue..."
 read pauser
 
+function checklib(){
+    printf "Checking file system...\n"
+    ls lib/fmt/include
+    ls lib/libressl/include
+    ls lib/spdlog/include
+}
+
+function checkliberr(){
+    printf "\033[0;31mFailed to check libraries!\033[0m\n"
+    printf "\033[0;31mPlease make sure all the contents in the lib folder were cloned from git!\033[0m\n"
+    exit 0
+}
+checklib || checkliberr
+
 printf "\033[1;33m Compiling File... \033[0m\n"
 
 function compile(){
     mkdir Xerxes
-    sudo cmake -S Xerxes-master/ -B Xerxes .
+    cd ..
+    sudo cmake -S Xerxes-master -B Xerxes-master/Xerxes .
 }
 
 function cleanup(){
-    rm -r Xerxes || printf "\033[0;31mCleanup Failed!\033[0m\n"
+    rm -r Xerxes-master/Xerxes || printf "\033[0;31mCleanup Failed!\033[0m\n"
     exit 0
 }
 
