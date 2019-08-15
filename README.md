@@ -8,7 +8,10 @@
 [![Platform: Linux](https://img.shields.io/badge/Platform-Linux-blue.svg)](https://www.linux.org/)
 [![Version: 2.0beta](https://img.shields.io/badge/Version-2.0beta-blue.svg)](https://github.com/sepehrdaddev/Xerxes.git)
 
-Dos tool with multiple vectors available for stress testing internet services.
+Dos tool with multiple vectors available for stress testing internet services. Includes docker support with threading!
+## Installation
+### Build
+1. ```sudo docker build -f Documents/Xerxes-master/Dockerfile .```
 
 ## Usage
 
