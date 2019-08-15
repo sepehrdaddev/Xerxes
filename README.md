@@ -10,11 +10,13 @@
 
 Dos tool with multiple vectors available for stress testing internet services. Includes docker support with threading!
 ## Installation
-### Build
+### Requirements
 1. Install cmake: ```sudo apt install cmake```
 2. Install docker-ce if you don't already have it. https://docs.docker.com/install/linux/docker-ce/ubuntu/
-3. Install Xerxes: ```./setup.sh```
-10. ```sudo docker build -f Documents/Xerxes-master/Dockerfile .```
+
+### Build
+1. Install Xerxes: ```./setup.sh```
+2. ```sudo docker build -f Documents/Xerxes-master/Dockerfile .```
 
 ## Usage
 
