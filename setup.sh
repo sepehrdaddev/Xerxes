@@ -34,12 +34,18 @@ function checkliberr(){
 }
 checklib || checkliberr
 
+function installcmake(){
+    printf "\033[1;33m Cmake not found! Installing it for you... \033[0m\n"
+    sudo apt install cmake
+    sudo cmake -S Xerxes-master -B Xerxes-master/Xerxes .
+}
+
 printf "\033[1;33m Compiling File... \033[0m\n"
 
 function compile(){
     mkdir Xerxes
     cd ..
-    sudo cmake -S Xerxes-master -B Xerxes-master/Xerxes .
+    sudo cmake -S Xerxes-master -B Xerxes-master/Xerxes . || installcmake
 }
 
 function cleanup(){
