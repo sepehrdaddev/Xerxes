@@ -63,7 +63,7 @@ compile || compilationerr
 printf "\033[1;33m Building File... \033[0m\n"
 
 function Build(){
-    cd Xerxes/bin
+    cd Xerxes-master/Xerxes/bin
     sudo docker build -f Dockerfile .
 }
 
