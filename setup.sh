@@ -62,9 +62,35 @@ compile || compilationerr
 
 printf "\033[1;33m Building File... \033[0m\n"
 
+function installcurl(){
+    printf "\033[1;33m Curl not found! Installing it for you... \033[0m\n"
+    sudo apt install curl
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+}
+
+function installdocker(){
+    printf "\033[1;33m Docker not found! Installing it for you... \033[0m\n"
+    sudo apt-get remove docker docker-engine docker.io containerd runc
+    sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - || installcurl
+    sudo apt-key fingerprint 0EBFCD88
+    sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+    sudo apt-get update
+    sudo apt-get install docker-ce docker-ce-cli containerd.io
+    sudo docker build -f Dockerfile . || printf "\033[0;31mInstalling Docker Failed! Please install it yourself.\033[0m\n"
+
+}
 function Build(){
     cd Xerxes-master/Xerxes/bin
-    sudo docker build -f Dockerfile .
+    sudo docker build -f Dockerfile . || installdocker
 }
 
 function BuildErr(){
