@@ -89,8 +89,9 @@ function installdocker(){
 
 }
 function Build(){
+    sudo docker image ls || installdocker #Not having Docker installed is not the only cause of errors for the next build step.
     cd Xerxes-master/Xerxes/bin
-    sudo docker build -f Dockerfile . || installdocker
+    sudo docker build -f Dockerfile . || printf "\033[0;31mDocker build Failed!\033[0m\n"
 }
 
 function BuildErr(){
