@@ -46,6 +46,10 @@ function compile(){
     mkdir Xerxes
     cd ..
     sudo cmake -S Xerxes-master -B Xerxes-master/Xerxes . || installcmake
+    cd Xerxes-master/Xerxes
+    make
+    cd ..
+    cd ..
 }
 
 function cleanup(){
@@ -99,3 +103,5 @@ function BuildErr(){
 }
 
 Build || BuildErr
+#Report Results
+sudo docker image ls
