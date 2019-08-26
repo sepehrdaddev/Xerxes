@@ -16,7 +16,6 @@ Dos tool with multiple vectors available for stress testing internet services. I
 
 ### Build
 1. Install Xerxes: ```./setup.sh```
-2. ```sudo docker build -f Documents/Xerxes-master/Dockerfile .```
 
 ## Usage
 
