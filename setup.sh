@@ -47,7 +47,7 @@ function compile(){
     cd ..
     sudo cmake -S Xerxes-master -B Xerxes-master/Xerxes . || installcmake
     cd Xerxes-master/Xerxes
-    make
+    sudo make
     cd ..
     cd ..
 }
