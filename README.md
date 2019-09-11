@@ -2,13 +2,20 @@
 
 # Xerxes
 
-[![Build Status](https://travis-ci.org/sepehrdaddev/Xerxes.svg?branch=master)](https://travis-ci.org/sepehrdaddev/Xerxes)
+[![Build Status](https://travis-ci.com/Nat-As/Xerxes.svg?branch=master)](https://travis-ci.com/Nat-As/Xerxes)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![SSL: LibreSSL v2.9.1](https://img.shields.io/badge/SSL-LibreSSL%20v2.9.1-green.svg)](https://www.libressl.org/)
 [![Platform: Linux](https://img.shields.io/badge/Platform-Linux-blue.svg)](https://www.linux.org/)
 [![Version: 2.0beta](https://img.shields.io/badge/Version-2.0beta-blue.svg)](https://github.com/sepehrdaddev/Xerxes.git)
 
-Dos tool with multiple vectors available for stress testing internet services.
+Dos tool with multiple vectors available for stress testing internet services. Includes docker support with threading!
+## Installation
+### Requirements
+1. Install cmake: ```sudo apt install cmake```
+2. Install docker-ce if you don't already have it. https://docs.docker.com/install/linux/docker-ce/ubuntu/
+
+### Build
+1. Install Xerxes: ```./setup.sh```
 
 ## Usage
 
