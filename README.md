@@ -2,7 +2,7 @@
 
 # Xerxes
 
-[![Build Status](https://travis-ci.org/sepehrdaddev/Xerxes.svg?branch=master)](https://travis-ci.org/sepehrdaddev/Xerxes)
+[![Build Status](https://travis-ci.com/Nat-As/Xerxes.svg?branch=master)](https://travis-ci.com/Nat-As/Xerxes)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![SSL: LibreSSL v2.9.1](https://img.shields.io/badge/SSL-LibreSSL%20v2.9.1-green.svg)](https://www.libressl.org/)
 [![Platform: Linux](https://img.shields.io/badge/Platform-Linux-blue.svg)](https://www.linux.org/)
