@@ -68,7 +68,7 @@ python -m SimpleHTTPServer 9000
 * Use Xerses to DoS the server
 
 ```bash
-./Xerses -h 127.0.0.1 -p 9000
+./bin/Xersxs -h 127.0.0.1 -p 9000
 ```
 
 * Try reaching `localhost:9000` on the browser to confirm if DoS is working
