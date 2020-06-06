@@ -39,6 +39,41 @@ $ ./Xerxes -H
       --daemonize                       daemonize
 ```
 
+## Installation
+
+* Build tools installation
+
+```bash
+sudo apt-get -y install build-essential cmake libssl-dev pkgconf
+```
+
+* Building from source 
+
+```bash
+git clone --recursive https://github.com/sepehrdaddev/Xerxes
+cd Xerxes
+mkdir build && cd build
+cmake ..
+make -j `nproc`
+```
+
+## Testing
+
+* Spin up a python server
+
+```bash
+python -m SimpleHTTPServer 9000
+```
+
+* Use Xerses to DoS the server
+
+```bash
+./bin/Xersxs -h 127.0.0.1 -p 9000
+```
+
+* Try reaching `localhost:9000` on the browser to confirm if DoS is working
+
+
 ## License
 
 This software is distributed under the GNU General Public License version 3 (GPLv3)
